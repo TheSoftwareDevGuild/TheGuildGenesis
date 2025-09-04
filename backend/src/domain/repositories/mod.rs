@@ -5,3 +5,4 @@ pub mod badge_repository;
 pub use user_repository::UserRepository;
 pub use profile_repository::ProfileRepository;
 pub use badge_repository::BadgeRepository;
+

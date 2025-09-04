@@ -34,3 +34,4 @@ impl From<WalletAddress> for String {
         addr.0
     }
 }
+

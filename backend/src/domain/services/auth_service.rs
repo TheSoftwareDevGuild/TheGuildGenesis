@@ -1,20 +1,22 @@
-use crate::domain::value_objects::{nonce::Nonce, wallet_address::WalletAddress};
+use async_trait::async_trait;
+use uuid::Uuid;
 
-pub struct AuthService;
+use crate::domain::value_objects::wallet_address::WalletAddress;
 
-impl AuthService {
-    pub fn generate_nonce(&self) -> Nonce {
-        Nonce::new()
-    }
-    
-    pub fn validate_wallet_address(&self, address: &str) -> Result<WalletAddress, String> {
-        WalletAddress::new(address.to_string())
-    }
-    
-    // TODO: Implement SIWE verification logic
-    pub fn verify_siwe_message(&self, message: &str, signature: &str, address: &WalletAddress) -> Result<bool, String> {
-        // Placeholder implementation
-        // In a real implementation, this would verify the SIWE message signature
-        Ok(true)
-    }
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AuthChallenge {
+    pub nonce: String,
+    pub message: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AuthResult {
+    pub user_id: Uuid,
+    pub wallet_address: WalletAddress,
+}
+
+#[async_trait]
+pub trait AuthService: Send + Sync {
+    async fn create_challenge(&self, wallet_address: &WalletAddress) -> Result<AuthChallenge, Box<dyn std::error::Error>>;
+    async fn verify_signature(&self, challenge: &AuthChallenge, signature: &str) -> Result<AuthResult, Box<dyn std::error::Error>>;
 }

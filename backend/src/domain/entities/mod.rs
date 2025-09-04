@@ -5,3 +5,4 @@ pub mod badge;
 pub use user::User;
 pub use profile::Profile;
 pub use badge::{Badge, UserBadge};
+

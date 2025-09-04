@@ -19,25 +19,25 @@ impl PostgresUserRepository {
 
 #[async_trait]
 impl UserRepository for PostgresUserRepository {
-    async fn create(&self, user: User) -> Result<User, String> {
-        sqlx::query!(
+    async fn create(&self, user: &User) -> Result<(), Box<dyn std::error::Error>> {
+        sqlx::query(
             r#"
             INSERT INTO users (id, wallet_address, created_at, updated_at)
             VALUES ($1, $2, $3, $4)
-            "#,
-            user.id,
-            user.wallet_address,
-            user.created_at,
-            user.updated_at
+            "#
         )
+        .bind(&user.id)
+        .bind(&user.wallet_address)
+        .bind(&user.created_at)
+        .bind(&user.updated_at)
         .execute(&self.pool)
         .await
-        .map_err(|e| format!("Failed to create user: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
-        Ok(user)
+        Ok(())
     }
     
-    async fn find_by_id(&self, id: Uuid) -> Result<Option<User>, String> {
+    async fn find_by_id(&self, id: &Uuid) -> Result<Option<User>, Box<dyn std::error::Error>> {
         let row = sqlx::query!(
             r#"
             SELECT id, wallet_address, created_at, updated_at
@@ -48,7 +48,7 @@ impl UserRepository for PostgresUserRepository {
         )
         .fetch_optional(&self.pool)
         .await
-        .map_err(|e| format!("Failed to find user by id: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
         Ok(row.map(|r| User {
             id: r.id,
@@ -58,18 +58,18 @@ impl UserRepository for PostgresUserRepository {
         }))
     }
     
-    async fn find_by_wallet_address(&self, address: &WalletAddress) -> Result<Option<User>, String> {
+    async fn find_by_wallet_address(&self, address: &str) -> Result<Option<User>, Box<dyn std::error::Error>> {
         let row = sqlx::query!(
             r#"
             SELECT id, wallet_address, created_at, updated_at
             FROM users
             WHERE wallet_address = $1
             "#,
-            address.as_str()
+            address
         )
         .fetch_optional(&self.pool)
         .await
-        .map_err(|e| format!("Failed to find user by wallet address: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
         Ok(row.map(|r| User {
             id: r.id,
@@ -79,7 +79,7 @@ impl UserRepository for PostgresUserRepository {
         }))
     }
     
-    async fn update(&self, user: User) -> Result<User, String> {
+    async fn update(&self, user: &User) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
             UPDATE users
@@ -92,12 +92,12 @@ impl UserRepository for PostgresUserRepository {
         )
         .execute(&self.pool)
         .await
-        .map_err(|e| format!("Failed to update user: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
-        Ok(user)
+        Ok(())
     }
     
-    async fn delete(&self, id: Uuid) -> Result<(), String> {
+    async fn delete(&self, id: &Uuid) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
             DELETE FROM users
@@ -107,7 +107,7 @@ impl UserRepository for PostgresUserRepository {
         )
         .execute(&self.pool)
         .await
-        .map_err(|e| format!("Failed to delete user: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
         Ok(())
     }

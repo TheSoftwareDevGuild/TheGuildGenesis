@@ -5,3 +5,4 @@ pub mod badge_service;
 pub use auth_service::AuthApplicationService;
 pub use profile_service::ProfileApplicationService;
 pub use badge_service::BadgeApplicationService;
+

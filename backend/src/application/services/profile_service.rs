@@ -24,17 +24,17 @@ impl ProfileApplicationService {
     }
     
     pub async fn get_profiles(&self) -> Result<ProfileListResponse, String> {
-        let profiles = self.profile_repository.find_all().await?;
+        let profiles = self.profile_repository.find_all().await.map_err(|e| e.to_string())?;
         let profile_responses: Vec<ProfileResponse> = profiles
             .into_iter()
             .map(|profile| ProfileResponse {
                 id: profile.id,
                 user_id: profile.user_id,
-                name: profile.name,
+                name: profile.name.unwrap_or_default(),
                 description: profile.description,
                 avatar_url: profile.avatar_url,
-                created_at: profile.created_at.to_rfc3339(),
-                updated_at: profile.updated_at.to_rfc3339(),
+                created_at: profile.created_at,
+                updated_at: profile.updated_at,
             })
             .collect();
         
@@ -44,79 +44,79 @@ impl ProfileApplicationService {
     }
     
     pub async fn get_profile(&self, address: String) -> Result<ProfileResponse, String> {
-        let wallet_address = WalletAddress::new(address)?;
+        let wallet_address = WalletAddress::new(address).map_err(|e| e.to_string())?;
         let user = self.user_repository
-            .find_by_wallet_address(&wallet_address)
-            .await?
+            .find_by_wallet_address(&wallet_address.to_string())
+            .await.map_err(|e| e.to_string())?
             .ok_or("User not found")?;
         
         let profile = self.profile_repository
-            .find_by_user_id(user.id)
-            .await?
+            .find_by_user_id(&user.id)
+            .await.map_err(|e| e.to_string())?
             .ok_or("Profile not found")?;
         
         Ok(ProfileResponse {
             id: profile.id,
             user_id: profile.user_id,
-            name: profile.name,
+            name: profile.name.unwrap_or_default(),
             description: profile.description,
             avatar_url: profile.avatar_url,
-            created_at: profile.created_at.to_rfc3339(),
-            updated_at: profile.updated_at.to_rfc3339(),
+            created_at: profile.created_at,
+            updated_at: profile.updated_at,
         })
     }
     
     pub async fn create_profile(&self, request: CreateProfileRequest) -> Result<ProfileResponse, String> {
-        let wallet_address = WalletAddress::new(request.address)?;
+        let wallet_address = WalletAddress::new(request.address).map_err(|e| e.to_string())?;
         let user = self.user_repository
-            .find_by_wallet_address(&wallet_address)
-            .await?
+            .find_by_wallet_address(&wallet_address.to_string())
+            .await.map_err(|e| e.to_string())?
             .ok_or("User not found")?;
         
         // Check if profile already exists
-        if self.profile_repository.find_by_user_id(user.id).await?.is_some() {
+        if self.profile_repository.find_by_user_id(&user.id).await.map_err(|e| e.to_string())?.is_some() {
             return Err("Profile already exists for this user".to_string());
         }
         
         let mut profile = crate::domain::entities::profile::Profile::new(user.id);
-        profile.update_info(request.name, request.description, request.avatar_url);
+        profile.update_info(Some(request.name), request.description, request.avatar_url);
         
-        let created_profile = self.profile_repository.create(profile).await?;
+        self.profile_repository.create(&profile).await.map_err(|e| e.to_string())?;
         
         Ok(ProfileResponse {
-            id: created_profile.id,
-            user_id: created_profile.user_id,
-            name: created_profile.name,
-            description: created_profile.description,
-            avatar_url: created_profile.avatar_url,
-            created_at: created_profile.created_at.to_rfc3339(),
-            updated_at: created_profile.updated_at.to_rfc3339(),
+            id: profile.id,
+            user_id: profile.user_id,
+            name: profile.name.unwrap_or_default(),
+            description: profile.description,
+            avatar_url: profile.avatar_url,
+            created_at: profile.created_at,
+            updated_at: profile.updated_at,
         })
     }
     
     pub async fn update_profile(&self, address: String, request: UpdateProfileRequest) -> Result<ProfileResponse, String> {
-        let wallet_address = WalletAddress::new(address)?;
+        let wallet_address = WalletAddress::new(address).map_err(|e| e.to_string())?;
         let user = self.user_repository
-            .find_by_wallet_address(&wallet_address)
-            .await?
+            .find_by_wallet_address(&wallet_address.to_string())
+            .await.map_err(|e| e.to_string())?
             .ok_or("User not found")?;
         
         let mut profile = self.profile_repository
-            .find_by_user_id(user.id)
-            .await?
+            .find_by_user_id(&user.id)
+            .await.map_err(|e| e.to_string())?
             .ok_or("Profile not found")?;
         
         profile.update_info(request.name, request.description, request.avatar_url);
-        let updated_profile = self.profile_repository.update(profile).await?;
+        self.profile_repository.update(&profile).await.map_err(|e| e.to_string())?;
         
         Ok(ProfileResponse {
-            id: updated_profile.id,
-            user_id: updated_profile.user_id,
-            name: updated_profile.name,
-            description: updated_profile.description,
-            avatar_url: updated_profile.avatar_url,
-            created_at: updated_profile.created_at.to_rfc3339(),
-            updated_at: updated_profile.updated_at.to_rfc3339(),
+            id: profile.id,
+            user_id: profile.user_id,
+            name: profile.name.unwrap_or_default(),
+            description: profile.description,
+            avatar_url: profile.avatar_url,
+            created_at: profile.created_at,
+            updated_at: profile.updated_at,
         })
     }
 }

@@ -34,3 +34,4 @@ impl Profile {
         self.updated_at = Utc::now();
     }
 }
+

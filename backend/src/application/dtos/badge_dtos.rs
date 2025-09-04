@@ -37,3 +37,4 @@ pub struct UserBadgeResponse {
     pub awarded_at: String,
     pub awarded_by: String,
 }
+

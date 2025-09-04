@@ -18,7 +18,7 @@ impl PostgresProfileRepository {
 
 #[async_trait]
 impl ProfileRepository for PostgresProfileRepository {
-    async fn create(&self, profile: Profile) -> Result<Profile, String> {
+    async fn create(&self, profile: &Profile) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
             INSERT INTO profiles (id, user_id, name, description, avatar_url, created_at, updated_at)
@@ -34,12 +34,12 @@ impl ProfileRepository for PostgresProfileRepository {
         )
         .execute(&self.pool)
         .await
-        .map_err(|e| format!("Failed to create profile: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
-        Ok(profile)
+        Ok(())
     }
     
-    async fn find_by_id(&self, id: Uuid) -> Result<Option<Profile>, String> {
+    async fn find_by_id(&self, id: &Uuid) -> Result<Option<Profile>, Box<dyn std::error::Error>> {
         let row = sqlx::query!(
             r#"
             SELECT id, user_id, name, description, avatar_url, created_at, updated_at
@@ -50,7 +50,7 @@ impl ProfileRepository for PostgresProfileRepository {
         )
         .fetch_optional(&self.pool)
         .await
-        .map_err(|e| format!("Failed to find profile by id: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
         Ok(row.map(|r| Profile {
             id: r.id,
@@ -63,7 +63,7 @@ impl ProfileRepository for PostgresProfileRepository {
         }))
     }
     
-    async fn find_by_user_id(&self, user_id: Uuid) -> Result<Option<Profile>, String> {
+    async fn find_by_user_id(&self, user_id: &Uuid) -> Result<Option<Profile>, Box<dyn std::error::Error>> {
         let row = sqlx::query!(
             r#"
             SELECT id, user_id, name, description, avatar_url, created_at, updated_at
@@ -74,7 +74,7 @@ impl ProfileRepository for PostgresProfileRepository {
         )
         .fetch_optional(&self.pool)
         .await
-        .map_err(|e| format!("Failed to find profile by user_id: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
         Ok(row.map(|r| Profile {
             id: r.id,
@@ -87,7 +87,7 @@ impl ProfileRepository for PostgresProfileRepository {
         }))
     }
     
-    async fn find_all(&self) -> Result<Vec<Profile>, String> {
+    async fn find_all(&self) -> Result<Vec<Profile>, Box<dyn std::error::Error>> {
         let rows = sqlx::query!(
             r#"
             SELECT id, user_id, name, description, avatar_url, created_at, updated_at
@@ -97,7 +97,7 @@ impl ProfileRepository for PostgresProfileRepository {
         )
         .fetch_all(&self.pool)
         .await
-        .map_err(|e| format!("Failed to find all profiles: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
         let profiles = rows
             .into_iter()
@@ -115,7 +115,7 @@ impl ProfileRepository for PostgresProfileRepository {
         Ok(profiles)
     }
     
-    async fn update(&self, profile: Profile) -> Result<Profile, String> {
+    async fn update(&self, profile: &Profile) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
             UPDATE profiles
@@ -130,12 +130,12 @@ impl ProfileRepository for PostgresProfileRepository {
         )
         .execute(&self.pool)
         .await
-        .map_err(|e| format!("Failed to update profile: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
-        Ok(profile)
+        Ok(())
     }
     
-    async fn delete(&self, id: Uuid) -> Result<(), String> {
+    async fn delete(&self, id: &Uuid) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
             DELETE FROM profiles
@@ -145,7 +145,7 @@ impl ProfileRepository for PostgresProfileRepository {
         )
         .execute(&self.pool)
         .await
-        .map_err(|e| format!("Failed to delete profile: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
         Ok(())
     }

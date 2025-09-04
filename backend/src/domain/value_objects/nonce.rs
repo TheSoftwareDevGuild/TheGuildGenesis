@@ -1,32 +1,29 @@
 use serde::{Deserialize, Serialize};
-use std::fmt;
 use uuid::Uuid;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct Nonce(String);
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Nonce {
+    value: String,
+}
 
 impl Nonce {
     pub fn new() -> Self {
-        Self(Uuid::new_v4().to_string())
+        Self {
+            value: Uuid::new_v4().to_string(),
+        }
     }
-    
-    pub fn from_string(nonce: String) -> Self {
-        Self(nonce)
+
+    pub fn from_string(value: String) -> Self {
+        Self { value }
     }
-    
-    pub fn as_str(&self) -> &str {
-        &self.0
+
+    pub fn value(&self) -> &str {
+        &self.value
     }
 }
 
-impl fmt::Display for Nonce {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
-impl From<Nonce> for String {
-    fn from(nonce: Nonce) -> Self {
-        nonce.0
+impl Default for Nonce {
+    fn default() -> Self {
+        Self::new()
     }
 }

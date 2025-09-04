@@ -18,7 +18,7 @@ impl PostgresBadgeRepository {
 
 #[async_trait]
 impl BadgeRepository for PostgresBadgeRepository {
-    async fn create_badge(&self, badge: Badge) -> Result<Badge, String> {
+    async fn create(&self, badge: &Badge) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
             INSERT INTO badges (id, name, description, issuer_address, image_url, created_at, updated_at)
@@ -34,12 +34,12 @@ impl BadgeRepository for PostgresBadgeRepository {
         )
         .execute(&self.pool)
         .await
-        .map_err(|e| format!("Failed to create badge: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
-        Ok(badge)
+        Ok(())
     }
     
-    async fn find_badge_by_id(&self, id: Uuid) -> Result<Option<Badge>, String> {
+    async fn find_by_id(&self, id: &Uuid) -> Result<Option<Badge>, Box<dyn std::error::Error>> {
         let row = sqlx::query!(
             r#"
             SELECT id, name, description, issuer_address, image_url, created_at, updated_at
@@ -50,7 +50,7 @@ impl BadgeRepository for PostgresBadgeRepository {
         )
         .fetch_optional(&self.pool)
         .await
-        .map_err(|e| format!("Failed to find badge by id: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
         Ok(row.map(|r| Badge {
             id: r.id,
@@ -63,7 +63,7 @@ impl BadgeRepository for PostgresBadgeRepository {
         }))
     }
     
-    async fn find_all_badges(&self) -> Result<Vec<Badge>, String> {
+    async fn find_all(&self) -> Result<Vec<Badge>, Box<dyn std::error::Error>> {
         let rows = sqlx::query!(
             r#"
             SELECT id, name, description, issuer_address, image_url, created_at, updated_at
@@ -73,7 +73,7 @@ impl BadgeRepository for PostgresBadgeRepository {
         )
         .fetch_all(&self.pool)
         .await
-        .map_err(|e| format!("Failed to find all badges: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
         let badges = rows
             .into_iter()
@@ -91,7 +91,7 @@ impl BadgeRepository for PostgresBadgeRepository {
         Ok(badges)
     }
     
-    async fn update_badge(&self, badge: Badge) -> Result<Badge, String> {
+    async fn update(&self, badge: &Badge) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
             UPDATE badges
@@ -107,12 +107,12 @@ impl BadgeRepository for PostgresBadgeRepository {
         )
         .execute(&self.pool)
         .await
-        .map_err(|e| format!("Failed to update badge: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
-        Ok(badge)
+        Ok(())
     }
     
-    async fn delete_badge(&self, id: Uuid) -> Result<(), String> {
+    async fn delete(&self, id: &Uuid) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
             DELETE FROM badges
@@ -122,12 +122,40 @@ impl BadgeRepository for PostgresBadgeRepository {
         )
         .execute(&self.pool)
         .await
-        .map_err(|e| format!("Failed to delete badge: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
         Ok(())
     }
     
-    async fn award_badge(&self, user_badge: UserBadge) -> Result<UserBadge, String> {
+    async fn find_badge_users(&self, badge_id: &Uuid) -> Result<Vec<crate::domain::repositories::badge_repository::UserBadge>, Box<dyn std::error::Error>> {
+        let rows = sqlx::query!(
+            r#"
+            SELECT ub.id, ub.user_id, ub.badge_id, ub.awarded_at, ub.awarded_by
+            FROM user_badges ub
+            WHERE ub.badge_id = $1
+            ORDER BY ub.awarded_at DESC
+            "#,
+            badge_id
+        )
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+        
+        let user_badges = rows
+            .into_iter()
+            .map(|r| crate::domain::repositories::badge_repository::UserBadge {
+                id: r.id,
+                user_id: r.user_id,
+                badge_id: r.badge_id,
+                awarded_at: r.awarded_at,
+                awarded_by: r.awarded_by,
+            })
+            .collect();
+        
+        Ok(user_badges)
+    }
+    
+    async fn award_badge(&self, user_badge: &crate::domain::repositories::badge_repository::UserBadge) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
             INSERT INTO user_badges (id, user_id, badge_id, awarded_at, awarded_by)
@@ -141,12 +169,12 @@ impl BadgeRepository for PostgresBadgeRepository {
         )
         .execute(&self.pool)
         .await
-        .map_err(|e| format!("Failed to award badge: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
-        Ok(user_badge)
+        Ok(())
     }
     
-    async fn find_user_badges(&self, user_id: Uuid) -> Result<Vec<UserBadge>, String> {
+    async fn find_user_badges(&self, user_id: &Uuid) -> Result<Vec<crate::domain::repositories::badge_repository::UserBadge>, Box<dyn std::error::Error>> {
         let rows = sqlx::query!(
             r#"
             SELECT ub.id, ub.user_id, ub.badge_id, ub.awarded_at, ub.awarded_by
@@ -158,39 +186,11 @@ impl BadgeRepository for PostgresBadgeRepository {
         )
         .fetch_all(&self.pool)
         .await
-        .map_err(|e| format!("Failed to find user badges: {}", e))?;
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
         
         let user_badges = rows
             .into_iter()
-            .map(|r| UserBadge {
-                id: r.id,
-                user_id: r.user_id,
-                badge_id: r.badge_id,
-                awarded_at: r.awarded_at,
-                awarded_by: r.awarded_by,
-            })
-            .collect();
-        
-        Ok(user_badges)
-    }
-    
-    async fn find_badge_holders(&self, badge_id: Uuid) -> Result<Vec<UserBadge>, String> {
-        let rows = sqlx::query!(
-            r#"
-            SELECT ub.id, ub.user_id, ub.badge_id, ub.awarded_at, ub.awarded_by
-            FROM user_badges ub
-            WHERE ub.badge_id = $1
-            ORDER BY ub.awarded_at DESC
-            "#,
-            badge_id
-        )
-        .fetch_all(&self.pool)
-        .await
-        .map_err(|e| format!("Failed to find badge holders: {}", e))?;
-        
-        let user_badges = rows
-            .into_iter()
-            .map(|r| UserBadge {
+            .map(|r| crate::domain::repositories::badge_repository::UserBadge {
                 id: r.id,
                 user_id: r.user_id,
                 badge_id: r.badge_id,
