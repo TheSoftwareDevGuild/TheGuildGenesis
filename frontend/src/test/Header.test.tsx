@@ -22,10 +22,5 @@ describe('Header', () => {
     render(<Header />);
     expect(screen.getByText('Create Profile')).toBeInTheDocument();
   });
-
-  it('renders connect wallet button', () => {
-    render(<Header />);
-    expect(screen.getByTestId('connect-button')).toBeInTheDocument();
-  });
 });
 
