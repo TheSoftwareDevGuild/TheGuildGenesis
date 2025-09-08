@@ -10,8 +10,10 @@ We will create a smart contract TheGuildBadgeRegistry that will have a list of b
 ### Attestations
 Then, we let users create an attestation of a badge to another user. The attestation can contain an optional justification (link to a project, or text explanation).
 
-To do this, we can just use EAS’ already deployed contracts. First we will register our schema (using their sdk or their UI): "bytes32 badgeName, bytes32 justification". Then, in the front end, we can use their sdk to create attestation from one user to another, referencing our schema id, the unique badge name, and a justification. We can also use EAS Resolver contract to prevent duplicate badges and reward attestations with Activity Token.
+To do this, we can just use EAS' already deployed contracts. First we will register our schema (using their sdk or their UI): "bytes32 badgeName, bytes32 justification". Then, in the front end, we can use their sdk to create attestation from one user to another, referencing our schema id, the unique badge name, and a justification. We can also use EAS Resolver contract to prevent duplicate badges and reward attestations with Activity Token.
 
+### Integration
+For detailed frontend integration instructions, see [INTEGRATION.md](./INTEGRATION.md).
 
 ## Foundry Usage
 
