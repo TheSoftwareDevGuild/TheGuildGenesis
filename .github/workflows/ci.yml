@@ -145,7 +145,7 @@ jobs:
       - name: Run tests
         run: |
           cd the-guild-smart-contracts
-          forge test --verbose
+          forge test --verbosity
 
       - name: Run tests with gas reporting
         run: |
