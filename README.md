@@ -10,6 +10,7 @@ This is a monorepo containing:
 
 - **`frontend/`** - Astro + React frontend with Web3 integration
 - **`backend/`** - Rust backend with Axum, SQLx, and SIWE authentication
+- **`the-guild-smart-contracts/`** - Foundry-based Solidity smart contracts for badge registry
 
 ## Tech Stack
 
@@ -30,12 +31,17 @@ This is a monorepo containing:
 - **PostgreSQL** - Database
 - **SIWE** - Sign-In with Ethereum authentication
 
+### Smart Contracts
+- **Solidity** - Smart contract programming language
+- **Foundry** - Fast, portable and modular toolkit for Ethereum application development
+
 ## Quick Start
 
 ### Prerequisites
 - [Nix](https://nixos.org/download.html) with flakes enabled
 - [direnv](https://direnv.net/) (optional, for automatic environment loading)
 - [just](https://github.com/casey/just) (command runner)
+- [Foundry](https://book.getfoundry.sh/getting-started/installation) (for smart contracts)
 
 ### Setup
 
@@ -102,6 +108,30 @@ just db-reset
 just db-stop
 ```
 
+#### Smart Contracts Development
+
+```bash
+# Navigate to smart contracts directory
+cd the-guild-smart-contracts
+
+# Build contracts
+forge build
+
+# Run tests
+forge test
+
+# Run tests with verbose output
+forge test -vv
+
+# Deploy to local network (Anvil)
+anvil
+# In another terminal:
+forge script script/TheGuildBadgeRegistry.s.sol:TheGuildBadgeRegistryScript --rpc-url http://localhost:8545 --private-key <PRIVATEK_KEY> --broadcast
+
+# Deploy to testnet/mainnet
+forge script script/TheGuildBadgeRegistry.s.sol:TheGuildBadgeRegistryScript --rpc-url <RPC_URL> --private-key <PRIVATE_KEY> --broadcast
+```
+
 ### Available Commands
 
 Run `just help` to see all available commands:
@@ -113,6 +143,44 @@ Run `just help` to see all available commands:
 - **Code Quality:** `just lint`, `just format`
 - **Utilities:** `just clean`, `just help`
 
+## Smart Contracts
+
+The `the-guild-smart-contracts/` directory contains our Solidity smart contracts built with Foundry.
+
+### TheGuildBadgeRegistry
+
+A community-driven badge registry where anyone can create badges with unique names and descriptions.
+
+**Key Features:**
+- **Community-driven**: Anyone can create badges
+- **Unique names**: No duplicate badge names allowed
+- **Immutable**: No owner or upgrade mechanism
+- **Gas-efficient**: Simple storage patterns
+- **Event-driven**: Emits events for badge creation
+
+**Contract Interface:**
+```solidity
+// Create a new badge
+function createBadge(bytes32 name, bytes32 description) external
+
+// Get badge information
+function getBadge(bytes32 name) external view returns (bytes32, bytes32, address)
+
+// Check if badge exists
+function exists(bytes32 name) external view returns (bool)
+
+// Get total number of badges
+function totalBadges() external view returns (uint256)
+
+// Enumerate badges
+function badgeNameAt(uint256 index) external view returns (bytes32)
+```
+
+**Events:**
+```solidity
+event BadgeCreated(bytes32 indexed name, bytes32 description, address indexed creator)
+```
+
 ## Features
 
 ### V0 (Current)
@@ -121,12 +189,12 @@ Run `just help` to see all available commands:
 - [x] Rust backend with Axum
 - [x] Web3 wallet integration
 - [x] Basic profile and badge system
+- [x] Smart contracts for on-chain badges
 - [ ] SIWE authentication
 - [ ] Database models and migrations
 - [ ] API endpoints for profiles and badges
 
 ### V1+ (Future)
-- [ ] Smart contracts for on-chain badges
 - [ ] Gasless transactions
 - [ ] Badge hierarchy and categories
 - [ ] Activity and contribution tokens
@@ -154,7 +222,7 @@ This project uses Nix for development instead of Docker because:
 
 ## Contributing
 
-This is a community-driven project. Join our Discord to discuss features, propose changes, and contribute to the codebase.
+This is a community-driven project. Join our [Discord](https://discord.gg/pg4UgaTr) to discuss features, propose changes, and contribute to the codebase.
 
 ## License
 
