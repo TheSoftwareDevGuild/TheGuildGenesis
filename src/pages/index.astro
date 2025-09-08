@@ -1,0 +1,302 @@
+---
+// Simple dapp page - no database, just wallet connection and smart contract calls
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <title>The Guild Genesis - Badge DApp</title>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: Arial, sans-serif; background: #f5f5f5; }
+      
+      .header {
+        background: white;
+        padding: 1rem 2rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .logo { font-size: 1.5rem; font-weight: bold; color: #333; }
+      
+      .wallet-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      
+      .wallet-address {
+        font-family: monospace;
+        background: #f0f0f0;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-size: 0.9rem;
+      }
+      
+      .connect-btn, .award-btn {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+      
+      .connect-btn:hover, .award-btn:hover { background: #0056b3; }
+      .connect-btn:disabled, .award-btn:disabled { background: #ccc; cursor: not-allowed; }
+      
+      .main {
+        max-width: 800px;
+        margin: 2rem auto;
+        padding: 0 2rem;
+      }
+      
+      .card {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+      }
+      
+      .form-group {
+        margin-bottom: 1rem;
+      }
+      
+      .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+      }
+      
+      .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 1rem;
+      }
+      
+      .badge-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+      }
+      
+      .badge-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        text-align: center;
+      }
+      
+      .badge-icon {
+        width: 60px;
+        height: 60px;
+        background: #007bff;
+        border-radius: 50%;
+        margin: 0 auto 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+      }
+      
+      .status {
+        padding: 1rem;
+        border-radius: 4px;
+        margin: 1rem 0;
+        text-align: center;
+      }
+      
+      .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+      .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+      .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="logo">🏆 The Guild Genesis</div>
+      <div class="wallet-section">
+        <div id="walletInfo" style="display: none;">
+          <span class="wallet-address" id="walletAddress"></span>
+          <button class="connect-btn" onclick="disconnectWallet()">Disconnect</button>
+        </div>
+        <button class="connect-btn" id="connectBtn" onclick="connectWallet()">Connect Wallet</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <div class="card">
+        <h2>Award Badge</h2>
+        <p>Connect your wallet and award badges to other users by calling the smart contract.</p>
+        
+        <div id="status"></div>
+        
+        <form id="awardForm" style="display: none;">
+          <div class="form-group">
+            <label for="recipientAddress">Recipient Wallet Address</label>
+            <input type="text" id="recipientAddress" placeholder="0x..." required />
+          </div>
+          <div class="form-group">
+            <label for="badgeType">Badge Type</label>
+            <select id="badgeType" required>
+              <option value="">Select a badge...</option>
+              <option value="contributor">Contributor</option>
+              <option value="mentor">Mentor</option>
+              <option value="innovator">Innovator</option>
+              <option value="leader">Leader</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="message">Message (optional)</label>
+            <input type="text" id="message" placeholder="Why are you awarding this badge?" />
+          </div>
+          <button type="submit" class="award-btn">Award Badge</button>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>Available Badges</h2>
+        <div class="badge-grid">
+          <div class="badge-card">
+            <div class="badge-icon">👨‍💻</div>
+            <h3>Contributor</h3>
+            <p>For active code contributions</p>
+          </div>
+          <div class="badge-card">
+            <div class="badge-icon">🎓</div>
+            <h3>Mentor</h3>
+            <p>For helping others learn</p>
+          </div>
+          <div class="badge-card">
+            <div class="badge-icon">💡</div>
+            <h3>Innovator</h3>
+            <p>For creative solutions</p>
+          </div>
+          <div class="badge-card">
+            <div class="badge-icon">👑</div>
+            <h3>Leader</h3>
+            <p>For project leadership</p>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      let connectedWallet = null;
+      let contract = null;
+
+      // Check if wallet is already connected
+      window.addEventListener('load', async () => {
+        if (typeof window.ethereum !== 'undefined') {
+          try {
+            const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+            if (accounts.length > 0) {
+              connectedWallet = accounts[0];
+              updateUI();
+            }
+          } catch (error) {
+            console.error('Error checking wallet connection:', error);
+          }
+        }
+      });
+
+      window.connectWallet = async function() {
+        try {
+          if (typeof window.ethereum !== 'undefined') {
+            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            connectedWallet = accounts[0];
+            updateUI();
+            showStatus('Wallet connected successfully!', 'success');
+          } else {
+            showStatus('Please install MetaMask or another Web3 wallet!', 'error');
+          }
+        } catch (error) {
+          console.error('Error connecting wallet:', error);
+          showStatus('Error connecting wallet: ' + error.message, 'error');
+        }
+      }
+
+      window.disconnectWallet = function() {
+        connectedWallet = null;
+        updateUI();
+        showStatus('Wallet disconnected', 'info');
+      }
+
+      function updateUI() {
+        if (connectedWallet) {
+          document.getElementById('walletAddress').textContent = connectedWallet;
+          document.getElementById('walletInfo').style.display = 'flex';
+          document.getElementById('connectBtn').style.display = 'none';
+          document.getElementById('awardForm').style.display = 'block';
+        } else {
+          document.getElementById('walletInfo').style.display = 'none';
+          document.getElementById('connectBtn').style.display = 'block';
+          document.getElementById('awardForm').style.display = 'none';
+        }
+      }
+
+      function showStatus(message, type) {
+        const statusDiv = document.getElementById('status');
+        statusDiv.textContent = message;
+        statusDiv.className = `status ${type}`;
+        setTimeout(() => {
+          statusDiv.textContent = '';
+          statusDiv.className = 'status';
+        }, 5000);
+      }
+
+      // Handle form submission
+      document.getElementById('awardForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const recipientAddress = document.getElementById('recipientAddress').value;
+        const badgeType = document.getElementById('badgeType').value;
+        const message = document.getElementById('message').value;
+
+        if (!recipientAddress || !badgeType) {
+          showStatus('Please fill in all required fields', 'error');
+          return;
+        }
+
+        try {
+          showStatus('Awarding badge...', 'info');
+          
+          // For now, just simulate the transaction
+          // In a real dapp, you would call the smart contract here
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          
+          showStatus(`Badge "${badgeType}" awarded to ${recipientAddress}!`, 'success');
+          
+          // Reset form
+          document.getElementById('awardForm').reset();
+          
+        } catch (error) {
+          console.error('Error awarding badge:', error);
+          showStatus('Error awarding badge: ' + error.message, 'error');
+        }
+      });
+
+      // Listen for account changes
+      if (typeof window.ethereum !== 'undefined') {
+        window.ethereum.on('accountsChanged', (accounts) => {
+          if (accounts.length === 0) {
+            disconnectWallet();
+          } else {
+            connectedWallet = accounts[0];
+            updateUI();
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -1,161 +1,94 @@
 # The Guild Genesis
 
-[![CI](https://github.com/your-username/TheGuildGenesis/workflows/CI/badge.svg)](https://github.com/your-username/TheGuildGenesis/actions)
-
-A peer-run organization where software developers certify each other's skills, learn together, and create opportunities. Built on the idea that developers are stronger when united.
-
-## Project Structure
-
-This is a monorepo containing:
-
-- **`frontend/`** - Astro + React frontend with Web3 integration
-- **`backend/`** - Rust backend with Axum, SQLx, and SIWE authentication
-
-## Tech Stack
-
-### Frontend
-- **Astro** - Fast static site generator with React islands
-- **React** - For interactive Web3 components
-- **Tailwind CSS** - Utility-first CSS framework
-- **wagmi** - React hooks for Ethereum
-- **viem** - TypeScript interface for Ethereum
-- **RainbowKit** - Wallet connection UI
-- **TanStack Query** - Data fetching and caching
-- **TanStack Router** - Type-safe routing
-
-### Backend
-- **Rust** - Systems programming language
-- **Axum** - Web framework
-- **SQLx** - Async SQL toolkit with compile-time checked queries
-- **PostgreSQL** - Database
-- **SIWE** - Sign-In with Ethereum authentication
-
-## Quick Start
-
-### Prerequisites
-- [Nix](https://nixos.org/download.html) with flakes enabled
-- [direnv](https://direnv.net/) (optional, for automatic environment loading)
-- [just](https://github.com/casey/just) (command runner)
-
-### Setup
-
-1. **Clone and enter the development environment:**
-   ```bash
-   git clone <repository-url>
-   cd TheGuildGenesis
-   
-   # If using direnv (recommended)
-   direnv allow
-   
-   # Or manually enter the Nix shell
-   nix develop
-   ```
-
-2. **Install dependencies:**
-   ```bash
-   just install-all
-   ```
-
-### Development Workflow
-
-#### Quick Start
-
-```bash
-# Set up the database
-just db-setup
-
-# Start both frontend and backend
-just dev
-```
-
-**Access the applications:**
-- Frontend: http://localhost:4321
-- Backend API: http://localhost:3001
-- PostgreSQL: localhost:5432
-
-#### Individual Services
-
-```bash
-# Start database only
-just db-start
-
-# Start frontend only
-just dev-frontend
-
-# Start backend only
-just dev-backend
-
-# Stop database
-just db-stop
-```
-
-#### Database Management
-
-```bash
-# Set up database with migrations
-just db-setup
-
-# Reset database completely
-just db-reset
-
-# Stop database
-just db-stop
-```
-
-### Available Commands
-
-Run `just help` to see all available commands:
-
-- **Development:** `just dev`, `just dev-frontend`, `just dev-backend`
-- **Database:** `just db-start`, `just db-stop`, `just db-setup`, `just db-reset`
-- **Build:** `just build`, `just build-frontend`, `just build-backend`
-- **Testing:** `just test`, `just test-frontend`, `just test-backend`
-- **Code Quality:** `just lint`, `just format`
-- **Utilities:** `just clean`, `just help`
+A simple Web3 dapp for awarding badges to users via smart contracts. Built with Astro and vanilla JavaScript.
 
 ## Features
 
-### V0 (Current)
-- [x] Monorepo structure
-- [x] Astro frontend with React islands
-- [x] Rust backend with Axum
-- [x] Web3 wallet integration
-- [x] Basic profile and badge system
-- [ ] SIWE authentication
-- [ ] Database models and migrations
-- [ ] API endpoints for profiles and badges
+- **Wallet Connection** - Connect MetaMask or other Web3 wallets
+- **Badge Awarding** - Award badges to other users by calling smart contracts
+- **Clean UI** - Simple, responsive interface
+- **No Database** - All data stored on-chain via smart contracts
 
-### V1+ (Future)
-- [ ] Smart contracts for on-chain badges
-- [ ] Gasless transactions
-- [ ] Badge hierarchy and categories
-- [ ] Activity and contribution tokens
-- [ ] DAO governance
-- [ ] Social features
+## Quick Start
 
-## Development Philosophy
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-- **Nix-first development** - Reproducible environments without Docker overhead
-- **Simple first, complex later** - Start with MVP, iterate
-- **Non-profit, member-driven** - Community ownership
-- **Horizontal governance** - Flat organization structure
-- **Action over endless talk** - Build and ship
-- **We use what we build** - Dogfooding our own tools
+2. **Start development server:**
+   ```bash
+   npm run dev
+   ```
 
-### Why Nix?
+3. **Open in browser:**
+   ```
+   http://localhost:4321
+   ```
 
-This project uses Nix for development instead of Docker because:
+4. **Connect your wallet** and start awarding badges!
 
-- **Reproducible environments** - Everyone gets identical toolchains
-- **No container overhead** - Direct process execution, faster builds
-- **Simpler setup** - One command (`nix develop`) gets you everything
-- **Better performance** - No Docker daemon, faster file system access
-- **True reproducibility** - Nix ensures exact same versions across all systems
+## Available Scripts
 
-## Contributing
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run test` - Run tests
+- `npm run lint` - Lint code
+- `npm run format` - Format code
+- `npm run clean` - Clean build artifacts
 
-This is a community-driven project. Join our Discord to discuss features, propose changes, and contribute to the codebase.
+## Project Structure
+
+```
+/
+├── src/
+│   ├── components/     # React components (if needed)
+│   ├── layouts/        # Astro layouts
+│   ├── pages/          # Astro pages
+│   │   └── index.astro # Main dapp page
+│   └── styles/         # Global styles
+├── public/             # Static assets
+└── package.json        # Dependencies and scripts
+```
+
+## How It Works
+
+1. **Connect Wallet** - Click "Connect Wallet" to connect MetaMask
+2. **Award Badges** - Fill in recipient address, select badge type, add message
+3. **Smart Contract** - Badge data is stored on-chain (currently simulated)
+
+## Badge Types
+
+- 👨‍💻 **Contributor** - For active code contributions
+- 🎓 **Mentor** - For helping others learn
+- 💡 **Innovator** - For creative solutions
+- 👑 **Leader** - For project leadership
+
+## Development
+
+This is a simple Astro project with vanilla JavaScript for Web3 functionality. No complex build tools or databases needed.
+
+### Adding Smart Contract Integration
+
+To integrate with real smart contracts:
+
+1. Add contract ABI and address
+2. Replace the simulation in the form submission handler
+3. Use libraries like ethers.js or web3.js for contract calls
+
+### Customization
+
+- Modify badge types in the HTML
+- Update styling in the `<style>` section
+- Add more Web3 functionality in the JavaScript section
+
+## Requirements
+
+- Node.js 18+
+- MetaMask or Web3 wallet
+- Modern browser with Web3 support
 
 ## License
 
-See [LICENSE](LICENSE) file for details.
+MIT
