@@ -9,15 +9,15 @@ impl WalletAddress {
         if address.is_empty() {
             return Err("Wallet address cannot be empty".to_string());
         }
-        
+
         // Basic validation - should be a valid Ethereum address format
         if !address.starts_with("0x") || address.len() != 42 {
             return Err("Invalid wallet address format".to_string());
         }
-        
+
         Ok(Self(address))
     }
-    
+
     pub fn as_str(&self) -> &str {
         &self.0
     }
@@ -34,4 +34,3 @@ impl From<WalletAddress> for String {
         addr.0
     }
 }
-

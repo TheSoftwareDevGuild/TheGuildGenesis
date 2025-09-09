@@ -1,7 +1,7 @@
+use axum::{response::Json, routing::get, Router};
+use serde_json::{json, Value};
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-use axum::{routing::get, Router, response::Json};
-use serde_json::{json, Value};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -19,11 +19,13 @@ async fn main() -> anyhow::Result<()> {
 
     // For development, create a mock pool
     // TODO: Set up real database connection
-    let pool = sqlx::PgPool::connect("postgresql://localhost/guild_dev").await.unwrap_or_else(|_| {
-        tracing::warn!("Could not connect to database, using mock pool");
-        // Return a mock pool for now
-        panic!("Database connection required");
-    });
+    let pool = sqlx::PgPool::connect("postgresql://localhost/guild_dev")
+        .await
+        .unwrap_or_else(|_| {
+            tracing::warn!("Could not connect to database, using mock pool");
+            // Return a mock pool for now
+            panic!("Database connection required");
+        });
 
     // Run migrations
     sqlx::migrate!("./migrations").run(&pool).await?;
@@ -34,7 +36,7 @@ async fn main() -> anyhow::Result<()> {
     // Run the server
     let addr = SocketAddr::from(([0, 0, 0, 0], 3001));
     tracing::info!("Server listening on {}", addr);
-    
+
     let listener = tokio::net::TcpListener::bind(&addr).await?;
     axum::serve(listener, app).await?;
 

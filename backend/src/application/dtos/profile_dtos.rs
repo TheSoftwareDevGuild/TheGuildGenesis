@@ -26,8 +26,3 @@ pub struct ProfileResponse {
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
 }
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct ProfileListResponse {
-    pub profiles: Vec<ProfileResponse>,
-}

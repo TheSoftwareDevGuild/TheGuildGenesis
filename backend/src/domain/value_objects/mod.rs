@@ -1,6 +1,5 @@
-pub mod wallet_address;
 pub mod nonce;
+pub mod wallet_address;
 
-pub use wallet_address::WalletAddress;
 pub use nonce::Nonce;
-
+pub use wallet_address::WalletAddress;

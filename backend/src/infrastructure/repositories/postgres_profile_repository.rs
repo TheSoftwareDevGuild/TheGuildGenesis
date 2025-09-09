@@ -35,10 +35,10 @@ impl ProfileRepository for PostgresProfileRepository {
         .execute(&self.pool)
         .await
         .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-        
+
         Ok(())
     }
-    
+
     async fn find_by_id(&self, id: &Uuid) -> Result<Option<Profile>, Box<dyn std::error::Error>> {
         let row = sqlx::query!(
             r#"
@@ -51,7 +51,7 @@ impl ProfileRepository for PostgresProfileRepository {
         .fetch_optional(&self.pool)
         .await
         .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-        
+
         Ok(row.map(|r| Profile {
             id: r.id,
             user_id: r.user_id,
@@ -62,8 +62,11 @@ impl ProfileRepository for PostgresProfileRepository {
             updated_at: r.updated_at,
         }))
     }
-    
-    async fn find_by_user_id(&self, user_id: &Uuid) -> Result<Option<Profile>, Box<dyn std::error::Error>> {
+
+    async fn find_by_user_id(
+        &self,
+        user_id: &Uuid,
+    ) -> Result<Option<Profile>, Box<dyn std::error::Error>> {
         let row = sqlx::query!(
             r#"
             SELECT id, user_id, name, description, avatar_url, created_at, updated_at
@@ -75,7 +78,7 @@ impl ProfileRepository for PostgresProfileRepository {
         .fetch_optional(&self.pool)
         .await
         .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-        
+
         Ok(row.map(|r| Profile {
             id: r.id,
             user_id: r.user_id,
@@ -86,7 +89,7 @@ impl ProfileRepository for PostgresProfileRepository {
             updated_at: r.updated_at,
         }))
     }
-    
+
     async fn find_all(&self) -> Result<Vec<Profile>, Box<dyn std::error::Error>> {
         let rows = sqlx::query!(
             r#"
@@ -98,7 +101,7 @@ impl ProfileRepository for PostgresProfileRepository {
         .fetch_all(&self.pool)
         .await
         .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-        
+
         let profiles = rows
             .into_iter()
             .map(|r| Profile {
@@ -111,10 +114,10 @@ impl ProfileRepository for PostgresProfileRepository {
                 updated_at: r.updated_at,
             })
             .collect();
-        
+
         Ok(profiles)
     }
-    
+
     async fn update(&self, profile: &Profile) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
@@ -131,10 +134,10 @@ impl ProfileRepository for PostgresProfileRepository {
         .execute(&self.pool)
         .await
         .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-        
+
         Ok(())
     }
-    
+
     async fn delete(&self, id: &Uuid) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
@@ -146,7 +149,7 @@ impl ProfileRepository for PostgresProfileRepository {
         .execute(&self.pool)
         .await
         .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-        
+
         Ok(())
     }
 }

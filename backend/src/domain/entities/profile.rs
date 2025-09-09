@@ -27,11 +27,15 @@ impl Profile {
         }
     }
 
-    pub fn update_info(&mut self, name: Option<String>, description: Option<String>, avatar_url: Option<String>) {
+    pub fn update_info(
+        &mut self,
+        name: Option<String>,
+        description: Option<String>,
+        avatar_url: Option<String>,
+    ) {
         self.name = name;
         self.description = description;
         self.avatar_url = avatar_url;
         self.updated_at = Utc::now();
     }
 }
-

@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [[bin]]
-name = "guild-backend-dev"
-path = "src/main_dev.rs"
+name = "guild-backend"
+path = "src/main.rs"
 
 [[bin]]
 name = "migrate"
@@ -32,7 +32,7 @@ ethers = { version = "2.0", features = ["rustls"] }
 sha3 = "0.10"
 
 # Pin problematic dependencies to avoid edition 2024
-base64ct = "=1.7.3"
+base64ct = "1.7.3"
 
 # Utilities
 anyhow = "1.0"
