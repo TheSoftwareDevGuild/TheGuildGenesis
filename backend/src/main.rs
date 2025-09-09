@@ -3,6 +3,11 @@ use serde_json::{json, Value};
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
+pub mod application;
+pub mod domain;
+pub mod infrastructure;
+pub mod presentation;
+
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     // Initialize tracing

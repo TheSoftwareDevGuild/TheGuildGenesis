@@ -3,14 +3,6 @@ name = "guild-backend"
 version = "0.1.0"
 edition = "2021"
 
-[[bin]]
-name = "guild-backend"
-path = "src/main.rs"
-
-[[bin]]
-name = "migrate"
-path = "src/bin/migrate.rs"
-
 [dependencies]
 # Web framework
 axum = { version = "0.7", features = ["macros"] }
