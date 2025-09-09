@@ -2,7 +2,7 @@ use serde::{Deserialize, Serialize};
 use std::fmt;
 
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct WalletAddress(String);
+pub struct WalletAddress(pub String);
 
 impl WalletAddress {
     pub fn new(address: String) -> Result<Self, String> {

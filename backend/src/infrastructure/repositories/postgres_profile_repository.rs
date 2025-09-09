@@ -1,9 +1,9 @@
 use async_trait::async_trait;
 use sqlx::PgPool;
-use uuid::Uuid;
 
 use crate::domain::entities::profile::Profile;
 use crate::domain::repositories::profile_repository::ProfileRepository;
+use crate::domain::value_objects::WalletAddress;
 
 #[derive(Clone)]
 pub struct PostgresProfileRepository {
@@ -18,14 +18,39 @@ impl PostgresProfileRepository {
 
 #[async_trait]
 impl ProfileRepository for PostgresProfileRepository {
+    async fn find_by_address(
+        &self,
+        address: &WalletAddress,
+    ) -> Result<Option<Profile>, Box<dyn std::error::Error>> {
+        let row = sqlx::query!(
+            r#"
+            SELECT address, name, description, avatar_url, created_at, updated_at
+            FROM profiles
+            WHERE address = $1
+            "#,
+            address
+        )
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+
+        Ok(row.map(|r| Profile {
+            address: r.address,
+            name: r.name,
+            description: r.description,
+            avatar_url: r.avatar_url,
+            created_at: r.created_at,
+            updated_at: r.updated_at,
+        }))
+    }
+
     async fn create(&self, profile: &Profile) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
-            INSERT INTO profiles (id, user_id, name, description, avatar_url, created_at, updated_at)
+            INSERT INTO profiles (address, name, description, avatar_url, created_at, updated_at)
             VALUES ($1, $2, $3, $4, $5, $6, $7)
             "#,
-            profile.id,
-            profile.user_id,
+            profile.address,
             profile.name,
             profile.description,
             profile.avatar_url,
@@ -39,93 +64,14 @@ impl ProfileRepository for PostgresProfileRepository {
         Ok(())
     }
 
-    async fn find_by_id(&self, id: &Uuid) -> Result<Option<Profile>, Box<dyn std::error::Error>> {
-        let row = sqlx::query!(
-            r#"
-            SELECT id, user_id, name, description, avatar_url, created_at, updated_at
-            FROM profiles
-            WHERE id = $1
-            "#,
-            id
-        )
-        .fetch_optional(&self.pool)
-        .await
-        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-
-        Ok(row.map(|r| Profile {
-            id: r.id,
-            user_id: r.user_id,
-            name: r.name,
-            description: r.description,
-            avatar_url: r.avatar_url,
-            created_at: r.created_at,
-            updated_at: r.updated_at,
-        }))
-    }
-
-    async fn find_by_user_id(
-        &self,
-        user_id: &Uuid,
-    ) -> Result<Option<Profile>, Box<dyn std::error::Error>> {
-        let row = sqlx::query!(
-            r#"
-            SELECT id, user_id, name, description, avatar_url, created_at, updated_at
-            FROM profiles
-            WHERE user_id = $1
-            "#,
-            user_id
-        )
-        .fetch_optional(&self.pool)
-        .await
-        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-
-        Ok(row.map(|r| Profile {
-            id: r.id,
-            user_id: r.user_id,
-            name: r.name,
-            description: r.description,
-            avatar_url: r.avatar_url,
-            created_at: r.created_at,
-            updated_at: r.updated_at,
-        }))
-    }
-
-    async fn find_all(&self) -> Result<Vec<Profile>, Box<dyn std::error::Error>> {
-        let rows = sqlx::query!(
-            r#"
-            SELECT id, user_id, name, description, avatar_url, created_at, updated_at
-            FROM profiles
-            ORDER BY created_at DESC
-            "#
-        )
-        .fetch_all(&self.pool)
-        .await
-        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-
-        let profiles = rows
-            .into_iter()
-            .map(|r| Profile {
-                id: r.id,
-                user_id: r.user_id,
-                name: r.name,
-                description: r.description,
-                avatar_url: r.avatar_url,
-                created_at: r.created_at,
-                updated_at: r.updated_at,
-            })
-            .collect();
-
-        Ok(profiles)
-    }
-
     async fn update(&self, profile: &Profile) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
             UPDATE profiles
             SET name = $2, description = $3, avatar_url = $4, updated_at = $5
-            WHERE id = $1
+            WHERE address = $1
             "#,
-            profile.id,
+            profile.address,
             profile.name,
             profile.description,
             profile.avatar_url,
@@ -138,13 +84,13 @@ impl ProfileRepository for PostgresProfileRepository {
         Ok(())
     }
 
-    async fn delete(&self, id: &Uuid) -> Result<(), Box<dyn std::error::Error>> {
+    async fn delete(&self, address: &WalletAddress) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
             DELETE FROM profiles
-            WHERE id = $1
+            WHERE address = $1
             "#,
-            id
+            address
         )
         .execute(&self.pool)
         .await

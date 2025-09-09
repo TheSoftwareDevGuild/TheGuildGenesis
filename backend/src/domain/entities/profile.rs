@@ -1,11 +1,11 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+
+use crate::domain::value_objects::WalletAddress;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Profile {
-    pub id: Uuid,
-    pub user_id: Uuid,
+    pub address: WalletAddress,
     pub name: Option<String>,
     pub description: Option<String>,
     pub avatar_url: Option<String>,
@@ -14,11 +14,10 @@ pub struct Profile {
 }
 
 impl Profile {
-    pub fn new(user_id: Uuid) -> Self {
+    pub fn new(wallet_address: WalletAddress) -> Self {
         let now = Utc::now();
         Self {
-            id: Uuid::new_v4(),
-            user_id,
+            address: wallet_address,
             name: None,
             description: None,
             avatar_url: None,

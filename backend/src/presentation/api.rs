@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use crate::domain::repositories::ProfileRepository;
+use crate::domain::services::AuthService;
 use crate::infrastructure::{
     repositories::PostgresProfileRepository,
     services::ethereum_address_verification_service::EthereumAddressVerificationService,
@@ -26,26 +27,29 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
 
     let state: AppState = AppState {
         profile_repository: Arc::from(profile_repository),
+        auth_service: Arc::from(auth_service),
     };
 
-    Router::new()
+    let protected = Router::new()
         .route("/profiles/:address", post(create_profile_handler))
         .route("/profiles/:address", get(get_profile_handler))
-        .route("/profiles/:address", put(update_profile_handler))
-        .layer(
-            ServiceBuilder::new()
-                .layer(TraceLayer::new_for_http())
-                .layer(
-                    CorsLayer::new()
-                        .allow_origin(Any)
-                        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
-                        .allow_headers(Any),
-                )
-                .layer(DefaultBodyLimit::max(1024 * 1024)), // 1MB limit
-        )
+        .route("/profiles/:address", put(update_profile_handler));
+
+    Router::new().nest("/", protected).with_state(state).layer(
+        ServiceBuilder::new()
+            .layer(TraceLayer::new_for_http())
+            .layer(
+                CorsLayer::new()
+                    .allow_origin(Any)
+                    .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+                    .allow_headers(Any),
+            )
+            .layer(DefaultBodyLimit::max(1024 * 1024)),
+    );
 }
 
 #[derive(Clone)]
 pub struct AppState {
     pub profile_repository: Arc<dyn ProfileRepository>,
+    pub auth_service: Arc<dyn AuthService>,
 }
