@@ -1,4 +1,5 @@
-use axum::{response::Json, routing::get, Router};
+use axum::response::Json;
+use presentation::api::create_app;
 use serde_json::{json, Value};
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
@@ -36,7 +37,7 @@ async fn main() -> anyhow::Result<()> {
     sqlx::migrate!("./migrations").run(&pool).await?;
 
     // Create the app
-    let app = guild_backend::create_app(pool).await;
+    let app = create_app(pool).await;
 
     // Run the server
     let addr = SocketAddr::from(([0, 0, 0, 0], 3001));
