@@ -86,6 +86,14 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
+            
+      - name: Run migrations
+        run: |
+          cd backend
+          cargo install sqlx-cli --no-default-features --features postgres,native-tls --locked
+          sqlx migrate run
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test       
 
       - name: Install dependencies
         run: |
