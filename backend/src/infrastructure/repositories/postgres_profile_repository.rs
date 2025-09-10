@@ -36,7 +36,7 @@ impl ProfileRepository for PostgresProfileRepository {
 
         Ok(row.map(|r| Profile {
             address: WalletAddress(r.address),
-            name: Some(r.name),
+            name: r.name,
             description: r.description,
             avatar_url: r.avatar_url,
             created_at: r.created_at.unwrap(),
