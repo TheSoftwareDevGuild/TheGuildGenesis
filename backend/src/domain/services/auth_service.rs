@@ -19,5 +19,5 @@ pub trait AuthService: Send + Sync {
         &self,
         challenge: &AuthChallenge,
         signature: &str,
-    ) -> Result<AuthResult, Box<dyn std::error::Error>>;
+    ) -> Result<Option<AuthResult>, Box<dyn std::error::Error>>;
 }

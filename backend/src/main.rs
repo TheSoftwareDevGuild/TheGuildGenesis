@@ -1,6 +1,4 @@
-use axum::response::Json;
 use presentation::api::create_app;
-use serde_json::{json, Value};
 use std::net::SocketAddr;
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
@@ -47,20 +45,4 @@ async fn main() -> anyhow::Result<()> {
     axum::serve(listener, app).await?;
 
     Ok(())
-}
-
-async fn health_check() -> Json<Value> {
-    Json(json!({
-        "status": "ok",
-        "message": "The Guild Genesis backend is running"
-    }))
-}
-
-async fn api_status() -> Json<Value> {
-    Json(json!({
-        "status": "ok",
-        "service": "guild-backend",
-        "version": "0.1.0",
-        "message": "API is operational"
-    }))
 }

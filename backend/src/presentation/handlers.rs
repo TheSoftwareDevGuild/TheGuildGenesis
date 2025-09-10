@@ -15,8 +15,8 @@ use super::{api::AppState, middlewares::VerifiedWallet};
 
 pub async fn create_profile_handler(
     State(state): State<AppState>,
-    Json(payload): Json<CreateProfileRequest>,
     Extension(VerifiedWallet(wallet)): Extension<VerifiedWallet>,
+    Json(payload): Json<CreateProfileRequest>,
 ) -> StatusCode {
     create_profile(state.profile_repository, wallet, payload)
         .await
@@ -33,8 +33,8 @@ pub async fn get_profile_handler(
 
 pub async fn update_profile_handler(
     State(state): State<AppState>,
-    Json(payload): Json<UpdateProfileRequest>,
     Extension(VerifiedWallet(wallet)): Extension<VerifiedWallet>,
+    Json(payload): Json<UpdateProfileRequest>,
 ) -> StatusCode {
     update_profile(state.profile_repository, wallet, payload)
         .await

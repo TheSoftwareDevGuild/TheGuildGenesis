@@ -28,19 +28,19 @@ impl ProfileRepository for PostgresProfileRepository {
             FROM profiles
             WHERE address = $1
             "#,
-            address
+            address.as_str()
         )
         .fetch_optional(&self.pool)
         .await
         .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
 
         Ok(row.map(|r| Profile {
-            address: r.address,
-            name: r.name,
+            address: WalletAddress(r.address),
+            name: Some(r.name),
             description: r.description,
             avatar_url: r.avatar_url,
-            created_at: r.created_at,
-            updated_at: r.updated_at,
+            created_at: r.created_at.unwrap(),
+            updated_at: r.updated_at.unwrap(),
         }))
     }
 
@@ -48,9 +48,9 @@ impl ProfileRepository for PostgresProfileRepository {
         sqlx::query!(
             r#"
             INSERT INTO profiles (address, name, description, avatar_url, created_at, updated_at)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            VALUES ($1, $2, $3, $4, $5, $6)
             "#,
-            profile.address,
+            profile.address.as_str(),
             profile.name,
             profile.description,
             profile.avatar_url,
@@ -71,7 +71,7 @@ impl ProfileRepository for PostgresProfileRepository {
             SET name = $2, description = $3, avatar_url = $4, updated_at = $5
             WHERE address = $1
             "#,
-            profile.address,
+            profile.address.as_str(),
             profile.name,
             profile.description,
             profile.avatar_url,
@@ -90,7 +90,7 @@ impl ProfileRepository for PostgresProfileRepository {
             DELETE FROM profiles
             WHERE address = $1
             "#,
-            address
+            address.as_str()
         )
         .execute(&self.pool)
         .await

@@ -6,6 +6,7 @@ use crate::infrastructure::{
     repositories::PostgresProfileRepository,
     services::ethereum_address_verification_service::EthereumAddressVerificationService,
 };
+use axum::middleware::from_fn_with_state;
 use axum::{
     extract::DefaultBodyLimit,
     http::Method,
@@ -19,9 +20,9 @@ use tower_http::{
 };
 
 use super::handlers::{create_profile_handler, get_profile_handler, update_profile_handler};
+use super::middlewares::eth_auth_layer;
 
 pub async fn create_app(pool: sqlx::PgPool) -> Router {
-    // Create application services
     let auth_service = EthereumAddressVerificationService::new();
     let profile_repository = PostgresProfileRepository::new(pool);
 
@@ -35,17 +36,21 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
         .route("/profiles/:address", get(get_profile_handler))
         .route("/profiles/:address", put(update_profile_handler));
 
-    Router::new().nest("/", protected).with_state(state).layer(
-        ServiceBuilder::new()
-            .layer(TraceLayer::new_for_http())
-            .layer(
-                CorsLayer::new()
-                    .allow_origin(Any)
-                    .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
-                    .allow_headers(Any),
-            )
-            .layer(DefaultBodyLimit::max(1024 * 1024)),
-    )
+    Router::new()
+        .nest("/", protected)
+        .with_state(state.clone())
+        .layer(
+            ServiceBuilder::new()
+                .layer(TraceLayer::new_for_http())
+                .layer(
+                    CorsLayer::new()
+                        .allow_origin(Any)
+                        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+                        .allow_headers(Any),
+                )
+                .layer(DefaultBodyLimit::max(1024 * 1024))
+                .layer(from_fn_with_state(state, eth_auth_layer)),
+        )
 }
 
 #[derive(Clone)]

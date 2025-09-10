@@ -1,5 +1,6 @@
 use axum::{
     body::Body,
+    extract::State,
     http::{Request, StatusCode},
     middleware::Next,
     response::Response,
@@ -12,8 +13,8 @@ use super::api::AppState;
 #[derive(Clone, Debug)]
 pub struct VerifiedWallet(pub String);
 
-async fn eth_auth_layer(
-    state: AppState,
+pub async fn eth_auth_layer(
+    State(state): State<AppState>,
     mut req: Request<Body>,
     next: Next,
 ) -> Result<Response, StatusCode> {
