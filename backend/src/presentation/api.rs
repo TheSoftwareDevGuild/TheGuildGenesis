@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::domain::repositories::ProfileRepository;
-use crate::domain::services::AuthService;
+use crate::domain::services::auth_service::AuthService;
 use crate::infrastructure::{
     repositories::PostgresProfileRepository,
     services::ethereum_address_verification_service::EthereumAddressVerificationService,

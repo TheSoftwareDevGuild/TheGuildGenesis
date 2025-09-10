@@ -1,14 +1,7 @@
 use crate::application::dtos::profile_dtos::{CreateProfileRequest, ProfileResponse};
 use crate::domain::repositories::profile_repository::ProfileRepository;
-use crate::domain::services::AuthService;
 use crate::domain::value_objects::wallet_address::WalletAddress;
 use std::sync::Arc;
-
-#[derive(Clone)]
-pub struct ProfileApplicationService {
-    profile_repository: Arc<dyn ProfileRepository + Send + Sync>,
-    auth_service: Arc<dyn AuthService + Send + Sync>,
-}
 
 pub async fn create_profile(
     profile_repository: Arc<dyn ProfileRepository + 'static>,

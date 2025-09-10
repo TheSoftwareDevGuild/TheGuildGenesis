@@ -5,7 +5,7 @@ use crate::domain::value_objects::wallet_address::WalletAddress;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct AuthChallenge {
     pub nonce: String,
-    pub message: String,
+    pub address: String,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
