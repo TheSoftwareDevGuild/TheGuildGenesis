@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 
-use crate::domain::services::AuthService::{self, AuthChallenge, AuthResult};
+use crate::domain::services::auth_service::{AuthChallenge, AuthResult, AuthService};
 
 pub struct EthereumAddressVerificationService {}
 
@@ -16,5 +16,6 @@ impl AuthService for EthereumAddressVerificationService {
         &self,
         challenge: &AuthChallenge,
         signature: &str,
-    ) -> Result<AuthResult, Box<dyn std::error::Error>>;
+    ) -> Result<AuthResult, Box<dyn std::error::Error>> {
+    }
 }
