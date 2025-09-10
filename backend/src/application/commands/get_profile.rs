@@ -1,6 +1,4 @@
-use crate::application::dtos::profile_dtos::{
-    CreateProfileRequest, ProfileListResponse, ProfileResponse, UpdateProfileRequest,
-};
+use crate::application::dtos::profile_dtos::ProfileResponse;
 use crate::domain::repositories::profile_repository::ProfileRepository;
 use crate::domain::services::AuthService;
 use crate::domain::value_objects::wallet_address::WalletAddress;
@@ -12,25 +10,20 @@ pub struct ProfileApplicationService {
     auth_service: Arc<dyn AuthService + Send + Sync>,
 }
 
-pub async fn GetProfile(&self, address: String) -> Result<ProfileResponse, String> {
+pub async fn get_profile(
+    profile_repository: Arc<dyn ProfileRepository + 'static>,
+    address: String,
+) -> Result<ProfileResponse, String> {
     let wallet_address = WalletAddress::new(address).map_err(|e| e.to_string())?;
-    let user = self
-        .user_repository
-        .find_by_wallet_address(&wallet_address.to_string())
-        .await
-        .map_err(|e| e.to_string())?
-        .ok_or("User not found")?;
 
-    let profile = self
-        .profile_repository
-        .find_by_user_id(&user.id)
+    let profile = profile_repository
+        .find_by_address(&wallet_address)
         .await
         .map_err(|e| e.to_string())?
         .ok_or("Profile not found")?;
 
     Ok(ProfileResponse {
-        id: profile.id,
-        user_id: profile.user_id,
+        address: wallet_address,
         name: profile.name.unwrap_or_default(),
         description: profile.description,
         avatar_url: profile.avatar_url,

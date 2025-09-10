@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
+
+use crate::domain::value_objects::WalletAddress;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CreateProfileRequest {
-    pub address: String,
     pub name: String,
     pub description: Option<String>,
     pub avatar_url: Option<String>,
@@ -18,8 +18,7 @@ pub struct UpdateProfileRequest {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ProfileResponse {
-    pub id: Uuid,
-    pub user_id: Uuid,
+    pub address: WalletAddress,
     pub name: String,
     pub description: Option<String>,
     pub avatar_url: Option<String>,

@@ -45,7 +45,7 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
                     .allow_headers(Any),
             )
             .layer(DefaultBodyLimit::max(1024 * 1024)),
-    );
+    )
 }
 
 #[derive(Clone)]

@@ -1,10 +1,15 @@
-use axum::{
-    extract::{Path, State},
-    http::StatusCode,
-    Extension, Json,
-};
+use axum::{extract::State, http::StatusCode, Extension, Json};
 
-use crate::{application::dtos::CreateProfileRequest, domain::value_objects::WalletAddress};
+use crate::{
+    application::{
+        commands::{
+            create_profile::create_profile, get_profile::get_profile,
+            update_profile::update_profile,
+        },
+        dtos::{CreateProfileRequest, ProfileResponse, UpdateProfileRequest},
+    },
+    domain::value_objects::WalletAddress,
+};
 
 use super::{api::AppState, middlewares::VerifiedWallet};
 
@@ -13,25 +18,28 @@ pub async fn create_profile_handler(
     Json(payload): Json<CreateProfileRequest>,
     Extension(VerifiedWallet(wallet)): Extension<VerifiedWallet>,
 ) -> StatusCode {
-    state.profile_repository.create(payload);
+    create_profile(state.profile_repository, wallet, payload)
+        .await
+        .unwrap();
     StatusCode::CREATED
 }
 
 pub async fn get_profile_handler(
     State(state): State<AppState>,
     Extension(VerifiedWallet(wallet)): Extension<VerifiedWallet>,
-) -> StatusCode {
-    state.profile_repository.get(&WalletAddress(wallet));
-    StatusCode::NO_CONTENT
+) -> Json<ProfileResponse> {
+    Json(get_profile(state.profile_repository, wallet).await.unwrap())
 }
 
 pub async fn update_profile_handler(
     State(state): State<AppState>,
-    Json(payload): Json<CreateProfileRequest>,
+    Json(payload): Json<UpdateProfileRequest>,
     Extension(VerifiedWallet(wallet)): Extension<VerifiedWallet>,
 ) -> StatusCode {
-    state.profile_repository.update(payload);
-    StatusCode::ACCEPTED
+    update_profile(state.profile_repository, wallet, payload)
+        .await
+        .unwrap();
+    StatusCode::CREATED
 }
 
 pub async fn delete_profile_handler(
