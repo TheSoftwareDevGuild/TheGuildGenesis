@@ -91,6 +91,8 @@ jobs:
         run: |
           cd backend
           cargo build --verbose
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
 
       - name: Run clippy
         run: |
