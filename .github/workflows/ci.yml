@@ -106,11 +106,15 @@ jobs:
         run: |
           cd backend
           cargo clippy --all-targets --all-features -- -D warnings
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
 
       - name: Run rustfmt
         run: |
           cd backend
           cargo fmt --all -- --check
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
 
       - name: Run tests
         run: |
