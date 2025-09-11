@@ -48,3 +48,32 @@ impl AuthService for EthereumAddressVerificationService {
         }
     }
 }
+
+// Use the following to bypass signature verification
+
+pub struct MockEthereumAddressVerificationService {}
+
+impl MockEthereumAddressVerificationService {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
+impl Default for MockEthereumAddressVerificationService {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+#[async_trait]
+impl AuthService for MockEthereumAddressVerificationService {
+    async fn verify_signature(
+        &self,
+        _challenge: &AuthChallenge,
+        _signature: &str,
+    ) -> Result<Option<AuthResult>, Box<dyn std::error::Error>> {
+        Ok(Some(AuthResult {
+            wallet_address: WalletAddress("0x2581aAa94299787a8A588B2Fceb161A302939E28".to_string()),
+        }))
+    }
+}
