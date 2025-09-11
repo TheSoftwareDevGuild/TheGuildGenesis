@@ -1,4 +1,5 @@
 use crate::application::dtos::profile_dtos::{CreateProfileRequest, ProfileResponse};
+use crate::domain::entities::profile::Profile;
 use crate::domain::repositories::profile_repository::ProfileRepository;
 use crate::domain::value_objects::wallet_address::WalletAddress;
 use std::sync::Arc;
@@ -20,7 +21,7 @@ pub async fn create_profile(
         return Err("Profile already exists for this user".to_string());
     }
 
-    let mut profile = crate::domain::entities::profile::Profile::new(wallet_address.clone());
+    let mut profile = Profile::new(wallet_address.clone());
     profile.update_info(Some(request.name), request.description, request.avatar_url);
 
     profile_repository
