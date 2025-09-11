@@ -32,7 +32,7 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
     };
 
     let protected = Router::new()
-        .route("/profiles/:address", post(create_profile_handler))
+        .route("/profiles/", post(create_profile_handler))
         .route("/profiles/:address", get(get_profile_handler))
         .route("/profiles/:address", put(update_profile_handler));
 
