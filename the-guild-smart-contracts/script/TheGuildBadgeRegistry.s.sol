@@ -10,7 +10,37 @@ contract TheGuildBadgeRegistryScript is Script {
         bytes32 salt = bytes32(vm.envOr("CREATE2_SALT", uint256(0)));
 
         vm.startBroadcast();
-        new TheGuildBadgeRegistry{salt: salt}();
+        TheGuildBadgeRegistry registry = new TheGuildBadgeRegistry{
+            salt: salt
+        }();
+        registry.createBadge(
+            bytes32("Rust"),
+            bytes32("Know how to code in Rust")
+        );
+        registry.createBadge(
+            bytes32("Solidity"),
+            bytes32("Know how to code in Solidity")
+        );
+        registry.createBadge(
+            bytes32("Python"),
+            bytes32("Know how to code in Python")
+        );
+        registry.createBadge(
+            bytes32("JavaScript"),
+            bytes32("Know how to code in JavaScript")
+        );
+        registry.createBadge(
+            bytes32("TypeScript"),
+            bytes32("Know how to code in TypeScript")
+        );
+        registry.createBadge(
+            bytes32("React"),
+            bytes32("Know how to code in React")
+        );
+        registry.createBadge(
+            bytes32("Next.js"),
+            bytes32("Know how to code in Next.js")
+        );
         vm.stopBroadcast();
     }
 }

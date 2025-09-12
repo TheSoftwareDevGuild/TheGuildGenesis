@@ -4,7 +4,7 @@ out = "out"
 libs = ["lib"]
 
 # Deterministic deployments settings (see: https://getfoundry.sh/guides/deterministic-deployments-using-create2)
-solc = "0.8.23"
+solc = "0.8.28"
 evm_version = "cancun"
 bytecode_hash = "none"
 cbor_metadata = false
@@ -16,3 +16,9 @@ remappings = [
 ]
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+
+[rpc_endpoints]
+amoy = "${AMOY_RPC_URL}"
+
+[etherscan]
+amoy = { key = "${ETHERSCAN_API_KEY}" }

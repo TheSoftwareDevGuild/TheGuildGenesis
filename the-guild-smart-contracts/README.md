@@ -15,6 +15,21 @@ To do this, we can just use EAS' already deployed contracts. First we will regis
 ### Integration
 For detailed frontend integration instructions, see [INTEGRATION.md](./INTEGRATION.md).
 
+## Deployments
+
+### Amoy 
+
+Salt: "theguild2"
+
+TheGuildActivityToken
+https://amoy.polygonscan.com/address/0x5a79Dd0F66E2C1203948dD49634E506b3D8723A0 
+
+TheGuildBadgeRegistry
+https://amoy.polygonscan.com/address/0x8baA0d5135D241bd22a9eB35915300aCfB286307 
+
+EAS Schema ID:
+0x6228d4b9508624b41476a77a09b7582ddc056b92a725f645df6e337be113c9b1
+
 ## Foundry Usage
 
 https://book.getfoundry.sh/

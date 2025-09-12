@@ -38,12 +38,12 @@ export const schemaEncoder = new SchemaEncoder(
 );
 
 export function encodeBadgeData(
-  badgeNameBytes32: `0x${string}`,
-  justificationBytes32: `0x${string}`
+  badgeName: `0x${string}`,
+  justification: `0x${string}`
 ) {
   return schemaEncoder.encodeData([
-    { name: 'badgeName', value: badgeNameBytes32, type: 'bytes32' },
-    { name: 'justification', value: justificationBytes32, type: 'bytes32' },
+    { name: 'badgeName', value: badgeName, type: 'bytes32' },
+    { name: 'justification', value: justification, type: 'bytes32' },
   ]);
 }
 ```
