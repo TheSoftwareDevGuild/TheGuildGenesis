@@ -44,6 +44,27 @@ impl ProfileRepository for PostgresProfileRepository {
         }))
     }
 
+    async fn find_all(&self) -> Result<Vec<Profile>, Box<dyn std::error::Error>> {
+        let rows = sqlx::query!(
+            r#"
+            SELECT address, name, description, avatar_url, created_at, updated_at
+            FROM profiles
+            "#,
+        )
+        .fetch_all(&self.pool)
+        .await
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
+
+        Ok(rows.into_iter().map(|r| Profile {
+            address: WalletAddress(r.address),
+            name: r.name,
+            description: r.description,
+            avatar_url: r.avatar_url,
+            created_at: r.created_at.unwrap(),
+            updated_at: r.updated_at.unwrap(),
+        }).collect())
+    }
+
     async fn create(&self, profile: &Profile) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"

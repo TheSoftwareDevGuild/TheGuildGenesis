@@ -19,7 +19,7 @@ use tower_http::{
     trace::TraceLayer,
 };
 
-use super::handlers::{create_profile_handler, get_profile_handler, update_profile_handler};
+use super::handlers::{create_profile_handler, get_profile_handler, get_all_profiles_handler, update_profile_handler};
 use super::middlewares::eth_auth_layer;
 
 pub async fn create_app(pool: sqlx::PgPool) -> Router {
@@ -33,11 +33,18 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
 
     let protected = Router::new()
         .route("/profiles/", post(create_profile_handler))
+        .route("/profiles/:address", put(update_profile_handler))
+        .with_state(state.clone())
+        .layer(from_fn_with_state(state.clone(), eth_auth_layer));
+
+    let public = Router::new()
         .route("/profiles/:address", get(get_profile_handler))
-        .route("/profiles/:address", put(update_profile_handler));
+        .route("/profiles/", get(get_all_profiles_handler))
+        .with_state(state.clone());
 
     Router::new()
         .nest("/", protected)
+        .merge(public)
         .with_state(state.clone())
         .layer(
             ServiceBuilder::new()
@@ -48,8 +55,7 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
                         .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
                         .allow_headers(Any),
                 )
-                .layer(DefaultBodyLimit::max(1024 * 1024))
-                .layer(from_fn_with_state(state, eth_auth_layer)),
+                .layer(DefaultBodyLimit::max(1024 * 1024)),
         )
 }
 

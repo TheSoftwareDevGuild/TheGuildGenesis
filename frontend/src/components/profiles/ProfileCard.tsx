@@ -1,4 +1,4 @@
-import { Badge, Award, User } from "lucide-react";
+import { Badge, Award, User, Edit } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -6,6 +6,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { EditProfileDialog } from "./EditProfileDialog";
+import { useAccount } from "wagmi";
 
 interface ProfileCardProps {
   address: string;
@@ -29,11 +32,18 @@ export function ProfileCard({
   badgeCount,
   badges,
 }: ProfileCardProps) {
+  const { address: connectedAddress } = useAccount();
+  const isOwner = connectedAddress?.toLowerCase() === address.toLowerCase();
+
   const displayName = name || `${address.slice(0, 6)}...${address.slice(-4)}`;
   const displayAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card
+      className={`hover:shadow-md transition-shadow relative ${
+        isOwner ? "border-blue-200 bg-blue-50/30 ring-1 ring-blue-100" : ""
+      }`}
+    >
       <CardHeader className="flex flex-row items-start gap-4">
         {avatar ? (
           <img
@@ -47,11 +57,33 @@ export function ProfileCard({
           </div>
         )}
         <div className="min-w-0 flex-1">
-          <CardTitle className="truncate text-lg">{displayName}</CardTitle>
+          <CardTitle className="truncate text-lg flex items-center gap-2">
+            {displayName}
+            {isOwner && (
+              <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-medium">
+                You
+              </span>
+            )}
+          </CardTitle>
           <CardDescription className="font-mono">
             {displayAddress}
           </CardDescription>
         </div>
+        {isOwner && (
+          <EditProfileDialog
+            address={address}
+            name={name}
+            description={description}
+          >
+            <Button
+              variant="ghost"
+              size="sm"
+              className="absolute top-2 right-2 h-8 w-8 p-0"
+            >
+              <Edit className="h-4 w-4" />
+            </Button>
+          </EditProfileDialog>
+        )}
       </CardHeader>
       <CardContent>
         {description && (
@@ -87,3 +119,5 @@ export function ProfileCard({
     </Card>
   );
 }
+
+export default ProfileCard;

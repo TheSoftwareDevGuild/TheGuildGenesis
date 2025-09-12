@@ -9,6 +9,8 @@ pub mod presentation;
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    // Load env before reading variables
+    dotenvy::dotenv().ok();
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
     tracing_subscriber::registry()
@@ -18,8 +20,6 @@ async fn main() -> anyhow::Result<()> {
         )
         .with(tracing_subscriber::fmt::layer())
         .init();
-
-    dotenvy::dotenv().ok();
 
     let pool = sqlx::PgPool::connect(&database_url)
         .await

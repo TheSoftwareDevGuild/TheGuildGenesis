@@ -1,5 +1,8 @@
-import { ProfileCard } from "../components/ProfileCard";
-import { Search, Plus } from "lucide-react";
+import { ProfileCard } from "./ProfileCard";
+import { Search } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { CreateProfileButton } from "./CreateProfileButton";
+import { useGetProfiles } from "@/hooks/use-get-profiles";
 
 type ProfileBadge = {
   id: string;
@@ -78,6 +81,19 @@ const PROFILES: Profile[] = [
 ];
 
 export function ProfilesList() {
+  const { data, isLoading, error } = useGetProfiles();
+
+  const profiles: Profile[] =
+    data && data.length > 0
+      ? data.map((p) => ({
+          address: p.address,
+          name: p.name,
+          description: p.description,
+          badgeCount: 0,
+          badges: [],
+        }))
+      : PROFILES;
+
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex gap-4 items-center pb-8">
@@ -90,14 +106,18 @@ export function ProfilesList() {
           />
         </div>
 
-        <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
-          <Plus className="h-4 w-4" />
-          <span>Create Profile</span>
-        </button>
+        <CreateProfileButton />
       </div>
 
+      {isLoading ? (
+        <p className="text-sm text-gray-600">Loading profiles...</p>
+      ) : null}
+      {error ? (
+        <p className="text-sm text-red-600">{(error as Error).message}</p>
+      ) : null}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {PROFILES.map((profile) => (
+        {profiles.map((profile) => (
           <ProfileCard
             key={profile.address}
             address={profile.address}

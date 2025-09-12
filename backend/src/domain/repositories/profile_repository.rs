@@ -8,6 +8,7 @@ pub trait ProfileRepository: Send + Sync {
         &self,
         address: &WalletAddress,
     ) -> Result<Option<Profile>, Box<dyn std::error::Error>>;
+    async fn find_all(&self) -> Result<Vec<Profile>, Box<dyn std::error::Error>>;
     async fn create(&self, profile: &Profile) -> Result<(), Box<dyn std::error::Error>>;
     async fn update(&self, profile: &Profile) -> Result<(), Box<dyn std::error::Error>>;
     async fn delete(&self, address: &WalletAddress) -> Result<(), Box<dyn std::error::Error>>;

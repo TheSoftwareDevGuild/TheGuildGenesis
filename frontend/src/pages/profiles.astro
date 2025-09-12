@@ -1,20 +1,12 @@
 ---
 import Layout from "@/layouts/Layout.astro";
-import ProfilesList from "@/components/ProfilesList";
-import { AppWrapper } from "@/components/AppWrapper";
+import ProfilesPage from "@/components/pages/ProfilesPage";
 ---
 
 <Layout title="Badges - The Guild Genesis">
   <div class="min-h-screen bg-gray-50">
-        <AppWrapper client:only="react">
-            <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
-                <h1 class="mb-6 text-3xl font-bold tracking-tight text-gray-900">Profiles</h1>
-                <p class="mb-8 max-w-2xl text-gray-600">Discover and certify fellow developers in our peer-to-peer network
-                </p>
-                <ProfilesList />
-            </section>
-        </AppWrapper>
-    </div>
+    <ProfilesPage client:only="react" />
+  </div>
 </Layout>
 
 
