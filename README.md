@@ -10,6 +10,7 @@ This is a monorepo containing:
 
 - **`frontend/`** - Astro + React frontend with Web3 integration
 - **`backend/`** - Rust backend with Axum, SQLx, and SIWE authentication
+- **`indexer/`** - Rust indexing service for querying Ethereum logs and storing in PostgreSQL
 - **`the-guild-smart-contracts/`** - Foundry-based Solidity smart contracts for badge registry
 
 ## Tech Stack
@@ -30,6 +31,13 @@ This is a monorepo containing:
 - **SQLx** - Async SQL toolkit with compile-time checked queries
 - **PostgreSQL** - Database
 - **SIWE** - Sign-In with Ethereum authentication
+
+### Indexer
+- **Rust** - Systems programming language
+- **Axum** - Web framework for HTTP API
+- **Alloy** - Ethereum RPC client for querying blockchain data
+- **SQLx** - Async SQL toolkit for PostgreSQL storage
+- **PostgreSQL** - Database for storing indexed logs
 
 ### Smart Contracts
 - **Solidity** - Smart contract programming language
@@ -58,6 +66,7 @@ docker-compose up -d
 **Access the applications:**
 - Frontend: http://localhost:4321
 - Backend API: http://localhost:3001
+- Indexer API: http://localhost:3002
 - PostgreSQL: localhost:5432
 
 #### Smart Contracts Development
@@ -82,6 +91,37 @@ forge script script/TheGuildBadgeRegistry.s.sol:TheGuildBadgeRegistryScript --rp
 
 # Deploy to testnet/mainnet
 forge script script/TheGuildBadgeRegistry.s.sol:TheGuildBadgeRegistryScript --rpc-url <RPC_URL> --private-key <PRIVATE_KEY> --broadcast
+```
+
+#### Indexer Service
+
+The indexer service provides HTTP endpoints to trigger blockchain indexing:
+
+```bash
+# Health check
+curl http://localhost:3002/health
+
+# Index logs from latest block
+curl -X POST http://localhost:3002/index/logs \
+  -H "Content-Type: application/json" \
+  -d '{
+    "rpc_url": "https://reth-ethereum.ithaca.xyz/rpc",
+    "chain_id": 1
+  }'
+
+# Index logs with specific filter
+curl -X POST http://localhost:3002/index/logs/filter \
+  -H "Content-Type: application/json" \
+  -d '{
+    "rpc_url": "https://reth-ethereum.ithaca.xyz/rpc",
+    "from_block": 19000000,
+    "to_block": 19000010,
+    "address": "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984",
+    "event_signature": "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef"
+  }'
+
+# Get indexing status
+curl http://localhost:3002/status/1
 ```
 
 ## Smart Contracts
@@ -128,9 +168,11 @@ event BadgeCreated(bytes32 indexed name, bytes32 description, address indexed cr
 - [x] Monorepo structure
 - [x] Astro frontend with React islands
 - [x] Rust backend with Axum
+- [x] Rust indexer service with Alloy
 - [x] Web3 wallet integration
 - [x] Basic profile and badge system
 - [x] Smart contracts for on-chain badges
+- [x] Ethereum log indexing and storage
 - [ ] SIWE authentication
 - [ ] Database models and migrations
 - [ ] API endpoints for profiles and badges
