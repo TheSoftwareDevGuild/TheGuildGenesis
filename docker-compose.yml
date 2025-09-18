@@ -26,6 +26,20 @@ services:
     depends_on:
       - postgres
 
+  indexer:
+    build: ./indexer
+    command: ["/app/guild-indexer"]
+    environment:
+      RUST_LOG: debug
+      RUST_BACKTRACE: 1
+      PORT: 3002
+    env_file:
+      - .env
+    ports:
+      - "3002:3002"
+    depends_on:
+      - postgres
+
   frontend:
     build:
       context: ./frontend
