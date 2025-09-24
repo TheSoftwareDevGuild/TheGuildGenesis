@@ -1,11 +1,11 @@
-use presentation::api::create_app;
-use std::{env, net::SocketAddr};
-use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
-
 pub mod application;
 pub mod domain;
 pub mod infrastructure;
 pub mod presentation;
+
+use presentation::api::create_app;
+use std::{env, net::SocketAddr};
+use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -31,7 +31,7 @@ async fn main() -> anyhow::Result<()> {
 
     let app = create_app(pool).await;
 
-    let port = env::var("PORT").unwrap_or_else(|_| "3001".to_string());
+    let port = env::var("PORT").unwrap_or_else(|_| "3002".to_string());
     let addr = SocketAddr::from(([0, 0, 0, 0], port.parse::<u16>().unwrap()));
     tracing::info!("Server listening on {}", addr);
 
