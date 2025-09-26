@@ -118,3 +118,23 @@
     @apply bg-background text-foreground;
   }
 }
+
+#rays {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: spin 180s linear infinite;
+  opacity: 0.23;
+}
+
+#logo_svg {
+  opacity: 0.16;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

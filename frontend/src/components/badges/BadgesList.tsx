@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { BadgeCheck } from "lucide-react";
+import { BadgeCard } from "@/components/ui/BadgeCard";
 
 import {
   Card,
@@ -14,6 +15,14 @@ import type { Badge } from "@/lib/types/badges";
 import { Search } from "lucide-react";
 import { CreateBadgeButton } from "@/components/badges/CreateBadgeButton";
 import { Input } from "../ui/input";
+
+const badgeIcons = [
+  "/badge_bug_hunter.svg",
+  "/badge_community.svg",
+  "/badge_documentation.svg",
+  "/badge_smart_contract.svg",
+  "/badge_open_source.svg",
+];
 
 export function BadgesList(): React.ReactElement {
   const { data, isLoading } = useGetBadges();
@@ -47,19 +56,23 @@ export function BadgesList(): React.ReactElement {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((badge) => (
-          <Card key={badge.name}>
+        {filtered.map((badge, index) => (
+          <BadgeCard
+            key={badge.id ?? badge.name}
+            foregroundIcon={
+              <img
+                src={badgeIcons[index % badgeIcons.length]}
+                alt="badge icon"
+                className="h-20 w-20 mr-2"
+              />
+            }
+          >
             <CardHeader>
-              <CardTitle>
-                <div className="flex items-center">
-                  <BadgeCheck className="h-4 w-4 mr-2" />
-                  {badge.name}
-                </div>
-              </CardTitle>
+              <CardTitle>{badge.name}</CardTitle>
               <CardDescription>{badge.description}</CardDescription>
             </CardHeader>
             <CardContent />
-          </Card>
+          </BadgeCard>
         ))}
       </div>
     </main>
