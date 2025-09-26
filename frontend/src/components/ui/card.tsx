@@ -1,20 +1,64 @@
 import * as React from "react";
-
 import { cn } from "@/lib/utils";
 
-function Card({ className, ...props }: React.ComponentProps<"div">) {
+interface CardProps extends React.ComponentProps<"div"> {
+  with3D?: boolean;
+  foregroundIcon?: React.ReactNode;
+}
+
+function Card({
+  className,
+  with3D = false,
+  foregroundIcon,
+  children,
+  ...props
+}: CardProps) {
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!with3D || !ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * -5;
+    const rotateY = ((x - centerX) / centerX) * 5;
+
+    ref.current.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+  };
+
+  const handleMouseLeave = () => {
+    if (!with3D || !ref.current) return;
+    ref.current.style.transform = "rotateX(0deg) rotateY(0deg)";
+  };
+
   return (
     <div
+      ref={ref}
       data-slot="card"
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
       className={cn(
-        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm",
+        "backdrop-blur-sm text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm transition-transform duration-300 ease-out",
+        with3D ? "transform-style-3d perspective-[1000px]" : "",
         className
       )}
       {...props}
-    />
+    >
+      <div className={with3D ? "transform-gpu translate-z-[30px]" : ""}>
+        {children}
+      </div>
+      {with3D && foregroundIcon && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none transform-gpu translate-z-[60px]">
+          {foregroundIcon}
+        </div>
+      )}
+    </div>
   );
 }
 
+// keep your existing slots the same
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div

@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from "react";
 import { BadgeCheck } from "lucide-react";
+import { BadgeCard } from "@/components/ui/BadgeCard";
 
 import {
   Card,
@@ -16,6 +17,14 @@ import { CreateBadgeButton } from "@/components/badges/CreateBadgeButton";
 import { Input } from "../ui/input";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import ErrorDisplay from "@/components/displayError/index";
+
+const badgeIcons = [
+  "/badge_bug_hunter.svg",
+  "/badge_community.svg",
+  "/badge_documentation.svg",
+  "/badge_smart_contract.svg",
+  "/badge_open_source.svg",
+];
 
 export function BadgesList(): React.ReactElement {
   const { data, isLoading, error } = useGetBadges();
@@ -57,6 +66,7 @@ export function BadgesList(): React.ReactElement {
             <CreateBadgeButton />
           </div>
 
+<<<<<<< HEAD
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((badge) => (
               <Card key={badge.name}>
@@ -76,6 +86,29 @@ export function BadgesList(): React.ReactElement {
         </main>
       )}
     </>
+=======
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filtered.map((badge, index) => (
+          <BadgeCard
+            key={badge.id ?? badge.name}
+            foregroundIcon={
+              <img
+                src={badgeIcons[index % badgeIcons.length]}
+                alt="badge icon"
+                className="h-20 w-20 mr-2"
+              />
+            }
+          >
+            <CardHeader>
+              <CardTitle>{badge.name}</CardTitle>
+              <CardDescription>{badge.description}</CardDescription>
+            </CardHeader>
+            <CardContent />
+          </BadgeCard>
+        ))}
+      </div>
+    </main>
+>>>>>>> d9140a0 (feat: add 3D interactive BadgeCard with foreground icons)
   );
 }
 
