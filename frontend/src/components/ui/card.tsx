@@ -40,7 +40,7 @@ function Card({
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       className={cn(
-        "backdrop-blur-sm text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm transition-transform duration-300 ease-out",
+        "bg-card text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm transition-transform duration-300 ease-out",
         with3D ? "transform-style-3d perspective-[1000px]" : "",
         className
       )}
