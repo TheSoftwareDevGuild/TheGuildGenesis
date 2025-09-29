@@ -10,7 +10,7 @@ Thank you for your interest in contributing! Please follow these steps before wo
 Rewards and recognition
 
 - Rule of thumb: 10 points per hour, 80 points per full day.
-- Contribution tokens have no monetary value. They represent reputation and will grant voting rights in the Guild in the future.
+- Contribution tokens have no monetary value. They represent reputation and will grant voting rights in the Guild in the future. See the full on-chain specification in [CONTRIBUTION_TOKEN.md](CONTRIBUTION_TOKEN.md).
 - Your contributions will also be recognized with badges on https://theguild.dev.
 
 Process

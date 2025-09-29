@@ -138,7 +138,7 @@ event BadgeCreated(bytes32 indexed name, bytes32 description, address indexed cr
 ### V1+ (Future)
 - [ ] Gasless transactions
 - [ ] Badge hierarchy and categories
-- [ ] Activity and contribution tokens
+- [ ] Activity and contribution tokens — see [CONTRIBUTION_TOKEN.md](CONTRIBUTION_TOKEN.md) for the Contribution Token specification
 - [ ] DAO governance
 - [ ] Social features
 
