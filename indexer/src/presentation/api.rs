@@ -1,14 +1,15 @@
 use axum::extract::DefaultBodyLimit;
 use axum::http::Method;
-use axum::routing::post;
+use axum::routing::{get, post};
 use axum::Router;
 use std::sync::Arc;
 use tower::ServiceBuilder;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
 
+use super::handlers::list_events_handler::list_events_handler;
 use super::handlers::poll_handler::poll_handler;
-use crate::domain::repositories::ethereum_event_repository::{self, EthereumEventRepository};
+use crate::domain::repositories::ethereum_event_repository::EthereumEventRepository;
 use crate::domain::services::ethereum_event_polling_service::EthereumEventPollingService;
 use crate::infrastructure::repositories::postgres_ethereum_event_repository::PostgresEthereumEventRepository;
 use crate::infrastructure::services::alloy_ethereum_event_polling_service::AlloyEthereumEventPollingService;
@@ -24,6 +25,7 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
 
     let router = Router::new()
         .route("/poll/", post(poll_handler))
+        .route("/events/", get(list_events_handler))
         .with_state(state.clone());
 
     router.with_state(state.clone()).layer(
