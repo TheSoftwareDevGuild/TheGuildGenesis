@@ -62,5 +62,16 @@ services:
     depends_on:
       - backend
 
+  discord-bot:
+    build: ./discord-bot
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://guild_user:guild_password@postgres:5432/guild_genesis
+      NODE_ENV: production
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
 volumes:
   pg_data:
