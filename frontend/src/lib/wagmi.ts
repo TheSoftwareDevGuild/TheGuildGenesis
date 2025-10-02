@@ -5,10 +5,15 @@ import { polygonAmoy } from "wagmi/chains";
 const projectId = import.meta.env.PUBLIC_WALLET_CONNECT_PROJECT_ID as
   | string
   | undefined;
-console.log(projectId);
+
+// Fallback project ID for development
+const fallbackProjectId = "2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p7q";
+
+console.log("WalletConnect Project ID:", projectId || fallbackProjectId);
+
 export const config = getDefaultConfig({
   appName: "The Guild Genesis",
-  projectId: projectId ?? "",
+  projectId: projectId || fallbackProjectId,
   chains: [polygonAmoy],
   ssr: false,
   syncConnectedChain: true,
