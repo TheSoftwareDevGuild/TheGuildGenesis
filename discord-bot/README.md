@@ -43,14 +43,7 @@ docker-compose up postgres -d
 psql postgresql://guild_user:guild_password@localhost:5433/guild_genesis -f migrations/001_create_activity_events.sql
 ```
 
-### 3. Test Setup
-
-```bash
-# Test environment and database connection
-node test-setup.js
-```
-
-### 4. Run the Bot
+### 3. Run the Bot
 
 ```bash
 # Development mode
@@ -60,7 +53,7 @@ npm run dev
 npm run build && npm start
 ```
 
-### 5. Docker Deployment
+### 4. Docker Deployment
 
 ```bash
 # Build and run with docker-compose

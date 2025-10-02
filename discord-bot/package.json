@@ -1,5 +1,5 @@
 {
-  "name": "discord-bot",
+  "name": "the-guild-discord-bot",
   "version": "1.0.0",
   "type": "module",
   "main": "dist/index.js",
