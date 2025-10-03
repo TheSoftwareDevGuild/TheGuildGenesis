@@ -13,6 +13,30 @@ use crate::{
 
 use super::{api::AppState, middlewares::VerifiedWallet};
 
+// --- GitHub Sync ---
+use crate::application::commands::github_sync::sync_github_issues;
+use serde::Deserialize;
+
+#[derive(Debug, Deserialize)]
+pub struct GithubSyncRequest {
+    pub repos: Option<Vec<String>>, // org/repo
+    pub since: Option<String>,      // ISO string
+}
+
+pub async fn github_sync_handler(
+    State(state): State<AppState>,
+    Json(payload): Json<GithubSyncRequest>,
+) -> StatusCode {
+    let repos = payload
+        .repos
+        .unwrap_or_else(|| vec!["TheGuildGenesis/TheGuildGenesis".to_string()]);
+
+    sync_github_issues(&*state.github_issue_repository, &repos, payload.since)
+        .await
+        .unwrap();
+    StatusCode::ACCEPTED
+}
+
 pub async fn create_profile_handler(
     State(state): State<AppState>,
     Extension(VerifiedWallet(wallet)): Extension<VerifiedWallet>,
