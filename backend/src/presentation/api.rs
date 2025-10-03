@@ -1,9 +1,9 @@
 use std::sync::Arc;
 
-use crate::domain::repositories::ProfileRepository;
+use crate::domain::repositories::{GithubIssueRepository, ProfileRepository};
 use crate::domain::services::auth_service::AuthService;
 use crate::infrastructure::{
-    repositories::PostgresProfileRepository,
+    repositories::{PostgresGithubIssueRepository, PostgresProfileRepository},
     services::ethereum_address_verification_service::EthereumAddressVerificationService,
 };
 use axum::middleware::from_fn_with_state;
@@ -21,17 +21,19 @@ use tower_http::{
 
 use super::handlers::{
     create_profile_handler, delete_profile_handler, get_all_profiles_handler, get_profile_handler,
-    update_profile_handler,
+    update_profile_handler, github_sync_handler,
 };
 
 use super::middlewares::eth_auth_layer;
 
 pub async fn create_app(pool: sqlx::PgPool) -> Router {
     let auth_service = EthereumAddressVerificationService::new();
-    let profile_repository = PostgresProfileRepository::new(pool);
+    let profile_repository = PostgresProfileRepository::new(pool.clone());
+    let github_issue_repository = PostgresGithubIssueRepository::new(pool.clone());
 
     let state: AppState = AppState {
         profile_repository: Arc::from(profile_repository),
+        github_issue_repository: Arc::from(github_issue_repository),
         auth_service: Arc::from(auth_service),
     };
 
@@ -45,6 +47,7 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
     let public = Router::new()
         .route("/profiles/:address", get(get_profile_handler))
         .route("/profiles/", get(get_all_profiles_handler))
+        .route("/admin/github/sync", post(github_sync_handler))
         .with_state(state.clone());
 
     Router::new()
@@ -67,5 +70,6 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
 #[derive(Clone)]
 pub struct AppState {
     pub profile_repository: Arc<dyn ProfileRepository>,
+    pub github_issue_repository: Arc<dyn GithubIssueRepository>,
     pub auth_service: Arc<dyn AuthService>,
 }
