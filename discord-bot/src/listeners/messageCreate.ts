@@ -3,24 +3,21 @@ import { env } from '../env.js';
 import { logger } from '../logger.js';
 import { insertActivityEvent } from '../db.js';
 
-// Rate limiting storage (in-memory)
 interface UserRateLimit {
   count: number;
   resetTime: number;
 }
+
 const userMessageCounts = new Map<string, UserRateLimit>();
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+const RATE_LIMIT_WINDOW = 60 * 1000;
 
 export async function onMessageCreate(message: Message): Promise<void> {
-  // Skip bots
   if (message.author.bot) return;
 
-  // Skip if guild filter is set and doesn't match
   if (env.DISCORD_GUILD_ID && message.guild?.id !== env.DISCORD_GUILD_ID) {
     return;
   }
 
-  // Rate limiting check
   const userId = message.author.id;
   const now = Date.now();
   const userLimit = userMessageCounts.get(userId);
@@ -42,7 +39,8 @@ export async function onMessageCreate(message: Message): Promise<void> {
     const eventId = await insertActivityEvent(
       message.author.id,
       message.author.username,
-      env.POINTS_PER_MESSAGE
+      env.POINTS_PER_MESSAGE,
+      message.guild?.id || 'dm'
     );
 
     logger.info(
@@ -55,4 +53,3 @@ export async function onMessageCreate(message: Message): Promise<void> {
     );
   }
 }
-

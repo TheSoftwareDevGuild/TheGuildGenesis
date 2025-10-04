@@ -1,4 +1,4 @@
-import { Pool, PoolClient } from 'pg';
+import { Pool } from 'pg';
 import { env } from './env.js';
 import { logger } from './logger.js';
 
@@ -9,7 +9,6 @@ export const pool = new Pool({
   connectionTimeoutMillis: 2000,
 });
 
-// Test database connection on startup
 export async function testConnection(): Promise<void> {
   try {
     const client = await pool.connect();
@@ -29,6 +28,7 @@ export interface ActivityEvent {
   amount: number;
   event_type: string;
   date: Date;
+  guild_id?: string;
   processed_status: boolean;
   created_at: Date;
 }
@@ -36,16 +36,17 @@ export interface ActivityEvent {
 export async function insertActivityEvent(
   userId: string,
   userName: string,
-  amount: number = env.POINTS_PER_MESSAGE
+  amount: number = env.POINTS_PER_MESSAGE,
+  guildId?: string
 ): Promise<string> {
   const query = `
-    INSERT INTO activity_events (user_id, user_name, amount, event_type, processed_status)
-    VALUES ($1, $2, $3, 'message', FALSE)
+    INSERT INTO activity_events (user_id, user_name, amount, event_type, guild_id, processed_status)
+    VALUES ($1, $2, $3, 'message', $4, FALSE)
     RETURNING id
   `;
   
   try {
-    const result = await pool.query(query, [userId, userName, amount]);
+    const result = await pool.query(query, [userId, userName, amount, guildId]);
     return result.rows[0].id;
   } catch (error) {
     logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Failed to insert activity event');
@@ -55,7 +56,7 @@ export async function insertActivityEvent(
 
 export async function getUnprocessedEvents(): Promise<ActivityEvent[]> {
   const query = `
-    SELECT id, user_id, user_name, amount, event_type, date, processed_status, created_at
+    SELECT id, user_id, user_name, amount, event_type, date, guild_id, processed_status, created_at
     FROM activity_events
     WHERE processed_status = FALSE
     ORDER BY created_at ASC
@@ -85,7 +86,57 @@ export async function markEventAsProcessed(eventId: string): Promise<void> {
   }
 }
 
-// Graceful shutdown
+export async function getUserBalance(guildId: string, userId: string): Promise<number> {
+  const query = `
+    SELECT COALESCE(SUM(amount), 0) as total
+    FROM activity_events
+    WHERE guild_id = $1 AND user_id = $2
+  `;
+  
+  try {
+    const result = await pool.query(query, [guildId, userId]);
+    return parseInt(result.rows[0].total) || 0;
+  } catch (error) {
+    logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Failed to get user balance');
+    throw error;
+  }
+}
+
+export interface LeaderboardEntry {
+  user_id: string;
+  user_name: string;
+  total_points: number;
+}
+
+export async function getLeaderboard(
+  guildId: string,
+  limit: number = 10
+): Promise<LeaderboardEntry[]> {
+  const query = `
+    SELECT 
+      user_id,
+      MAX(user_name) as user_name,
+      SUM(amount) as total_points
+    FROM activity_events
+    WHERE guild_id = $1
+    GROUP BY user_id
+    ORDER BY total_points DESC
+    LIMIT $2
+  `;
+  
+  try {
+    const result = await pool.query(query, [guildId, limit]);
+    return result.rows.map(row => ({
+      user_id: row.user_id,
+      user_name: row.user_name,
+      total_points: parseInt(row.total_points),
+    }));
+  } catch (error) {
+    logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Failed to get leaderboard');
+    throw error;
+  }
+}
+
 export async function closePool(): Promise<void> {
   await pool.end();
   logger.info('Database pool closed');
