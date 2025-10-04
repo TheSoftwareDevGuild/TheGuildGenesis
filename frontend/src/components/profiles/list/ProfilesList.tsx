@@ -7,6 +7,8 @@ import type { Profile } from "@/lib/types/profiles";
 import { useMemo, useState } from "react";
 import { useGetAttestations } from "@/hooks/attestations/use-get-attestations";
 import { Input } from "../../ui/input";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import React from "react";
 
 export function ProfilesList() {
   const { data, isLoading, error } = useGetProfiles();
@@ -62,6 +64,28 @@ export function ProfilesList() {
     return profiles.filter((p) => (p.name || "").toLowerCase().includes(q));
   }, [profiles, searchQuery]);
 
+  if (isLoading || attestations.isLoading) {
+    return (
+      <div className="flex justify-start ">
+        <AiOutlineLoading3Quarters className="h-10 w-10 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error || attestations.error) {
+    return (
+      <p className="text-2xl text-red-600">
+        {(error as any)?.message ??
+          (attestations.error as any)?.message ??
+          "An error occurred, Please try again later"}
+      </p>
+    );
+  }
+
+  if (data && data.length === 0) {
+    return <p className="text-2xl text-red-600">{"No profiles found"}</p>;
+  }
+
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex gap-4 items-center pb-8">
@@ -78,17 +102,6 @@ export function ProfilesList() {
 
         <CreateProfileButton />
       </div>
-
-      {isLoading || attestations.isLoading ? (
-        <p className="text-sm text-gray-600">Loading profiles...</p>
-      ) : null}
-      {error || attestations.error ? (
-        <p className="text-sm text-red-600">
-          {(error as any)?.message ??
-            (attestations.error as any)?.message ??
-            "An error occurred"}
-        </p>
-      ) : null}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((profile) => (
