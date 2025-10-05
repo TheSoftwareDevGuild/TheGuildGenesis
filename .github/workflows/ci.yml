@@ -121,7 +121,9 @@ jobs:
         working-directory: backend
         run: |
           echo "Reverting all migrations..."
-          sqlx migrate revert --all || true
+          while sqlx migrate revert -y 2>/dev/null; do
+            echo "Reverted one migration"
+          done
           echo "Running migrations..."
           sqlx migrate run
           echo "Migrations completed"
