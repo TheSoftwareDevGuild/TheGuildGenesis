@@ -1,4 +1,4 @@
-import { Award, Badge } from "lucide-react";
+import { Send, Badge } from "lucide-react";
 import { useGetAttestations } from "@/hooks/attestations/use-get-attestations";
 import { useMemo } from "react";
 import {
@@ -8,22 +8,21 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useGetProfiles } from "@/hooks/profiles/use-get-profiles";
-import CopyAddressToClipboard from "@/components/CopyAddressToClipboard";
 
-export function ProfileAttestations({ address }: { address: string }) {
+export function ProfileIssuedAttestations({ address }: { address: string }) {
   const attestationsQuery = useGetAttestations();
   const profilesQuery = useGetProfiles();
 
-  const attestations = useMemo(() => {
+  const issuedAttestations = useMemo(() => {
     const list = attestationsQuery.data ?? [];
     const filtered = list.filter(
-      (a) => a.recipient.toLowerCase() === (address || "").toLowerCase()
+      (a) => a.issuer.toLowerCase() === (address || "").toLowerCase()
     );
     return filtered.map((a, i) => ({
       id: String(i),
       badgeName: a.badgeName,
       justification: a.attestationJustification,
-      issuer: a.issuer,
+      recipient: a.recipient,
     }));
   }, [attestationsQuery.data, address]);
 
@@ -39,25 +38,26 @@ export function ProfileAttestations({ address }: { address: string }) {
   const grouped = useMemo(() => {
     const map = new Map<
       string,
-      { id: string; issuer: string; justification: string }[]
+      { id: string; recipient: string; justification: string }[]
     >();
-    for (const a of attestations) {
+    for (const a of issuedAttestations) {
       const arr = map.get(a.badgeName) ?? [];
-      arr.push({ id: a.id, issuer: a.issuer, justification: a.justification });
+      arr.push({ id: a.id, recipient: a.recipient, justification: a.justification });
       map.set(a.badgeName, arr);
     }
     return Array.from(map.entries()).map(([badgeName, items]) => ({
       badgeName,
       items,
     }));
-  }, [attestations]);
+  }, [issuedAttestations]);
+
   return (
     <section className="mt-10">
       <h2 className="text-lg font-medium mb-4 flex items-center gap-2">
-        <Award className="h-5 w-5" /> Attestations ({attestations.length})
+        <Send className="h-5 w-5" /> Issued Attestations ({issuedAttestations.length})
       </h2>
-      {attestations.length === 0 ? (
-        <p className="text-sm text-gray-600">No attestations yet.</p>
+      {issuedAttestations.length === 0 ? (
+        <p className="text-sm text-gray-600">No attestations issued yet.</p>
       ) : (
         <Accordion type="multiple" className="w-full space-y-2">
           {grouped.map(({ badgeName, items }, idx) => (
@@ -67,7 +67,7 @@ export function ProfileAttestations({ address }: { address: string }) {
             >
               <AccordionTrigger>
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                     <Badge className="h-3 w-3 mr-1" />{" "}
                     {badgeName || "(unnamed)"}
                   </span>
@@ -88,22 +88,17 @@ export function ProfileAttestations({ address }: { address: string }) {
                           <p className="text-sm text-gray-800">
                             {it.justification}
                           </p>
-                          <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
-                            <span>Issued by{" "}</span>
+                          <p className="text-xs text-gray-500 mt-1">
+                            Issued to{" "}
                             <a
                               className="text-indigo-600 hover:underline"
-                              href={`/profiles/${it.issuer}`}
+                              href={`/profiles/${it.recipient}`}
                             >
                               {profileNameByAddress.get(
-                                it.issuer.toLowerCase()
-                              ) || `${it.issuer.slice(0, 6)}...${it.issuer.slice(-4)}`}
+                                it.recipient.toLowerCase()
+                              ) || `${it.recipient.slice(0, 6)}...${it.recipient.slice(-4)}`}
                             </a>
-                            <CopyAddressToClipboard 
-                              address={it.issuer}
-                              iconSize="sm"
-                              showFeedback={false}
-                            />
-                          </div>
+                          </p>
                         </div>
                       </div>
                     </li>
@@ -118,4 +113,4 @@ export function ProfileAttestations({ address }: { address: string }) {
   );
 }
 
-export default ProfileAttestations;
+export default ProfileIssuedAttestations;

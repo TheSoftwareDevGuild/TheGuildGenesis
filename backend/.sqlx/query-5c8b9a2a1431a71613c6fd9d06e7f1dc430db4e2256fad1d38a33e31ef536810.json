@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE profiles\n            SET name = $2, description = $3, avatar_url = $4, github_login = $5, updated_at = $6\n            WHERE address = $1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Varchar",
+        "Text",
+        "Text",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "5c8b9a2a1431a71613c6fd9d06e7f1dc430db4e2256fad1d38a33e31ef536810"
+}

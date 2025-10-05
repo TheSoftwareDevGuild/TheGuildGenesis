@@ -24,7 +24,7 @@ impl ProfileRepository for PostgresProfileRepository {
     ) -> Result<Option<Profile>, Box<dyn std::error::Error>> {
         let row = sqlx::query!(
             r#"
-            SELECT address, name, description, avatar_url, created_at, updated_at
+            SELECT address, name, description, avatar_url, github_login, created_at, updated_at
             FROM profiles
             WHERE address = $1
             "#,
@@ -39,6 +39,7 @@ impl ProfileRepository for PostgresProfileRepository {
             name: r.name,
             description: r.description,
             avatar_url: r.avatar_url,
+            github_login: r.github_login,
             created_at: r.created_at.unwrap(),
             updated_at: r.updated_at.unwrap(),
         }))
@@ -47,7 +48,7 @@ impl ProfileRepository for PostgresProfileRepository {
     async fn find_all(&self) -> Result<Vec<Profile>, Box<dyn std::error::Error>> {
         let rows = sqlx::query!(
             r#"
-            SELECT address, name, description, avatar_url, created_at, updated_at
+            SELECT address, name, description, avatar_url, github_login, created_at, updated_at
             FROM profiles
             "#,
         )
@@ -62,6 +63,7 @@ impl ProfileRepository for PostgresProfileRepository {
                 name: r.name,
                 description: r.description,
                 avatar_url: r.avatar_url,
+                github_login: r.github_login,
                 created_at: r.created_at.unwrap(),
                 updated_at: r.updated_at.unwrap(),
             })
@@ -71,13 +73,14 @@ impl ProfileRepository for PostgresProfileRepository {
     async fn create(&self, profile: &Profile) -> Result<(), Box<dyn std::error::Error>> {
         sqlx::query!(
             r#"
-            INSERT INTO profiles (address, name, description, avatar_url, created_at, updated_at)
-            VALUES ($1, $2, $3, $4, $5, $6)
+            INSERT INTO profiles (address, name, description, avatar_url, github_login, created_at, updated_at)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
             "#,
             profile.address.as_str(),
             profile.name,
             profile.description,
             profile.avatar_url,
+            profile.github_login,
             profile.created_at,
             profile.updated_at
         )
@@ -92,13 +95,14 @@ impl ProfileRepository for PostgresProfileRepository {
         sqlx::query!(
             r#"
             UPDATE profiles
-            SET name = $2, description = $3, avatar_url = $4, updated_at = $5
+            SET name = $2, description = $3, avatar_url = $4, github_login = $5, updated_at = $6
             WHERE address = $1
             "#,
             profile.address.as_str(),
             profile.name,
             profile.description,
             profile.avatar_url,
+            profile.github_login,
             profile.updated_at
         )
         .execute(&self.pool)
@@ -121,5 +125,32 @@ impl ProfileRepository for PostgresProfileRepository {
         .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
 
         Ok(())
+    }
+
+    async fn find_by_github_login(
+        &self,
+        github_login: &str,
+    ) -> Result<Option<Profile>, Box<dyn std::error::Error + Send + Sync>> {
+        let row = sqlx::query!(
+            r#"
+            SELECT address, name, description, avatar_url, github_login, created_at, updated_at
+            FROM profiles
+            WHERE LOWER(github_login) = LOWER($1)
+            "#,
+            github_login
+        )
+        .fetch_optional(&self.pool)
+        .await
+        .map_err(|e| Box::new(e) as Box<dyn std::error::Error + Send + Sync>)?;
+
+        Ok(row.map(|r| Profile {
+            address: WalletAddress(r.address),
+            name: r.name,
+            description: r.description,
+            avatar_url: r.avatar_url,
+            github_login: r.github_login,
+            created_at: r.created_at.unwrap(),
+            updated_at: r.updated_at.unwrap(),
+        }))
     }
 }

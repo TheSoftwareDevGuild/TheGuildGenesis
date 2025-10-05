@@ -17,6 +17,7 @@ pub async fn get_all_profiles(
             name: profile.name.unwrap_or_default(),
             description: profile.description,
             avatar_url: profile.avatar_url,
+            github_login: profile.github_login,
             created_at: profile.created_at,
             updated_at: profile.updated_at,
         })
