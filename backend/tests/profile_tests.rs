@@ -19,7 +19,7 @@ mod github_handle_tests {
             address: &WalletAddress,
         ) -> Result<Option<Profile>, Box<dyn std::error::Error>> {
             let list = self.profiles.lock().unwrap();
-            Ok(list.iter().cloned().find(|p| p.address == *address))
+            Ok(list.iter().find(|&p| p.address == *address).cloned())
         }
 
         async fn find_all(&self) -> Result<Vec<Profile>, Box<dyn std::error::Error>> {
@@ -51,11 +51,11 @@ mod github_handle_tests {
         ) -> Result<Option<Profile>, Box<dyn std::error::Error + Send + Sync>> {
             let lower = github_login.to_lowercase();
             let list = self.profiles.lock().unwrap();
-            Ok(list.iter().cloned().find(|p| {
+            Ok(list.iter().find(|&p| {
                 p.github_login
                     .as_ref()
-                    .map_or(false, |h| h.to_lowercase() == lower)
-            }))
+                    .is_some_and(|h| h.to_lowercase() == lower)
+            }).cloned())
         }
     }
 
