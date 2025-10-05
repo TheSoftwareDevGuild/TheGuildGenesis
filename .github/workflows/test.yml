@@ -25,8 +25,8 @@ jobs:
 
     env:
       DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
-      # Optionally you can set:
-      # SQLX_OFFLINE: "true"
+      TEST_MODE: "1"
+      SQLX_OFFLINE: "true"
 
     steps:
       - uses: actions/checkout@v4
