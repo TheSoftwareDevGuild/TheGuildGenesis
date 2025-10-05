@@ -1,11 +1,11 @@
 use std::error::Error;
 
 use async_trait::async_trait;
-use sqlx::{PgPool, Row};
+use sqlx::PgPool;
 // removed uuid usage as ids are text
 
 use crate::domain::{
-    entities::ethereum_event::EthereumEvent,
+    entities::ethereum_event::{EthereumEvent, EthereumEventType},
     repositories::ethereum_event_repository::EthereumEventRepository,
 };
 
@@ -23,7 +23,7 @@ impl PostgresEthereumEventRepository {
 #[async_trait]
 impl EthereumEventRepository for PostgresEthereumEventRepository {
     async fn list(&self) -> Result<Vec<EthereumEvent>, Box<dyn Error>> {
-        let rows = sqlx::query(
+        let rows = sqlx::query!(
             r#"
             SELECT id, event_type, timestamp, created_at
             FROM ethereum_events
@@ -35,27 +35,14 @@ impl EthereumEventRepository for PostgresEthereumEventRepository {
 
         let mut events: Vec<EthereumEvent> = Vec::with_capacity(rows.len());
         for row in rows {
-            let id: String = row
-                .try_get("id")
-                .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-            let event_type_str: String = row
-                .try_get("event_type")
-                .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-            let timestamp: chrono::DateTime<chrono::Utc> = row
-                .try_get("timestamp")
-                .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-            let created_at: chrono::DateTime<chrono::Utc> = row
-                .try_get("created_at")
-                .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
-
-            let event_type = serde_json::from_str(&event_type_str)
+            let event_type = serde_json::from_str::<EthereumEventType>(&row.event_type)
                 .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
 
             events.push(EthereumEvent {
-                id,
+                id: row.id,
                 event_type,
-                timestamp,
-                created_at,
+                timestamp: row.timestamp,
+                created_at: row.created_at,
             });
         }
 
