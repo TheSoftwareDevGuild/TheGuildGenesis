@@ -4,7 +4,10 @@ mod tests {
     use serde_json::json;
 
     use crate::application::commands::github_sync::{
-        derive_points, transform_issue, GithubAssignee, GithubIssueApi, GithubLabel, GithubRepoApi,
+        derive_points, transform_issue,
+    };
+    use crate::domain::services::github_api_service::{
+        GithubAssignee, GithubIssueApi, GithubLabel, GithubRepoApi,
     };
 
     #[test]

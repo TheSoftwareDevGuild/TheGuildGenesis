@@ -2,9 +2,11 @@ use std::sync::Arc;
 
 use crate::domain::repositories::{GithubIssueRepository, ProfileRepository};
 use crate::domain::services::auth_service::AuthService;
+use crate::domain::services::github_api_service::GithubApiService;
 use crate::infrastructure::{
     repositories::{PostgresGithubIssueRepository, PostgresProfileRepository},
     services::ethereum_address_verification_service::EthereumAddressVerificationService,
+    services::github_api_http_service::GithubApiHttpService,
 };
 use axum::middleware::from_fn_with_state;
 use axum::{
@@ -30,10 +32,12 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
     let auth_service = EthereumAddressVerificationService::new();
     let profile_repository = PostgresProfileRepository::new(pool.clone());
     let github_issue_repository = PostgresGithubIssueRepository::new(pool.clone());
+    let github_api_service = GithubApiHttpService::new();
 
     let state: AppState = AppState {
         profile_repository: Arc::from(profile_repository),
         github_issue_repository: Arc::from(github_issue_repository),
+        github_api_service: Arc::from(github_api_service),
         auth_service: Arc::from(auth_service),
     };
 
@@ -71,5 +75,6 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
 pub struct AppState {
     pub profile_repository: Arc<dyn ProfileRepository>,
     pub github_issue_repository: Arc<dyn GithubIssueRepository>,
+    pub github_api_service: Arc<dyn GithubApiService>,
     pub auth_service: Arc<dyn AuthService>,
 }

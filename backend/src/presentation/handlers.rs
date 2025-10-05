@@ -31,7 +31,7 @@ pub async fn github_sync_handler(
         .repos
         .unwrap_or_else(|| vec!["TheGuildGenesis/TheGuildGenesis".to_string()]);
 
-    sync_github_issues(&*state.github_issue_repository, &repos, payload.since)
+    sync_github_issues(&*state.github_issue_repository, &*state.github_api_service, &repos, payload.since)
         .await
         .unwrap();
     StatusCode::ACCEPTED
