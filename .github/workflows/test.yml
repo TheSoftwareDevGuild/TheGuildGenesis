@@ -56,11 +56,6 @@ jobs:
       - name: Install sqlx-cli
         run: cargo install sqlx-cli --no-default-features --features postgres,rustls
 
-      - name: Prepare sqlx
-        run: |
-          cd backend
-          cargo sqlx prepare
-
       - name: Wait for Postgres
         run: |
           until pg_isready -h localhost -p 5432 -U postgres; do
@@ -78,7 +73,10 @@ jobs:
         run: |
           PGPASSWORD=postgres psql -h localhost -U postgres -d guild_genesis_test -c "\dt"
 
+      - name: Prepare sqlx
+        working-directory: backend
+        run: cargo sqlx prepare
+
       - name: Run tests
-        run: |
-          cd backend
-          cargo test -- --nocapture
+        working-directory: backend
+        run: cargo test -- --nocapture
