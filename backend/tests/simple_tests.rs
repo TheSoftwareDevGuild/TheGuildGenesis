@@ -39,7 +39,7 @@ use axum::{response::Json, routing::get, Router};
 async fn test_points_derivation() {
     use guild_backend::domain::services::github_api_service::GithubLabel;
 
-    let labels = vec![GithubLabel { name: "points:3".into() }];
+    let labels = [GithubLabel { name: "points:3".into() }];
     // The derive_points function is private; simulate via minimal endpoint in app if needed.
     // For now, we assert expected behavior through an inline derivation replicating logic.
     let points = labels.iter().find_map(|l| {
