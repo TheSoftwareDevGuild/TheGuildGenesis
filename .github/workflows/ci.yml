@@ -49,8 +49,6 @@ jobs:
   backend:
     name: Backend Tests
     runs-on: ubuntu-latest
-    env:
-      TEST_MODE: "1"
 
     services:
       postgres:
@@ -66,6 +64,10 @@ jobs:
           --health-retries 5
         ports:
           - 5432:5432
+
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
+      TEST_MODE: "1"
 
     steps:
       - name: Checkout code
@@ -89,43 +91,74 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
-      - name: Run migrations
-        run: |
-          cd backend
-          cargo install sqlx-cli --no-default-features --features postgres,native-tls --locked
-          cargo sqlx prepare
-          sqlx migrate run
-        env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
+      - name: Cache sqlx-data
+        uses: actions/cache@v3
+        with:
+          path: backend/.sqlx
+          key: ${{ runner.os }}-sqlx-${{ hashFiles('backend/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-sqlx-
 
-      - name: Install dependencies
+      - name: Install sqlx-cli
+        run: cargo install sqlx-cli --no-default-features --features postgres,rustls
+
+      - name: List migrations folder (debug)
+        working-directory: backend
         run: |
-          cd backend
-          cargo build
+          echo "Checking migrations folder:"
+          ls -lah migrations/ || echo "❌ No migrations folder found"
+          echo "Migration files:"
+          ls -lah migrations/*.sql || echo "❌ No .sql files found"
+
+      - name: Wait for Postgres
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for Postgres..."
+            sleep 2
+          done
+
+      - name: Reset and run migrations
+        working-directory: backend
+        run: |
+          echo "Reverting all migrations..."
+          sqlx migrate revert --all || true
+          echo "Running migrations..."
+          sqlx migrate run
+          echo "Migrations completed"
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
+          SQLX_OFFLINE: "false"
+
+      - name: Verify tables exist
+        run: |
+          echo "Listing all tables in database:"
+          PGPASSWORD=postgres psql -h localhost -U postgres -d guild_genesis_test -c "\dt"
+          echo "Checking profiles table schema:"
+          PGPASSWORD=postgres psql -h localhost -U postgres -d guild_genesis_test -c "\d profiles"
+
+      - name: Build backend
+        working-directory: backend
+        run: cargo build
+        env:
+          SQLX_OFFLINE: true
 
       - name: Run clippy
-        run: |
-          cd backend
-          cargo clippy --all-targets --all-features -- -D warnings
+        working-directory: backend
+        run: cargo clippy --all-targets --all-features -- -D warnings
         env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
+          SQLX_OFFLINE: true
 
       - name: Run rustfmt
-        run: |
-          cd backend
-          cargo fmt --all -- --check
-        env:
-          DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
+        working-directory: backend
+        run: cargo fmt --all -- --check
 
       - name: Run tests
-        run: |
-          cd backend
-          cargo test --test integration_github_handle -- --test-threads=1
+        working-directory: backend
+        run: cargo test --test integration_github_handle -- --test-threads=1
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
+          SQLX_OFFLINE: true
           TEST_MODE: "1"
 
   smart-contracts:
