@@ -14,6 +14,12 @@ impl GithubApiHttpService {
     }
 }
 
+impl Default for GithubApiHttpService {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[async_trait]
 impl GithubApiService for GithubApiHttpService {
     async fn get_repo(&self, repo_full: &str) -> Result<GithubRepoApi> {

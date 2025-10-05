@@ -55,11 +55,11 @@ impl GithubIssueRepository for PostgresGithubIssueRepository {
             .bind(issue.points)
             .bind(&issue.assignee_logins)
             .bind(&issue.html_url)
-            .bind(issue.created_at.clone())
-            .bind(issue.closed_at.clone())
+            .bind(issue.created_at)
+            .bind(issue.closed_at)
             .bind(issue.rewarded)
             .bind(issue.distribution_id.as_deref())
-            .bind(issue.updated_at.clone())
+            .bind(issue.updated_at)
             .execute(&mut *tx)
             .await?;
         }
