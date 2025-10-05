@@ -24,7 +24,7 @@ async fn test_health_check() {
 
 #[tokio::test]
 async fn test_json_response() {
-use axum::{response::Json, routing::get, Router};
+    use axum::{response::Json, routing::get, Router};
 
     let app = Router::new().route("/test", get(|| async { Json(json!({"message": "test"})) }));
 
@@ -38,14 +38,19 @@ use axum::{response::Json, routing::get, Router};
 #[tokio::test]
 async fn test_points_derivation() {
     use guild_backend::domain::services::github_api_service::GithubLabel;
-
-    let labels = [GithubLabel { name: "points:3".into() }];
+    let labels = [GithubLabel {
+        name: "points:3".into(),
+    }];
     // The derive_points function is private; simulate via minimal endpoint in app if needed.
     // For now, we assert expected behavior through an inline derivation replicating logic.
-    let points = labels.iter().find_map(|l| {
-        let name = l.name.to_lowercase();
-        name.strip_prefix("points:").and_then(|rest| rest.trim().parse::<i32>().ok())
-    }).unwrap_or(0);
+    let points = labels
+        .iter()
+        .find_map(|l| {
+            let name = l.name.to_lowercase();
+            name.strip_prefix("points:")
+                .and_then(|rest| rest.trim().parse::<i32>().ok())
+        })
+        .unwrap_or(0);
 
     assert_eq!(points, 3);
 }

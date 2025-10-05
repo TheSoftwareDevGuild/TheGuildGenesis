@@ -1,6 +1,6 @@
 use async_trait::async_trait;
-use serde::Deserialize;
 use chrono::{DateTime, Utc};
+use serde::Deserialize;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct GithubRepoApi {
@@ -29,12 +29,16 @@ pub struct GithubIssueApi {
     pub labels: Vec<GithubLabel>,
     pub assignees: Vec<GithubAssignee>,
     pub created_at: DateTime<Utc>,
-    pub closed_at: Option<DateTime<Utc>>, 
+    pub closed_at: Option<DateTime<Utc>>,
     pub updated_at: DateTime<Utc>,
 }
 
 #[async_trait]
 pub trait GithubApiService: Send + Sync {
     async fn get_repo(&self, repo_full: &str) -> anyhow::Result<GithubRepoApi>;
-    async fn list_issues(&self, repo_full: &str, since: Option<&str>) -> anyhow::Result<Vec<GithubIssueApi>>;
+    async fn list_issues(
+        &self,
+        repo_full: &str,
+        since: Option<&str>,
+    ) -> anyhow::Result<Vec<GithubIssueApi>>;
 }

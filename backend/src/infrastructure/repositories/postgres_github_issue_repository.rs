@@ -14,7 +14,6 @@ impl PostgresGithubIssueRepository {
         Self { pool }
     }
 }
-
 #[async_trait]
 impl GithubIssueRepository for PostgresGithubIssueRepository {
     async fn upsert_issues(&self, issues: &[GithubIssue]) -> anyhow::Result<()> {

@@ -4,7 +4,7 @@ use anyhow::Result;
 use crate::domain::{
     entities::github_issue::GithubIssue,
     repositories::GithubIssueRepository,
-    services::github_api_service::{GithubApiService, GithubIssueApi, GithubRepoApi, GithubLabel},
+    services::github_api_service::{GithubApiService, GithubIssueApi, GithubLabel, GithubRepoApi},
 };
 
 pub fn derive_points(labels: &[GithubLabel]) -> i32 {
@@ -26,16 +26,8 @@ pub fn transform_issue(repo_api: &GithubRepoApi, ia: &GithubIssueApi) -> Option<
     }
     let points = derive_points(&ia.labels);
 
-    let label_names: Vec<String> = ia
-        .labels
-        .iter()
-        .map(|l| l.name.to_lowercase())
-        .collect();
-    let assignee_logins: Vec<String> = ia
-        .assignees
-        .iter()
-        .map(|a| a.login.clone())
-        .collect();
+    let label_names: Vec<String> = ia.labels.iter().map(|l| l.name.to_lowercase()).collect();
+    let assignee_logins: Vec<String> = ia.assignees.iter().map(|a| a.login.clone()).collect();
 
     Some(GithubIssue {
         repo: repo_api.full_name.clone(),

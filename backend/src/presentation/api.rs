@@ -23,7 +23,7 @@ use tower_http::{
 
 use super::handlers::{
     create_profile_handler, delete_profile_handler, get_all_profiles_handler, get_profile_handler,
-    update_profile_handler, github_sync_handler,
+    github_sync_handler, update_profile_handler,
 };
 
 use super::middlewares::eth_auth_layer;

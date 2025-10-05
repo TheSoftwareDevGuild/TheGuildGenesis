@@ -1,5 +1,5 @@
-pub mod postgres_profile_repository;
 pub mod postgres_github_issue_repository;
+pub mod postgres_profile_repository;
 
-pub use postgres_profile_repository::PostgresProfileRepository;
 pub use postgres_github_issue_repository::PostgresGithubIssueRepository;
+pub use postgres_profile_repository::PostgresProfileRepository;
