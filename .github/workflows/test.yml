@@ -73,10 +73,8 @@ jobs:
         run: |
           PGPASSWORD=postgres psql -h localhost -U postgres -d guild_genesis_test -c "\dt"
 
-      - name: Prepare sqlx
-        working-directory: backend
-        run: cargo sqlx prepare
-
       - name: Run tests
         working-directory: backend
         run: cargo test -- --nocapture
+        env:
+          SQLX_OFFLINE: true
