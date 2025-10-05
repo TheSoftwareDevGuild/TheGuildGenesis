@@ -61,6 +61,11 @@ jobs:
           cd backend
           cargo sqlx prepare
 
+      - name: Run migrations
+        run: |
+          cd backend
+          sqlx migrate run
+
       - name: Run tests
         run: |
           cd backend
