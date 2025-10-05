@@ -6,7 +6,8 @@ on:
   pull_request:
 
 jobs:
-  test:
+  backend_tests:
+    name: Backend Tests
     runs-on: ubuntu-latest
     services:
       postgres:
