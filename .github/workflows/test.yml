@@ -50,8 +50,8 @@ jobs:
         with:
           path: .sqlx
           key: ${{ runner.os }}-sqlx-${{ hashFiles('backend/Cargo.toml') }}
-          restore-keys: |
-            ${{ runner.os }}-sqlx-
+          restore-keys:
+            - ${{ runner.os }}-sqlx-
 
       - name: Install sqlx-cli
         run: cargo install sqlx-cli --no-default-features --features postgres,rustls
@@ -69,9 +69,14 @@ jobs:
           done
 
       - name: Run migrations
+        working-directory: backend
+        run: sqlx migrate run
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
+
+      - name: Verify tables exist
         run: |
-          cd backend
-          sqlx migrate run
+          PGPASSWORD=postgres psql -h localhost -U postgres -d guild_genesis_test -c "\dt"
 
       - name: Run tests
         run: |
