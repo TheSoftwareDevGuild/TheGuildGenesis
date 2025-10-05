@@ -24,12 +24,14 @@
 - backend/src/presentation/middlewares.rs
 - backend/tests/integration_github_handle.rs
 - backend/tests/profile_tests.rs
+- backend/README.md
 
 ## Summary
 - add end-to-end GitHub handle support across application, domain, and persistence layers
 - expose REST endpoints for creating and updating profiles with validated, unique GitHub handles
 - provide migration, dto, and test coverage for the new field
 - align profile routes and HTTP status expectations with the audit guidance (no trailing slash, explicit 200 OK responses)
+- document GitHub handle behavior and API usage in the backend README
 
 ## Notes
 - integration tests run under `TEST_MODE=1`, using the test-only auth layer to bypass signature verification while still exercising the API
