@@ -49,6 +49,8 @@ jobs:
   backend:
     name: Backend Tests
     runs-on: ubuntu-latest
+    env:
+      TEST_MODE: "1"
 
     services:
       postgres:
@@ -91,6 +93,7 @@ jobs:
         run: |
           cd backend
           cargo install sqlx-cli --no-default-features --features postgres,native-tls --locked
+          cargo sqlx prepare
           sqlx migrate run
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
@@ -119,10 +122,11 @@ jobs:
       - name: Run tests
         run: |
           cd backend
-          cargo test
+          cargo test --test integration_github_handle -- --test-threads=1
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
           TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
+          TEST_MODE: "1"
 
   smart-contracts:
     name: Smart Contracts Tests
