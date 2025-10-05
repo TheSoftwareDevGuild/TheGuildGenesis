@@ -51,11 +51,14 @@ mod github_handle_tests {
         ) -> Result<Option<Profile>, Box<dyn std::error::Error + Send + Sync>> {
             let lower = github_login.to_lowercase();
             let list = self.profiles.lock().unwrap();
-            Ok(list.iter().find(|&p| {
-                p.github_login
-                    .as_ref()
-                    .is_some_and(|h| h.to_lowercase() == lower)
-            }).cloned())
+            Ok(list
+                .iter()
+                .find(|&p| {
+                    p.github_login
+                        .as_ref()
+                        .is_some_and(|h| h.to_lowercase() == lower)
+                })
+                .cloned())
         }
     }
 
