@@ -37,7 +37,7 @@ async fn valid_github_handle_works() {
 
     // Create profile
     let create_resp = client
-        .post(&format!("{}/profiles/", base))
+        .post(&format!("{}/profiles", base))
         .header("x-eth-address", address)
         .json(&json!({
             "name": "Alice",
@@ -65,7 +65,7 @@ async fn valid_github_handle_works() {
         .await
         .unwrap();
 
-    assert_eq!(update_resp.status(), 200);
+    assert_eq!(update_resp.status(), reqwest::StatusCode::OK);
     let updated: ProfileResponse = update_resp.json().await.unwrap();
     assert_eq!(updated.github_login, Some("ValidUser123test".to_string()));
 }
@@ -104,7 +104,7 @@ async fn invalid_format_rejected() {
 
     // Create profile
     let create_resp = client
-        .post(&format!("{}/profiles/", base))
+        .post(&format!("{}/profiles", base))
         .header("x-eth-address", address)
         .json(&json!({
             "name": "Bob",
@@ -135,7 +135,7 @@ async fn invalid_format_rejected() {
         .await
         .unwrap();
 
-    assert_eq!(update_resp.status(), 400);
+    assert_eq!(update_resp.status(), reqwest::StatusCode::BAD_REQUEST);
 
     // Optionally, try parse message if provided
     if let Ok(err_json) = update_resp.json::<serde_json::Value>().await {
@@ -180,7 +180,7 @@ async fn conflict_case_insensitive() {
 
     // Create first profile
     let create1 = client
-        .post(&format!("{}/profiles/", base))
+        .post(&format!("{}/profiles", base))
         .header("x-eth-address", addr1)
         .json(&json!({
             "name": "Carol",
@@ -201,7 +201,7 @@ async fn conflict_case_insensitive() {
 
     // Create second profile
     let create2 = client
-        .post(&format!("{}/profiles/", base))
+        .post(&format!("{}/profiles", base))
         .header("x-eth-address", addr2)
         .json(&json!({
             "name": "Dave",
@@ -238,7 +238,7 @@ async fn conflict_case_insensitive() {
         .await
         .unwrap();
 
-    assert_eq!(conflict_resp.status(), 409);
+    assert_eq!(conflict_resp.status(), reqwest::StatusCode::CONFLICT);
 
     if let Ok(err_json) = conflict_resp.json::<serde_json::Value>().await {
         let msg = err_json["error"].as_str().unwrap_or("");

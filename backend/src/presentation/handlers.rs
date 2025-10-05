@@ -53,7 +53,7 @@ pub async fn update_profile_handler(
     Json(payload): Json<UpdateProfileRequest>,
 ) -> impl axum::response::IntoResponse {
     match update_profile(state.profile_repository, wallet, payload).await {
-        Ok(profile) => axum::Json(profile).into_response(),
+        Ok(profile) => (StatusCode::OK, axum::Json(profile)).into_response(),
         Err(e) => {
             let status = if e.contains("already taken") {
                 axum::http::StatusCode::CONFLICT

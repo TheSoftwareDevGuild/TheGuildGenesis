@@ -35,26 +35,26 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
         auth_service: Arc::from(auth_service),
     };
 
-    let protected = Router::new()
-        .route("/profiles/", post(create_profile_handler))
+    let protected_routes = Router::new()
+        .route("/profiles", post(create_profile_handler))
         .route("/profiles/:address", put(update_profile_handler))
         .route("/profiles/:address", delete(delete_profile_handler))
         .with_state(state.clone());
 
-    let protected = if std::env::var("TEST_MODE").is_ok() {
-        protected.layer(from_fn(test_auth_layer))
+    let protected_with_auth = if std::env::var("TEST_MODE").is_ok() {
+        protected_routes.layer(from_fn(test_auth_layer))
     } else {
-        protected.layer(from_fn_with_state(state.clone(), eth_auth_layer))
+        protected_routes.layer(from_fn_with_state(state.clone(), eth_auth_layer))
     };
 
-    let public = Router::new()
+    let public_routes = Router::new()
         .route("/profiles/:address", get(get_profile_handler))
-        .route("/profiles/", get(get_all_profiles_handler))
+        .route("/profiles", get(get_all_profiles_handler))
         .with_state(state.clone());
 
     Router::new()
-        .nest("/", protected)
-        .merge(public)
+        .merge(protected_with_auth)
+        .merge(public_routes)
         .with_state(state.clone())
         .layer(
             ServiceBuilder::new()
@@ -76,21 +76,21 @@ pub struct AppState {
 }
 
 pub fn test_api(state: AppState) -> Router {
-    let protected = Router::new()
-        .route("/profiles/", post(create_profile_handler))
+    let protected_routes = Router::new()
+        .route("/profiles", post(create_profile_handler))
         .route("/profiles/:address", put(update_profile_handler))
         .route("/profiles/:address", delete(delete_profile_handler))
         .with_state(state.clone())
         .layer(from_fn(test_auth_layer));
 
-    let public = Router::new()
+    let public_routes = Router::new()
         .route("/profiles/:address", get(get_profile_handler))
-        .route("/profiles/", get(get_all_profiles_handler))
+        .route("/profiles", get(get_all_profiles_handler))
         .with_state(state.clone());
 
     Router::new()
-        .nest("/", protected)
-        .merge(public)
+        .merge(protected_routes)
+        .merge(public_routes)
         .with_state(state.clone())
         .layer(
             ServiceBuilder::new()
