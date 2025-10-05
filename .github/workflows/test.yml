@@ -63,15 +63,24 @@ jobs:
             sleep 2
           done
 
-      - name: Run migrations
+      - name: Reset and run migrations
         working-directory: backend
-        run: sqlx migrate run
+        run: |
+          echo "Reverting all migrations..."
+          sqlx migrate revert --all || true
+          echo "Running migrations..."
+          sqlx migrate run
+          echo "Migrations completed"
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
+          SQLX_OFFLINE: "false"
 
       - name: Verify tables exist
         run: |
+          echo "Listing all tables in database:"
           PGPASSWORD=postgres psql -h localhost -U postgres -d guild_genesis_test -c "\dt"
+          echo "Checking profiles table schema:"
+          PGPASSWORD=postgres psql -h localhost -U postgres -d guild_genesis_test -c "\d profiles"
 
       - name: Run tests
         working-directory: backend
