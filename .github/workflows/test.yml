@@ -49,8 +49,8 @@ jobs:
         with:
           path: .sqlx
           key: ${{ runner.os }}-sqlx-${{ hashFiles('backend/Cargo.toml') }}
-          restore-keys:
-            - ${{ runner.os }}-sqlx-
+          restore-keys: |
+            ${{ runner.os }}-sqlx-
 
       - name: Install sqlx-cli
         run: cargo install sqlx-cli --no-default-features --features postgres,rustls
