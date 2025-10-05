@@ -48,7 +48,7 @@ jobs:
       - name: Cache sqlx-data
         uses: actions/cache@v3
         with:
-          path: .sqlx
+          path: backend/.sqlx
           key: ${{ runner.os }}-sqlx-${{ hashFiles('backend/Cargo.toml') }}
           restore-keys: |
             ${{ runner.os }}-sqlx-
