@@ -1,14 +1,17 @@
+
 export type CreateProfileInput = {
   name: string;
   description?: string;
   avatar_url?: string;
-  siweMessage: string; // message to sign for auth
+  github_handle?: string; 
+  siweMessage: string; 
 };
 
 export type UpdateProfileInput = {
   name?: string;
   description?: string;
   avatar_url?: string;
+  github_handle?: string; 
   siweMessage: string;
 };
 

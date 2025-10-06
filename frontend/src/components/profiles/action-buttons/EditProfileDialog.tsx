@@ -28,44 +28,56 @@ interface EditProfileDialogProps {
   address: string;
   name?: string;
   description?: string;
+  githubHandle?: string;
   children: React.ReactNode;
 }
+
+const formSchema = z.object({
+  name: z
+    .string()
+    .min(2, { message: "Name must be at least 2 characters." }),
+  description: z.string().optional(),
+  githubHandle: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export function EditProfileDialog({
   address,
   name,
   description,
+  githubHandle,
   children,
 }: EditProfileDialogProps) {
   const [open, setOpen] = useState(false);
   const updateProfile = useUpdateProfile();
   const queryClient = useQueryClient();
 
-  const form = useForm<{
-    name: string;
-    description?: string;
-  }>({
-    resolver: zodResolver(
-      z.object({
-        name: z
-          .string()
-          .min(2, { message: "Name must be at least 2 characters." }),
-        description: z.string().optional(),
-      })
-    ),
-    defaultValues: { name: name || "", description: description || "" },
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: name || "",
+      description: description || "",
+      githubHandle: githubHandle || "",
+    },
   });
 
-  const onSubmit = async (values: { name: string; description?: string }) => {
-    await updateProfile.mutateAsync({
-      input: {
-        name: values.name,
-        description: values.description || "",
-        siweMessage: "LOGIN_NONCE",
-      },
-    });
-    await queryClient.invalidateQueries({ queryKey: ["profiles"] });
-    setOpen(false);
+  const onSubmit = async (values: FormValues) => {
+    try {
+      await updateProfile.mutateAsync({
+        input: {
+          name: values.name,
+          description: values.description || "",
+          github_handle: values.githubHandle || "",
+          siweMessage: "LOGIN_NONCE",
+        },
+      });
+      await queryClient.invalidateQueries({ queryKey: ["profiles"] });
+      setOpen(false);
+      form.reset(values);
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+    }
   };
 
   return (
@@ -104,6 +116,25 @@ export function EditProfileDialog({
                       placeholder="Write a short introduction..."
                       {...field}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="githubHandle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>GitHub Handle</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">@</span>
+                      <Input
+                        placeholder="username"
+                        {...field}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
