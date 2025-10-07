@@ -2,22 +2,41 @@ import { AppWrapper } from "@/components/AppWrapper";
 import ProfileHeader from "@/components/profiles/profile-page/ProfileHeader";
 import ProfileActions from "@/components/profiles/profile-page/ProfileActions";
 import ProfileAttestations from "@/components/profiles/profile-page/ProfileAttestations";
-import ProfileIssuedAttestations from "../profiles/profile-page/ProfileIssuedAttestations";
+import ProfileIssuedAttestations from "@/components/profiles/profile-page/ProfileIssuedAttestations";
+import { useGetProfiles } from "@/hooks/profiles/use-get-profiles";
+import { useMemo } from "react";
 
 type Props = { address?: string };
 
 export default function ProfilePage({ address }: Props) {
+  const profilesQuery = useGetProfiles();
+
+  const profile = useMemo(() => {
+    const list = profilesQuery.data ?? [];
+    const p = list.find(
+      (x) => x.address.toLowerCase() === (address || "").toLowerCase()
+    );
+    return p;
+  }, [profilesQuery.data, address]);
+
   return (
     <AppWrapper>
-      <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div className="max-w-4xl mx-auto p-6">
         <ProfileHeader address={address || ""} />
 
-        <ProfileActions address={address || ""} />
+        <div className="mt-6">
+          <ProfileActions
+            address={address}
+            name={profile?.name}
+            description={profile?.description}
+            githubLogin={profile?.github_login}
+          />
+        </div>
 
         <ProfileAttestations address={address || ""} />
 
         <ProfileIssuedAttestations address={address || ""} />
-      </section>
+      </div>
     </AppWrapper>
   );
 }

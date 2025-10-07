@@ -7,8 +7,9 @@ type ProfileAttestation = {
 
 export type Profile = {
   address: string;
-  name?: string;
-  description?: string;
+  name: string;
+  description: string;
+  githubLogin?: string;
   attestationCount: number;
   attestations: ProfileAttestation[];
 };
@@ -18,7 +19,7 @@ export type ProfileFromAPI = {
   name?: string;
   description?: string;
   avatar_url?: string;
-  github_login?: string; 
+  github_login?: string;
   created_at?: string;
   updated_at?: string;
 };
