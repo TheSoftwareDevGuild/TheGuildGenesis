@@ -22,7 +22,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdateProfile } from "@/hooks/profiles/use-update-profile";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface EditProfileDialogProps {
   address: string;
@@ -62,6 +62,17 @@ export function EditProfileDialog({
     },
   });
 
+  
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        name: name || "",
+        description: description || "",
+        githubLogin: githubLogin || "",
+      });
+    }
+  }, [open, name, description, githubLogin, form]);
+
   const onSubmit = async (values: FormValues) => {
     try {
       await updateProfile.mutateAsync({
@@ -74,7 +85,6 @@ export function EditProfileDialog({
       });
       await queryClient.invalidateQueries({ queryKey: ["profiles"] });
       setOpen(false);
-      form.reset(values);
     } catch (error) {
       console.error("Failed to update profile:", error);
     }
