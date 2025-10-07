@@ -1,0 +1,101 @@
+name: Rust CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+jobs:
+  backend_tests:
+    name: Backend Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: guild_genesis_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
+      TEST_MODE: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      - name: Cache cargo
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.toml') }}
+
+      - name: Cache sqlx-data
+        uses: actions/cache@v3
+        with:
+          path: backend/.sqlx
+          key: ${{ runner.os }}-sqlx-${{ hashFiles('backend/Cargo.toml') }}
+          restore-keys: |
+            ${{ runner.os }}-sqlx-
+
+      - name: Install sqlx-cli
+        run: cargo install sqlx-cli --no-default-features --features postgres,rustls
+
+      - name: List migrations folder (debug)
+        working-directory: backend
+        run: |
+          echo "Checking migrations folder:"
+          ls -lah migrations/ || echo "❌ No migrations folder found"
+          echo "Migration files:"
+          ls -lah migrations/*.sql || echo "❌ No .sql files found"
+
+      - name: Wait for Postgres
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for Postgres..."
+            sleep 2
+          done
+
+      - name: Reset and run migrations
+        working-directory: backend
+        run: |
+          echo "Reverting all migrations..."
+          while sqlx migrate revert -y 2>/dev/null; do
+            echo "Reverted one migration"
+          done
+          echo "Running migrations..."
+          sqlx migrate run
+          echo "Migrations completed"
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
+          SQLX_OFFLINE: "false"
+
+      - name: Verify tables exist
+        run: |
+          echo "Listing all tables in database:"
+          PGPASSWORD=postgres psql -h localhost -U postgres -d guild_genesis_test -c "\dt"
+          echo "Checking profiles table schema:"
+          PGPASSWORD=postgres psql -h localhost -U postgres -d guild_genesis_test -c "\d profiles"
+
+      - name: Run tests
+        working-directory: backend
+        run: cargo test -- --nocapture
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/guild_genesis_test
+          SQLX_OFFLINE: true
+          TEST_MODE: "1"

@@ -5,6 +5,7 @@ import ProfileAttestations from "@/components/profiles/profile-page/ProfileAttes
 import ProfileDescription from "@/components/profiles/profile-page/ProfileDescription";
 import { useMemo } from "react";
 import { useGetProfiles } from "@/hooks/profiles/use-get-profiles";
+import ProfileIssuedAttestations from "../profiles/profile-page/ProfileIssuedAttestations";
 
 type Props = { address?: string };
 
@@ -27,6 +28,8 @@ export default function ProfilePage({ address }: Props) {
         <ProfileDescription description={profile?.description} />
 
         <ProfileAttestations address={address || ""} />
+
+        <ProfileIssuedAttestations address={address || ""} />
       </section>
     </AppWrapper>
   );

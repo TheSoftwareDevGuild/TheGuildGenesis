@@ -3,6 +3,7 @@ import { useAccount } from "wagmi";
 import { useMemo } from "react";
 import { useGetProfiles } from "@/hooks/profiles/use-get-profiles";
 import AddressTokenBalance from "@/components/AddressTokenBalance";
+import CopyAddressToClipboard from "@/components/CopyAddressToClipboard";
 
 export function ProfileHeader({ address }: { address: string }) {
   const profilesQuery = useGetProfiles();
@@ -43,7 +44,12 @@ export function ProfileHeader({ address }: { address: string }) {
           )}
         </h1>
         {displayAddress ? (
-          <p className="font-mono text-sm text-gray-600">{displayAddress}</p>
+          <CopyAddressToClipboard 
+            address={address}
+            displayAddress={displayAddress}
+            className="text-sm text-gray-600"
+            iconSize="sm"
+          />
         ) : null}
         <AddressTokenBalance address={address as `0x${string}`} />
       </div>
