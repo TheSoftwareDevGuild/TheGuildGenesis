@@ -18,7 +18,7 @@ export type ProfileFromAPI = {
   name?: string;
   description?: string;
   avatar_url?: string;
-  github_handle?: string; 
+  github_login?: string; 
   created_at?: string;
   updated_at?: string;
 };

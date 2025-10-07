@@ -28,7 +28,7 @@ interface EditProfileDialogProps {
   address: string;
   name?: string;
   description?: string;
-  githubHandle?: string;
+  githubLogin?: string;
   children: React.ReactNode;
 }
 
@@ -37,7 +37,7 @@ const formSchema = z.object({
     .string()
     .min(2, { message: "Name must be at least 2 characters." }),
   description: z.string().optional(),
-  githubHandle: z.string().optional(),
+  githubLogin: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -46,7 +46,7 @@ export function EditProfileDialog({
   address,
   name,
   description,
-  githubHandle,
+  githubLogin,
   children,
 }: EditProfileDialogProps) {
   const [open, setOpen] = useState(false);
@@ -58,7 +58,7 @@ export function EditProfileDialog({
     defaultValues: {
       name: name || "",
       description: description || "",
-      githubHandle: githubHandle || "",
+      githubLogin: githubLogin || "",
     },
   });
 
@@ -68,7 +68,7 @@ export function EditProfileDialog({
         input: {
           name: values.name,
           description: values.description || "",
-          github_handle: values.githubHandle || "",
+          github_login: values.githubLogin || "",
           siweMessage: "LOGIN_NONCE",
         },
       });
@@ -123,7 +123,7 @@ export function EditProfileDialog({
             />
             <FormField
               control={form.control}
-              name="githubHandle"
+              name="githubLogin"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>GitHub Handle</FormLabel>

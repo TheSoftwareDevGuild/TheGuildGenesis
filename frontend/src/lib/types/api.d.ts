@@ -3,7 +3,7 @@ export type CreateProfileInput = {
   name: string;
   description?: string;
   avatar_url?: string;
-  github_handle?: string; 
+  github_login?: string; 
   siweMessage: string; 
 };
 
@@ -11,7 +11,7 @@ export type UpdateProfileInput = {
   name?: string;
   description?: string;
   avatar_url?: string;
-  github_handle?: string; 
+  github_login?: string; 
   siweMessage: string;
 };
 
