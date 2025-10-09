@@ -1,17 +1,25 @@
 ---
-import ProfilePage from "@/components/pages/ProfilePage";
 import Layout from "@/layouts/Layout.astro";
-
+import "@rainbow-me/rainbowkit/styles.css";
 const { address } = Astro.params;
-
 export const prerender = false;
 ---
 
-
-
 <Layout title="Profile - The Guild Genesis">
-  <div class="min-h-screen bg-gray-50">
-    <ProfilePage address={address as string} client:only="react" />
-  </div>
+  <div id="profile-root" data-address={address}></div>
 </Layout>
-  
+
+<script>
+  import { createElement } from "react";
+  import { createRoot } from "react-dom/client";
+  import { ProfilePageWrapper } from "@/components/profiles/profile-page/ProfilePageWrapper";
+
+  const rootElement = document.getElementById("profile-root");
+  const address = rootElement?.getAttribute("data-address");
+
+  if (rootElement && address) {
+    createRoot(rootElement).render(
+      createElement(ProfilePageWrapper, { address })
+    );
+  }
+</script>

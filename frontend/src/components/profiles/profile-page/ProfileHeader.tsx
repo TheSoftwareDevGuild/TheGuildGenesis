@@ -1,28 +1,23 @@
 import { User } from "lucide-react";
 import { useAccount } from "wagmi";
-import { useMemo } from "react";
-import { useGetProfiles } from "@/hooks/profiles/use-get-profiles";
 import AddressTokenBalance from "@/components/AddressTokenBalance";
 import CopyAddressToClipboard from "@/components/CopyAddressToClipboard";
 import { GithubIcon } from "@/components/ui/GithubIcon";
 
-export function ProfileHeader({ address }: { address: string }) {
-  const profilesQuery = useGetProfiles();
+interface ProfileHeaderProps {
+  address: string;
+  name?: string;
+  description?: string;
+  githubLogin?: string;
+}
 
-  const profile = useMemo(() => {
-    const list = profilesQuery.data ?? [];
-    const p = list.find(
-      (x) => x.address.toLowerCase() === (address || "").toLowerCase()
-    );
-    return p;
-  }, [profilesQuery.data, address]);
-
-  const displayName =
-    profile?.name ||
-    (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Profile");
-  const displayAddress = address
-    ? `${address.slice(0, 6)}...${address.slice(-4)}`
-    : "";
+export function ProfileHeader({
+  address,
+  name,
+  githubLogin,
+}: ProfileHeaderProps) {
+  const displayName = name || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Profile");
+  const displayAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
 
   const { address: connectedAddress } = useAccount();
   const isOwner =
@@ -45,23 +40,23 @@ export function ProfileHeader({ address }: { address: string }) {
           )}
         </h1>
         {displayAddress ? (
-          <CopyAddressToClipboard 
+          <CopyAddressToClipboard
             address={address}
             displayAddress={displayAddress}
             className="text-sm text-gray-600"
             iconSize="sm"
           />
         ) : null}
-        {profile?.github_login && (
+        {githubLogin && (
           <div className="flex items-center gap-1.5 mt-1">
             <GithubIcon className="h-4 w-4 text-gray-500" />
             <a
-              href={`https://github.com/${profile.github_login}`}
+              href={`https://github.com/${githubLogin}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-gray-700 hover:text-indigo-600 hover:underline"
             >
-              @{profile.github_login}
+              @{githubLogin}
             </a>
           </div>
         )}
