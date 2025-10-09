@@ -24,7 +24,7 @@ export function AppWrapper({ children }: AppWrapperProps) {
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
-          <div className="relative min-h-screen bg-gray-50">
+          <div className="relative min-h-screen">
             <AppBackground />
             <SidebarProvider>
               <AppSidebar />

@@ -1,4 +1,3 @@
-import { AppWrapper } from "@/components/AppWrapper";
 import ProfileHeader from "@/components/profiles/profile-page/ProfileHeader";
 import ProfileActions from "@/components/profiles/profile-page/ProfileActions";
 import ProfileAttestations from "@/components/profiles/profile-page/ProfileAttestations";
@@ -6,21 +5,9 @@ import ProfileIssuedAttestations from "@/components/profiles/profile-page/Profil
 import { useGetProfiles } from "@/hooks/profiles/use-get-profiles";
 import { useMemo } from "react";
 
-interface ProfilePageWrapperProps {
-  address: string;
-}
-
-export function ProfilePageWrapper({ address }: ProfilePageWrapperProps) {
-  return (
-    <AppWrapper>
-      <ProfilePageContent address={address} />
-    </AppWrapper>
-  );
-}
-
-function ProfilePageContent({ address }: { address: string }) {
+export function ProfileMain({ address }: { address: string }) {
   const profilesQuery = useGetProfiles();
-  
+
   const profile = useMemo(() => {
     const list = profilesQuery.data ?? [];
     const p = list.find(
