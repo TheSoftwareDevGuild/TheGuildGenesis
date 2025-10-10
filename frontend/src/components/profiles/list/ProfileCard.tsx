@@ -12,12 +12,14 @@ import { useAccount } from "wagmi";
 import DeleteProfileDialog from "../action-buttons/DeleteProfileDialog";
 import { AddAttestationDialog } from "../action-buttons/AddAttestationDialog";
 import AddressTokenBalance from "@/components/AddressTokenBalance";
+import CopyAddressToClipboard from "@/components/CopyAddressToClipboard";
 
 interface ProfileCardProps {
   address: string;
   name?: string;
   description?: string;
   avatar?: string;
+  githubLogin?: string;
   attestationCount: number;
   attestations: Array<{
     id: string;
@@ -32,6 +34,7 @@ export function ProfileCard({
   name,
   description,
   avatar,
+  githubLogin,
   attestationCount,
   attestations,
 }: ProfileCardProps) {
@@ -75,10 +78,15 @@ export function ProfileCard({
               </span>
             )}
           </CardTitle>
-          <CardDescription className="font-mono">
-            <a href={`/profiles/${address}`} className="hover:underline">
+          <CardDescription>
+            <a href={`/profiles/${address}`} className="hover:underline font-mono">
               {displayAddress}
             </a>
+            <CopyAddressToClipboard 
+              address={address}
+              className="ml-2"
+              iconSize="sm"
+            />
           </CardDescription>
           <AddressTokenBalance address={address as `0x${string}`} />
         </div>
@@ -87,6 +95,7 @@ export function ProfileCard({
             address={address}
             name={name}
             description={description}
+            githubLogin={githubLogin}
           >
             <Button
               variant="ghost"

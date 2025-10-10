@@ -16,12 +16,13 @@ export function ProfilesList() {
   const baseProfiles: Profile[] =
     data && data.length > 0
       ? data.map((p) => ({
-          address: p.address,
-          name: p.name,
-          description: p.description,
-          attestationCount: 0,
-          attestations: [],
-        }))
+        address: p.address,
+        name: p.name || "",
+        description: p.description || "",
+        githubLogin: p.github_login,
+        attestationCount: 0,
+        attestations: [],
+      }))
       : PROFILES;
 
   const attestationsByRecipient = useMemo(() => {
@@ -75,10 +76,8 @@ export function ProfilesList() {
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
-
         <CreateProfileButton />
       </div>
-
       {isLoading || attestations.isLoading ? (
         <p className="text-sm text-gray-600">Loading profiles...</p>
       ) : null}
@@ -89,7 +88,6 @@ export function ProfilesList() {
             "An error occurred"}
         </p>
       ) : null}
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {filtered.map((profile) => (
           <ProfileCard
@@ -97,6 +95,7 @@ export function ProfilesList() {
             address={profile.address}
             name={profile.name}
             description={profile.description}
+            githubLogin={profile.githubLogin}
             attestationCount={profile.attestationCount}
             attestations={profile.attestations}
           />
