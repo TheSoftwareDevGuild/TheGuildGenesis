@@ -72,7 +72,7 @@ curl -X POST \
     "description": "Hello world",
     "avatar_url": "https://example.com/avatar.png"
   }' \
-  http://0.0.0.0:3001/profiles/
+  http://0.0.0.0:3001/profiles
 ```
 Get profile:
 ```
@@ -91,6 +91,28 @@ curl -X PUT \
   -d '{ "name": "New name", "description": "New desc" }' \
   http://0.0.0.0:3001/profiles/0x2581aAa94299787a8A588B2Fceb161A302939E28
 ```
+
+### GitHub handle support
+
+Profiles can now include an optional GitHub username stored as `github_login`.
+
+- The value is stored with its original casing, but uniqueness is enforced case-insensitively ("Alice" conflicts with "alice").
+- `github_login` must match the pattern `^[a-zA-Z0-9-]{1,39}$`; otherwise the API returns **400 Bad Request**.
+- When the normalized value is already claimed by another profile, the API returns **409 Conflict**.
+- Successful creates return **201 Created** and updates return **200 OK**.
+- Include the field when creating or updating a profile:
+
+```
+curl -X PUT \
+  -H 'Content-Type: application/json' \
+  -H 'x-eth-address: 0x2581aAa94299787a8A588B2Fceb161A302939E28' \
+  -H 'x-eth-signature: 0x00000000000000' \
+  -H 'x-siwe-message: LOGIN_NONCE' \
+  -d '{ "github_login": "MyUser123" }' \
+  http://0.0.0.0:3001/profiles/0x2581aAa94299787a8A588B2Fceb161A302939E28
+```
+
+Integration and automated tests run under `TEST_MODE=1`, which swaps in a test-only auth layer so GitHub handle flows can be exercised without Ethereum signature verification.
 
 ## 7) Troubleshooting
 - initdb locale error:

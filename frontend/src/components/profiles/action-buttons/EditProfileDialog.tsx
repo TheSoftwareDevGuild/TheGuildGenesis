@@ -22,50 +22,72 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useUpdateProfile } from "@/hooks/profiles/use-update-profile";
 import { useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface EditProfileDialogProps {
   address: string;
   name?: string;
   description?: string;
+  githubLogin?: string;
   children: React.ReactNode;
 }
+
+const formSchema = z.object({
+  name: z
+    .string()
+    .min(2, { message: "Name must be at least 2 characters." }),
+  description: z.string().optional(),
+  githubLogin: z.string().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 export function EditProfileDialog({
   address,
   name,
   description,
+  githubLogin,
   children,
 }: EditProfileDialogProps) {
   const [open, setOpen] = useState(false);
   const updateProfile = useUpdateProfile();
   const queryClient = useQueryClient();
 
-  const form = useForm<{
-    name: string;
-    description?: string;
-  }>({
-    resolver: zodResolver(
-      z.object({
-        name: z
-          .string()
-          .min(2, { message: "Name must be at least 2 characters." }),
-        description: z.string().optional(),
-      })
-    ),
-    defaultValues: { name: name || "", description: description || "" },
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: name || "",
+      description: description || "",
+      githubLogin: githubLogin || "",
+    },
   });
 
-  const onSubmit = async (values: { name: string; description?: string }) => {
-    await updateProfile.mutateAsync({
-      input: {
-        name: values.name,
-        description: values.description || "",
-        siweMessage: "LOGIN_NONCE",
-      },
-    });
-    await queryClient.invalidateQueries({ queryKey: ["profiles"] });
-    setOpen(false);
+  
+  useEffect(() => {
+    if (open) {
+      form.reset({
+        name: name || "",
+        description: description || "",
+        githubLogin: githubLogin || "",
+      });
+    }
+  }, [open, name, description, githubLogin, form]);
+
+  const onSubmit = async (values: FormValues) => {
+    try {
+      await updateProfile.mutateAsync({
+        input: {
+          name: values.name,
+          description: values.description || "",
+          github_login: values.githubLogin || "",
+          siweMessage: "LOGIN_NONCE",
+        },
+      });
+      await queryClient.invalidateQueries({ queryKey: ["profiles"] });
+      setOpen(false);
+    } catch (error) {
+      console.error("Failed to update profile:", error);
+    }
   };
 
   return (
@@ -104,6 +126,25 @@ export function EditProfileDialog({
                       placeholder="Write a short introduction..."
                       {...field}
                     />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="githubLogin"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>GitHub Handle</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">@</span>
+                      <Input
+                        placeholder="username"
+                        {...field}
+                      />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

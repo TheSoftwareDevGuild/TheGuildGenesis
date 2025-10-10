@@ -5,6 +5,7 @@ export const PROFILES: Profile[] = [
     address: "0x1234...5678",
     name: "Alice Developer",
     description: "Full-stack developer passionate about Web3 and Rust",
+    githubLogin: "alice-dev",
     attestationCount: 5,
     attestations: [
       {
@@ -31,6 +32,7 @@ export const PROFILES: Profile[] = [
     address: "0x9876...5432",
     name: "Bob Builder",
     description: "Smart contract developer and DeFi enthusiast",
+    githubLogin: "bob-builder",
     attestationCount: 3,
     attestations: [
       {
@@ -49,6 +51,9 @@ export const PROFILES: Profile[] = [
   },
   {
     address: "0x5555...7777",
+    name: "", 
+    description: "", 
+    githubLogin: undefined, 
     attestationCount: 2,
     attestations: [
       {

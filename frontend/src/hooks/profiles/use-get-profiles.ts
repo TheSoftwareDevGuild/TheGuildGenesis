@@ -3,7 +3,7 @@ import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { API_BASE_URL } from "@/lib/constants/apiConstants";
 
 async function fetchProfiles(): Promise<ProfileFromAPI[]> {
-  const response = await fetch(`${API_BASE_URL}/profiles/`, {
+  const response = await fetch(`${API_BASE_URL}/profiles`, {
     method: "GET",
     headers: {
       "Content-Type": "application/json",
