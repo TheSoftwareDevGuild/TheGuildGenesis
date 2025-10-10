@@ -71,6 +71,38 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
         )
 }
 
+// Helper for tests: build the same router using a provided AppState
+pub fn test_api(state: AppState) -> Router {
+    let protected = Router::new()
+        .route("/profiles/", post(create_profile_handler))
+        .route("/profiles/:address", put(update_profile_handler))
+        .route("/profiles/:address", delete(delete_profile_handler))
+        .with_state(state.clone())
+        .layer(from_fn_with_state(state.clone(), eth_auth_layer));
+
+    let public = Router::new()
+        .route("/profiles/:address", get(get_profile_handler))
+        .route("/profiles/", get(get_all_profiles_handler))
+        .route("/admin/github/sync", post(github_sync_handler))
+        .with_state(state.clone());
+
+    Router::new()
+        .nest("/", protected)
+        .merge(public)
+        .with_state(state.clone())
+        .layer(
+            ServiceBuilder::new()
+                .layer(TraceLayer::new_for_http())
+                .layer(
+                    CorsLayer::new()
+                        .allow_origin(Any)
+                        .allow_methods([Method::GET, Method::POST, Method::PUT, Method::DELETE])
+                        .allow_headers(Any),
+                )
+                .layer(DefaultBodyLimit::max(1024 * 1024)),
+        )
+}
+
 #[derive(Clone)]
 pub struct AppState {
     pub profile_repository: Arc<dyn ProfileRepository>,

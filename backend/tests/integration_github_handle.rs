@@ -15,9 +15,17 @@ async fn valid_github_handle_works() {
     let pool = sqlx::PgPool::connect(&database_url).await.unwrap();
     let profile_repository =
         guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone());
+    let github_issue_repository =
+        guild_backend::infrastructure::repositories::PostgresGithubIssueRepository::new(
+            pool.clone(),
+        );
+    let github_api_service =
+        guild_backend::infrastructure::services::github_api_http_service::GithubApiHttpService::new();
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new();
     let state = AppState {
         profile_repository: std::sync::Arc::new(profile_repository),
+        github_issue_repository: std::sync::Arc::new(github_issue_repository),
+        github_api_service: std::sync::Arc::new(github_api_service),
         auth_service: std::sync::Arc::new(auth_service),
     };
     let app = test_api(state);
@@ -82,9 +90,17 @@ async fn invalid_format_rejected() {
     let pool = sqlx::PgPool::connect(&database_url).await.unwrap();
     let profile_repository =
         guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone());
+    let github_issue_repository =
+        guild_backend::infrastructure::repositories::PostgresGithubIssueRepository::new(
+            pool.clone(),
+        );
+    let github_api_service =
+        guild_backend::infrastructure::services::github_api_http_service::GithubApiHttpService::new();
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new();
     let state = AppState {
         profile_repository: std::sync::Arc::new(profile_repository),
+        github_issue_repository: std::sync::Arc::new(github_issue_repository),
+        github_api_service: std::sync::Arc::new(github_api_service),
         auth_service: std::sync::Arc::new(auth_service),
     };
     let app = test_api(state);
@@ -156,9 +172,17 @@ async fn conflict_case_insensitive() {
     let pool = sqlx::PgPool::connect(&database_url).await.unwrap();
     let profile_repository =
         guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone());
+    let github_issue_repository =
+        guild_backend::infrastructure::repositories::PostgresGithubIssueRepository::new(
+            pool.clone(),
+        );
+    let github_api_service =
+        guild_backend::infrastructure::services::github_api_http_service::GithubApiHttpService::new();
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new();
     let state = AppState {
         profile_repository: std::sync::Arc::new(profile_repository),
+        github_issue_repository: std::sync::Arc::new(github_issue_repository),
+        github_api_service: std::sync::Arc::new(github_api_service),
         auth_service: std::sync::Arc::new(auth_service),
     };
     let app = test_api(state);

@@ -1552,6 +1552,8 @@ dependencies = [
  "chrono",
  "dotenvy",
  "ethers",
+ "hyper 0.14.32",
+ "regex",
  "reqwest",
  "serde",
  "serde_json",
@@ -1563,7 +1565,6 @@ dependencies = [
  "tower-http",
  "tracing",
  "tracing-subscriber",
- "url",
  "uuid 1.18.1",
 ]
 
