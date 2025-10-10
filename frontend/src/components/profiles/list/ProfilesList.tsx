@@ -19,7 +19,7 @@ export function ProfilesList() {
     data && data.length > 0
       ? data.map((p) => ({
           address: p.address,
-          name: p.name,
+          name: p.name || "",
           description: p.description || "",
           githubLogin: p.github_login,
           attestationCount: 0,
@@ -83,37 +83,42 @@ export function ProfilesList() {
   }
 
   return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-       {error && <ErrorDisplay error={error}  />}
-      <div className="flex gap-4 items-center pb-8">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-          <Input
-            type="text"
-            placeholder="Search profiles..."
-            className="pl-10"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-        </div>
+    <>
+      {error ? (
+        <ErrorDisplay error={error} />
+      ) : (
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex gap-4 items-center pb-8">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Input
+                type="text"
+                placeholder="Search profiles..."
+                className="pl-10"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
 
-        <CreateProfileButton />
-      </div>
+            <CreateProfileButton />
+          </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filtered.map((profile) => (
-          <ProfileCard
-            key={profile.address}
-            address={profile.address}
-            name={profile.name}
-            description={profile.description}
-            githubLogin={profile.githubLogin}
-            attestationCount={profile.attestationCount}
-            attestations={profile.attestations}
-          />
-        ))}
-      </div>
-    </main>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filtered.map((profile) => (
+              <ProfileCard
+                key={profile.address}
+                address={profile.address}
+                name={profile.name}
+                description={profile.description}
+                githubLogin={profile.githubLogin}
+                attestationCount={profile.attestationCount}
+                attestations={profile.attestations}
+              />
+            ))}
+          </div>
+        </main>
+      )}
+    </>
   );
 }
 
