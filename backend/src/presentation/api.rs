@@ -42,7 +42,7 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
     };
 
     let protected = Router::new()
-        .route("/profiles/", post(create_profile_handler))
+        .route("/profiles", post(create_profile_handler))
         .route("/profiles/:address", put(update_profile_handler))
         .route("/profiles/:address", delete(delete_profile_handler))
         .with_state(state.clone())
@@ -50,7 +50,7 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
 
     let public = Router::new()
         .route("/profiles/:address", get(get_profile_handler))
-        .route("/profiles/", get(get_all_profiles_handler))
+        .route("/profiles", get(get_all_profiles_handler))
         .route("/admin/github/sync", post(github_sync_handler))
         .with_state(state.clone());
 
@@ -74,7 +74,7 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
 // Helper for tests: build the same router using a provided AppState
 pub fn test_api(state: AppState) -> Router {
     let protected = Router::new()
-        .route("/profiles/", post(create_profile_handler))
+        .route("/profiles", post(create_profile_handler))
         .route("/profiles/:address", put(update_profile_handler))
         .route("/profiles/:address", delete(delete_profile_handler))
         .with_state(state.clone())
@@ -82,7 +82,7 @@ pub fn test_api(state: AppState) -> Router {
 
     let public = Router::new()
         .route("/profiles/:address", get(get_profile_handler))
-        .route("/profiles/", get(get_all_profiles_handler))
+        .route("/profiles", get(get_all_profiles_handler))
         .route("/admin/github/sync", post(github_sync_handler))
         .with_state(state.clone());
 
