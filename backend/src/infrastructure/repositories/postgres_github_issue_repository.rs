@@ -19,7 +19,7 @@ impl GithubIssueRepository for PostgresGithubIssueRepository {
     async fn upsert_issues(&self, issues: &[GithubIssue]) -> anyhow::Result<()> {
         let mut tx = self.pool.begin().await?;
         for issue in issues {
-            sqlx::query(
+            sqlx::query!(
                 r#"
                 INSERT INTO github_issues (
                     repo, repo_id, github_issue_id, number, title, state, labels, points,
@@ -43,22 +43,22 @@ impl GithubIssueRepository for PostgresGithubIssueRepository {
                     distribution_id = COALESCE(EXCLUDED.distribution_id, github_issues.distribution_id),
                     updated_at = EXCLUDED.updated_at
                 "#,
+                issue.repo,
+                issue.repo_id,
+                issue.github_issue_id,
+                issue.number,
+                issue.title,
+                issue.state,
+                issue.labels,
+                issue.points,
+                issue.assignee_logins,
+                issue.html_url,
+                issue.created_at,
+                issue.closed_at,
+                issue.rewarded,
+                issue.distribution_id,
+                issue.updated_at
             )
-            .bind(&issue.repo)
-            .bind(issue.repo_id)
-            .bind(issue.github_issue_id)
-            .bind(issue.number)
-            .bind(&issue.title)
-            .bind(&issue.state)
-            .bind(&issue.labels)
-            .bind(issue.points)
-            .bind(&issue.assignee_logins)
-            .bind(&issue.html_url)
-            .bind(issue.created_at)
-            .bind(issue.closed_at)
-            .bind(issue.rewarded)
-            .bind(issue.distribution_id.as_deref())
-            .bind(issue.updated_at)
             .execute(&mut *tx)
             .await?;
         }

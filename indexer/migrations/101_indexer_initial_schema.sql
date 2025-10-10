@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS ethereum_events (
+CREATE TABLE ethereum_events (
     id VARCHAR(255) PRIMARY KEY,
     event_type TEXT NOT NULL,
     timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
