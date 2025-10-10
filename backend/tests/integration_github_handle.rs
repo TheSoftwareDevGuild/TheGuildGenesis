@@ -20,7 +20,8 @@ async fn valid_github_handle_works() {
             pool.clone(),
         );
     let github_api_service =
-        guild_backend::infrastructure::services::github_api_http_service::GithubApiHttpService::new();
+        guild_backend::infrastructure::services::github_api_http_service::GithubApiHttpService::new(
+        );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new();
     let state = AppState {
         profile_repository: std::sync::Arc::new(profile_repository),
@@ -95,7 +96,8 @@ async fn invalid_format_rejected() {
             pool.clone(),
         );
     let github_api_service =
-        guild_backend::infrastructure::services::github_api_http_service::GithubApiHttpService::new();
+        guild_backend::infrastructure::services::github_api_http_service::GithubApiHttpService::new(
+        );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new();
     let state = AppState {
         profile_repository: std::sync::Arc::new(profile_repository),
@@ -177,7 +179,8 @@ async fn conflict_case_insensitive() {
             pool.clone(),
         );
     let github_api_service =
-        guild_backend::infrastructure::services::github_api_http_service::GithubApiHttpService::new();
+        guild_backend::infrastructure::services::github_api_http_service::GithubApiHttpService::new(
+        );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new();
     let state = AppState {
         profile_repository: std::sync::Arc::new(profile_repository),
