@@ -14,9 +14,10 @@ import type { Badge } from "@/lib/types/badges";
 import { Search } from "lucide-react";
 import { CreateBadgeButton } from "@/components/badges/CreateBadgeButton";
 import { Input } from "../ui/input";
+import { AiOutlineLoading3Quarters } from "react-icons/ai";
 
 export function BadgesList(): React.ReactElement {
-  const { data, isLoading } = useGetBadges();
+  const { data, isLoading, error } = useGetBadges();
   const [searchQuery, setSearchQuery] = useState("");
   const list = (data && data.length > 0 ? data : HARD_CODED_BADGES) as Badge[];
 
@@ -27,8 +28,22 @@ export function BadgesList(): React.ReactElement {
   }, [list, searchQuery]);
 
   if (isLoading) {
-    return <div className="mx-auto w-full max-w-5xl p-4">Loading badges…</div>;
+    return (
+      <div className="flex justify-start">
+        <AiOutlineLoading3Quarters className="h-10 w-10 animate-spin" />
+      </div>
+    );
   }
+
+  if (error) {
+    return (
+      <p className="text-2xl text-yellow-600 flex items-center gap-2">
+        <span>⚠️</span>
+        {"An error occurred, please try again later or contact support on discord"}
+      </p>
+    );
+  }
+
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="flex gap-4 items-center pb-8">
