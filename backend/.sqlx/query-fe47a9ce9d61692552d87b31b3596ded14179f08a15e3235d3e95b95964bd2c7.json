@@ -1,0 +1,14 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            UPDATE profiles\n            SET login_nonce = login_nonce + 1\n            WHERE address = $1\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "fe47a9ce9d61692552d87b31b3596ded14179f08a15e3235d3e95b95964bd2c7"
+}

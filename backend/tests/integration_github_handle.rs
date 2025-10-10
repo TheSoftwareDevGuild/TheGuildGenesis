@@ -13,11 +13,12 @@ async fn valid_github_handle_works() {
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();
     let pool = sqlx::PgPool::connect(&database_url).await.unwrap();
-    let profile_repository =
-        guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone());
-    let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new();
+    let profile_repository = std::sync::Arc::new(
+        guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone()),
+    );
+    let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
     let state = AppState {
-        profile_repository: std::sync::Arc::new(profile_repository),
+        profile_repository,
         auth_service: std::sync::Arc::new(auth_service),
     };
     let app = test_api(state);
@@ -80,11 +81,12 @@ async fn invalid_format_rejected() {
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();
     let pool = sqlx::PgPool::connect(&database_url).await.unwrap();
-    let profile_repository =
-        guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone());
-    let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new();
+    let profile_repository = std::sync::Arc::new(
+        guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone()),
+    );
+    let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
     let state = AppState {
-        profile_repository: std::sync::Arc::new(profile_repository),
+        profile_repository,
         auth_service: std::sync::Arc::new(auth_service),
     };
     let app = test_api(state);
@@ -154,11 +156,12 @@ async fn conflict_case_insensitive() {
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
     let addr = listener.local_addr().unwrap();
     let pool = sqlx::PgPool::connect(&database_url).await.unwrap();
-    let profile_repository =
-        guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone());
-    let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new();
+    let profile_repository = std::sync::Arc::new(
+        guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone()),
+    );
+    let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
     let state = AppState {
-        profile_repository: std::sync::Arc::new(profile_repository),
+        profile_repository,
         auth_service: std::sync::Arc::new(auth_service),
     };
     let app = test_api(state);

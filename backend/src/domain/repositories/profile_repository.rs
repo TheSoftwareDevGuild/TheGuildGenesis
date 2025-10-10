@@ -16,4 +16,12 @@ pub trait ProfileRepository: Send + Sync {
         &self,
         github_login: &str,
     ) -> Result<Option<Profile>, Box<dyn std::error::Error + Send + Sync>>;
+    async fn get_login_nonce_by_wallet_address(
+        &self,
+        address: &WalletAddress,
+    ) -> Result<Option<i64>, Box<dyn std::error::Error>>;
+    async fn increment_login_nonce(
+        &self,
+        address: &WalletAddress,
+    ) -> Result<(), Box<dyn std::error::Error>>;
 }

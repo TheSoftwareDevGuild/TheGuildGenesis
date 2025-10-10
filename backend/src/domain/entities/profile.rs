@@ -10,6 +10,7 @@ pub struct Profile {
     pub description: Option<String>,
     pub avatar_url: Option<String>,
     pub github_login: Option<String>,
+    pub login_nonce: i64,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }
@@ -23,6 +24,7 @@ impl Profile {
             description: None,
             avatar_url: None,
             github_login: None,
+            login_nonce: 1,
             created_at: now,
             updated_at: now,
         }

@@ -43,19 +43,30 @@ pub async fn eth_auth_layer(
         .map(str::to_owned)
         .ok_or(StatusCode::UNAUTHORIZED)?;
 
-    let nonce = "NONCE";
+    // Get the current nonce from the database
+    let wallet_address = crate::domain::value_objects::WalletAddress(address.clone());
+    let nonce = state
+        .profile_repository
+        .get_login_nonce_by_wallet_address(&wallet_address)
+        .await
+        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
+        .ok_or(StatusCode::UNAUTHORIZED)?; // Profile must exist
 
-    state
+    let result = state
         .auth_service
         .verify_signature(
             &AuthChallenge {
                 address: address.clone().to_string(),
-                nonce: nonce.to_string(),
+                nonce,
             },
             &signature,
-        ) // define the signature you like
+        )
         .await
         .map_err(|_| StatusCode::UNAUTHORIZED)?;
+
+    if result.is_none() {
+        return Err(StatusCode::UNAUTHORIZED);
+    }
 
     // Inject identity for handlers:
     req.extensions_mut()

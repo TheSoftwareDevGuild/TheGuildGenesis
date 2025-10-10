@@ -20,18 +20,18 @@ use tower_http::{
 };
 
 use super::handlers::{
-    create_profile_handler, delete_profile_handler, get_all_profiles_handler, get_profile_handler,
-    update_profile_handler,
+    create_profile_handler, delete_profile_handler, get_all_profiles_handler, get_nonce_handler,
+    get_profile_handler, update_profile_handler,
 };
 
 use super::middlewares::{eth_auth_layer, test_auth_layer};
 
 pub async fn create_app(pool: sqlx::PgPool) -> Router {
-    let auth_service = EthereumAddressVerificationService::new();
-    let profile_repository = PostgresProfileRepository::new(pool);
+    let profile_repository = Arc::from(PostgresProfileRepository::new(pool));
+    let auth_service = EthereumAddressVerificationService::new(profile_repository.clone());
 
     let state: AppState = AppState {
-        profile_repository: Arc::from(profile_repository),
+        profile_repository,
         auth_service: Arc::from(auth_service),
     };
 
@@ -50,6 +50,7 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
     let public_routes = Router::new()
         .route("/profiles/:address", get(get_profile_handler))
         .route("/profiles", get(get_all_profiles_handler))
+        .route("/auth/nonce/:address", get(get_nonce_handler))
         .with_state(state.clone());
 
     Router::new()
@@ -86,6 +87,7 @@ pub fn test_api(state: AppState) -> Router {
     let public_routes = Router::new()
         .route("/profiles/:address", get(get_profile_handler))
         .route("/profiles", get(get_all_profiles_handler))
+        .route("/auth/nonce/:address", get(get_nonce_handler))
         .with_state(state.clone());
 
     Router::new()

@@ -60,6 +60,20 @@ mod github_handle_tests {
                 })
                 .cloned())
         }
+
+        async fn get_login_nonce_by_wallet_address(
+            &self,
+            _address: &WalletAddress,
+        ) -> Result<Option<i64>, Box<dyn std::error::Error>> {
+            Ok(Some(1))
+        }
+
+        async fn increment_login_nonce(
+            &self,
+            _address: &WalletAddress,
+        ) -> Result<(), Box<dyn std::error::Error>> {
+            Ok(())
+        }
     }
 
     #[tokio::test]
@@ -72,6 +86,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: None,
+            login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
         };
@@ -102,6 +117,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: None,
+            login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
         };
@@ -133,6 +149,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: Some("Alice".into()),
+            login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
         };
@@ -143,6 +160,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: None,
+            login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
         };
