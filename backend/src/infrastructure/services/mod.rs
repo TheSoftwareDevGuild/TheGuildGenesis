@@ -1,1 +1,2 @@
 pub mod ethereum_address_verification_service;
+pub mod github_api_http_service;

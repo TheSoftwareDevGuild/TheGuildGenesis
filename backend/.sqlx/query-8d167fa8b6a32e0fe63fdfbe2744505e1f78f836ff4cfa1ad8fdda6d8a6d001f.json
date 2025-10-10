@@ -1,0 +1,28 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                INSERT INTO github_issues (\n                    repo, repo_id, github_issue_id, number, title, state, labels, points,\n                    assignee_logins, html_url, created_at, closed_at, rewarded, distribution_id, updated_at\n                ) VALUES (\n                    $1, $2, $3, $4, $5, $6, $7, $8,\n                    $9, $10, $11, $12, $13, $14, $15\n                )\n                ON CONFLICT (repo_id, github_issue_id) DO UPDATE SET\n                    repo = EXCLUDED.repo,\n                    number = EXCLUDED.number,\n                    title = EXCLUDED.title,\n                    state = EXCLUDED.state,\n                    labels = EXCLUDED.labels,\n                    points = EXCLUDED.points,\n                    assignee_logins = EXCLUDED.assignee_logins,\n                    html_url = EXCLUDED.html_url,\n                    created_at = EXCLUDED.created_at,\n                    closed_at = EXCLUDED.closed_at,\n                    rewarded = github_issues.rewarded,\n                    distribution_id = COALESCE(EXCLUDED.distribution_id, github_issues.distribution_id),\n                    updated_at = EXCLUDED.updated_at\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Int8",
+        "Int8",
+        "Int4",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Int4",
+        "Jsonb",
+        "Text",
+        "Timestamptz",
+        "Timestamptz",
+        "Bool",
+        "Text",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8d167fa8b6a32e0fe63fdfbe2744505e1f78f836ff4cfa1ad8fdda6d8a6d001f"
+}
