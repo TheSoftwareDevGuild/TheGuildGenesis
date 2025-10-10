@@ -8,6 +8,7 @@ import { useMemo, useState } from "react";
 import { useGetAttestations } from "@/hooks/attestations/use-get-attestations";
 import { Input } from "../../ui/input";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
+import ErrorDisplay from "@/components/displayError/index";
 
 export function ProfilesList() {
   const { data, isLoading, error } = useGetProfiles();
@@ -72,19 +73,10 @@ export function ProfilesList() {
     );
   }
 
-  if (error || attestations.error) {
-    return (
-      <p className="text-2xl text-yellow-600 flex items-center gap-2">
-        <span>⚠️</span>
-        {"An error occurred, please try again later or contact support on discord"}
-      </p>
-    );
-  }
-
   if (data && data.length === 0) {
     return (
       <p className="text-2xl text-yellow-600 flex items-center gap-2">
-        <span>⚠️</span> 
+        <span>⚠️</span>
         {"No Profile Found"}
       </p>
     );
@@ -92,6 +84,7 @@ export function ProfilesList() {
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+       {error && <ErrorDisplay error={error}  />}
       <div className="flex gap-4 items-center pb-8">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
