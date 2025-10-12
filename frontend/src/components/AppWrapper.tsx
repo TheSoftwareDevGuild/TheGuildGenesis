@@ -2,8 +2,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { config } from "../lib/wagmi";
-
+import { getWagmiConfig } from "../lib/wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
   SidebarProvider,
@@ -16,18 +15,20 @@ import { AppBackground } from "@/components/AppBackground";
 
 const queryClient = new QueryClient();
 
-interface Web3ProviderProps {
+interface AppWrapperProps {
   children: React.ReactNode;
 }
 
-export function AppWrapper({ children }: Web3ProviderProps) {
+export function AppWrapper({ children }: AppWrapperProps) {
+  // call the config getter inside the client component so it runs in the browser
+  const config = getWagmiConfig();
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
           <div className="relative min-h-screen">
             <AppBackground />
-            {/* === Foreground (sidebar, header, main) === */}
             <SidebarProvider>
               <AppSidebar />
               <SidebarInset>
@@ -40,7 +41,6 @@ export function AppWrapper({ children }: Web3ProviderProps) {
                           The Guild Genesis
                         </h1>
                       </div>
-
                       <div className="flex items-center space-x-4">
                         <ActivityTokenBalance />
                         <ConnectButton />
@@ -48,7 +48,6 @@ export function AppWrapper({ children }: Web3ProviderProps) {
                     </div>
                   </div>
                 </header>
-
                 <main className="relative z-10">{children}</main>
               </SidebarInset>
             </SidebarProvider>

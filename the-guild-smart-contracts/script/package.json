@@ -1,0 +1,12 @@
+{
+  "name": "tgc-scripts",
+  "version": "0.1.0",
+  "license": "MIT",
+  "scripts": {
+    "mint": "node mint_from_csv.js"
+  },
+  "dependencies": {
+    "ethers": "^6.8.0",
+    "yargs": "^17.7.2"
+  }
+}

@@ -12,4 +12,8 @@ pub trait ProfileRepository: Send + Sync {
     async fn create(&self, profile: &Profile) -> Result<(), Box<dyn std::error::Error>>;
     async fn update(&self, profile: &Profile) -> Result<(), Box<dyn std::error::Error>>;
     async fn delete(&self, address: &WalletAddress) -> Result<(), Box<dyn std::error::Error>>;
+    async fn find_by_github_login(
+        &self,
+        github_login: &str,
+    ) -> Result<Option<Profile>, Box<dyn std::error::Error + Send + Sync>>;
 }

@@ -8,7 +8,7 @@ services:
       POSTGRES_PASSWORD: guild_password
       POSTGRES_DB: guild_genesis
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
 
@@ -23,6 +23,20 @@ services:
       - .env
     ports:
       - "3001:3001"
+    depends_on:
+      - postgres
+
+  indexer:
+    build: ./indexer
+    command: ["/app/app"]
+    environment:
+      RUST_LOG: debug
+      RUST_BACKTRACE: 1
+      PORT: 3002
+    env_file:
+      - .env
+    ports:
+      - "3002:3002"
     depends_on:
       - postgres
 
@@ -47,6 +61,17 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+
+  discord-bot:
+    build: ./discord-bot
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://guild_user:guild_password@postgres:5432/guild_genesis
+      NODE_ENV: production
+    depends_on:
+      - postgres
+    restart: unless-stopped
 
 volumes:
   pg_data:

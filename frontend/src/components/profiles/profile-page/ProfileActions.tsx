@@ -9,10 +9,12 @@ export function ProfileActions({
   address,
   name,
   description,
+  githubLogin,
 }: {
   address?: string;
   name?: string;
   description?: string;
+  githubLogin?: string;
 }) {
   const { address: connectedAddress } = useAccount();
   const isOwner =
@@ -27,6 +29,7 @@ export function ProfileActions({
           address={address || ""}
           name={name}
           description={description}
+          githubLogin={githubLogin}
         >
           <Button variant="outline" className="flex items-center gap-2">
             <Edit className="h-4 w-4" /> Edit Profile

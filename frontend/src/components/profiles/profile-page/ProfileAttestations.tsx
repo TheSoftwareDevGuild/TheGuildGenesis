@@ -8,6 +8,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useGetProfiles } from "@/hooks/profiles/use-get-profiles";
+import CopyAddressToClipboard from "@/components/CopyAddressToClipboard";
 
 export function ProfileAttestations({ address }: { address: string }) {
   const attestationsQuery = useGetAttestations();
@@ -87,17 +88,22 @@ export function ProfileAttestations({ address }: { address: string }) {
                           <p className="text-sm text-gray-800">
                             {it.justification}
                           </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            Issued by{" "}
+                          <div className="text-xs text-gray-500 mt-1 flex items-center gap-1">
+                            <span>Issued by{" "}</span>
                             <a
                               className="text-indigo-600 hover:underline"
                               href={`/profiles/${it.issuer}`}
                             >
                               {profileNameByAddress.get(
                                 it.issuer.toLowerCase()
-                              ) || it.issuer}
+                              ) || `${it.issuer.slice(0, 6)}...${it.issuer.slice(-4)}`}
                             </a>
-                          </p>
+                            <CopyAddressToClipboard 
+                              address={it.issuer}
+                              iconSize="sm"
+                              showFeedback={false}
+                            />
+                          </div>
                         </div>
                       </div>
                     </li>
