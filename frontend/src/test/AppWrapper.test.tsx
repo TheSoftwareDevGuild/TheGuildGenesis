@@ -36,9 +36,9 @@ vi.mock("@rainbow-me/rainbowkit", () => ({
   getDefaultConfig: () => ({}),
 }));
 
-// Mock the wagmi config
+// Mock the wagmi config getter
 vi.mock("@/lib/wagmi", () => ({
-  config: {},
+  getWagmiConfig: () => ({}),
 }));
 
 describe("AppWrapper", () => {

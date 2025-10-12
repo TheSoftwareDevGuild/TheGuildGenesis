@@ -2,7 +2,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
-import { config } from "../lib/wagmi";
+import { getWagmiConfig } from "../lib/wagmi";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
   SidebarProvider,
@@ -20,6 +20,9 @@ interface AppWrapperProps {
 }
 
 export function AppWrapper({ children }: AppWrapperProps) {
+  // call the config getter inside the client component so it runs in the browser
+  const config = getWagmiConfig();
+
   return (
     <WagmiProvider config={config}>
       <QueryClientProvider client={queryClient}>

@@ -6,8 +6,9 @@ import HomePage from '@/components/pages/HomePage';
 
 <Layout title="The Guild Genesis">
   <div class="min-h-screen bg-gray-50">
-    <AppWrapper client:only="react">
-      <HomePage/>
-    </AppWrapper>
+    <!-- Temporary server-rendered fallback: render HomePage directly to test SSR output -->
+    <div>
+      <HomePage />
+    </div>
   </div>
 </Layout>
