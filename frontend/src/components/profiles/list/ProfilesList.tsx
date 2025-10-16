@@ -75,10 +75,15 @@ export function ProfilesList() {
 
   if (data && data.length === 0) {
     return (
-      <p className="text-2xl text-yellow-600 flex items-center gap-2">
-        <span>⚠️</span>
-        {"No Profile Found"}
-      </p>
+      <>
+        <div className="flex gap-4 items-center pb-8">
+          <CreateProfileButton />
+        </div>
+        <p className="text-2xl text-yellow-600 flex items-center gap-2">
+          <span>⚠️</span>
+          {"No Profile Found"}
+        </p>
+      </>
     );
   }
 

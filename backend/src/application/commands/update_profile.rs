@@ -19,25 +19,29 @@ pub async fn update_profile(
 
     profile.update_info(request.name, request.description, request.avatar_url);
     if let Some(ref handle) = request.github_login {
-        // 1. Trim and validate
         let trimmed = handle.trim();
-        let valid_format = regex::Regex::new(r"^[a-zA-Z0-9-]{1,39}$").unwrap();
-        if trimmed.is_empty() || !valid_format.is_match(trimmed) {
-            return Err("Invalid GitHub handle format".to_string());
-        }
 
-        // 2. Check for conflicts
-        if profile_repository
-            .find_by_github_login(trimmed)
-            .await
-            .map_err(|e| e.to_string())?
-            .is_some()
-        {
-            return Err("GitHub handle already taken".to_string());
+        // Allow empty handles (set to None)
+        if trimmed.is_empty() {
+            profile.github_login = None;
+        } else {
+            // Validate format for non-empty handles
+            let valid_format = regex::Regex::new(r"^[a-zA-Z0-9-]{1,39}$").unwrap();
+            if !valid_format.is_match(trimmed) {
+                return Err("Invalid GitHub handle format".to_string());
+            }
+            if let Some(conflicting_profile) = profile_repository
+                .find_by_github_login(trimmed)
+                .await
+                .map_err(|e| e.to_string())?
+            {
+                // Only conflict if it's not the current user's profile
+                if conflicting_profile.address != wallet_address {
+                    return Err("GitHub handle already taken".to_string());
+                }
+            }
+            profile.github_login = Some(trimmed.to_string());
         }
-
-        // 3. Assign it (preserving user’s original casing)
-        profile.github_login = Some(trimmed.to_string());
     }
     profile_repository
         .update(&profile)

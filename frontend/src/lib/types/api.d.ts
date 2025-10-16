@@ -1,4 +1,3 @@
-
 export type CreateProfileInput = {
   name: string;
   description?: string;
