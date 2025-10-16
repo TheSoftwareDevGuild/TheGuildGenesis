@@ -1,6 +1,13 @@
-import { useMutation, type UseMutationResult, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  type UseMutationResult,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useAccount, useSignMessage } from "wagmi";
-import type { CreateProfileInput, CreateProfileResponse } from "@/lib/types/api";
+import type {
+  CreateProfileInput,
+  CreateProfileResponse,
+} from "@/lib/types/api";
 import { API_BASE_URL } from "@/lib/constants/apiConstants";
 
 async function postCreateProfile(
@@ -46,7 +53,6 @@ export function useCreateProfile(): UseMutationResult<
   MutationVariables
 > {
   const { address } = useAccount();
-  const { signMessageAsync } = useSignMessage();
   const queryClient = useQueryClient();
 
   return useMutation<CreateProfileResponse, Error, MutationVariables>({

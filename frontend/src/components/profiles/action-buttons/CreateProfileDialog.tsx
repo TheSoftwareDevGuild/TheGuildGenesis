@@ -31,6 +31,7 @@ import { useAccount, useSignMessage } from "wagmi";
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   description: z.string().optional(),
+  githubLogin: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -54,14 +55,15 @@ export function CreateProfileButton() {
     if (!siweMessage) {
       throw new Error("SIWE message not available");
     }
-    
+
     // Sign the SIWE message
     const signature = await signMessageAsync({ message: siweMessage });
-    
+
     await createProfile.mutateAsync({
       input: {
         name: values.name,
         description: values.description || "",
+        github_login: values.githubLogin || "",
       },
       signature,
     });
@@ -116,6 +118,22 @@ export function CreateProfileButton() {
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="githubLogin"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>GitHub Handle</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">@</span>
+                      <Input placeholder="username" {...field} />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             {siweMessage && (
               <div className="space-y-2">
                 <FormLabel>Message to Sign</FormLabel>
@@ -123,7 +141,8 @@ export function CreateProfileButton() {
                   {siweMessage}
                 </div>
                 <p className="text-xs text-gray-600">
-                  This message will be signed with your wallet to authenticate your profile creation.
+                  This message will be signed with your wallet to authenticate
+                  your profile creation.
                 </p>
               </div>
             )}
@@ -133,16 +152,17 @@ export function CreateProfileButton() {
                   Cancel
                 </Button>
               </DialogClose>
-              <Button 
-                type="submit" 
-                disabled={createProfile.isPending || isLoadingNonce || !siweMessage}
-              >
-                {isLoadingNonce 
-                  ? "Loading..." 
-                  : createProfile.isPending 
-                    ? "Creating..." 
-                    : "Create"
+              <Button
+                type="submit"
+                disabled={
+                  createProfile.isPending || isLoadingNonce || !siweMessage
                 }
+              >
+                {isLoadingNonce
+                  ? "Loading..."
+                  : createProfile.isPending
+                    ? "Creating..."
+                    : "Create"}
               </Button>
             </div>
             {createProfile.isError ? (
