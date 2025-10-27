@@ -10,6 +10,9 @@ contract TheGuildBadgeRegistry {
         bytes32 name;
         bytes32 description;
         address creator;
+        bytes32[] pointers; // badges this badge points to (hierarchy)
+        mapping(address => bool) hasVoted; // prevent double voting
+        int256 voteScore; // net upvotes - downvotes
     }
 
     /// @notice Emitted when a new badge is created.
@@ -34,31 +37,74 @@ contract TheGuildBadgeRegistry {
         require(name != bytes32(0), "EMPTY_NAME");
         require(!nameExists[name], "DUPLICATE_NAME");
 
-        Badge memory badge = Badge({
-            name: name,
-            description: description,
-            creator: msg.sender
-        });
-        nameToBadge[name] = badge;
+        Badge storage badge = nameToBadge[name];
+        badge.name = name;
+        badge.description = description;
+        badge.creator = msg.sender;
+        badge.voteScore = 0;
         nameExists[name] = true;
         badgeNames.push(name);
 
         emit BadgeCreated(name, description, msg.sender);
     }
 
-    /// @notice Get a badge by its name.
-    /// @dev Reverts if the badge does not exist.
-    function getBadge(
-        bytes32 name
-    ) external view returns (bytes32, bytes32, address) {
+    /// @notice Add pointers from this badge to other badges (hierarchy).
+    /// @param fromBadge The badge that points to others.
+    /// @param toBadges Array of badge names this badge points to.
+    function addPointers(bytes32 fromBadge, bytes32[] calldata toBadges) external {
+        require(nameExists[fromBadge], "FROM_BADGE_NOT_FOUND");
+        Badge storage badge = nameToBadge[fromBadge];
+        require(badge.creator == msg.sender, "ONLY_CREATOR_CAN_ADD_POINTERS");
+        
+        for (uint256 i = 0; i < toBadges.length; i++) {
+            require(nameExists[toBadges[i]], "TO_BADGE_NOT_FOUND");
+            badge.pointers.push(toBadges[i]);
+        }
+    }
+    /// @param badgeName The badge to vote on.
+    /// @param isUpvote True for upvote, false for downvote.
+    function vote(bytes32 badgeName, bool isUpvote) external {
+        require(nameExists[badgeName], "BADGE_NOT_FOUND");
+        Badge storage badge = nameToBadge[badgeName];
+        require(!badge.hasVoted[msg.sender], "ALREADY_VOTED");
+        
+        badge.hasVoted[msg.sender] = true;
+        if (isUpvote) {
+            badge.voteScore += 1;
+        } else {
+            badge.voteScore -= 1;
+        }
+    }
+
+    /// @notice Get pointers for a badge.
+    /// @param name The badge name.
+    /// @return Array of badge names this badge points to.
+    function getPointers(bytes32 name) external view returns (bytes32[] memory) {
         require(nameExists[name], "NOT_FOUND");
-        Badge memory b = nameToBadge[name];
-        return (b.name, b.description, b.creator);
+        return nameToBadge[name].pointers;
+    }
+
+    /// @notice Get vote score for a badge.
+    /// @param name The badge name.
+    /// @return The net vote score (upvotes - downvotes).
+    function getVoteScore(bytes32 name) external view returns (int256) {
+        require(nameExists[name], "NOT_FOUND");
+        return nameToBadge[name].voteScore;
     }
 
     /// @notice Get whether a badge name exists.
     function exists(bytes32 name) external view returns (bool) {
         return nameExists[name];
+    }
+
+    /// @notice Get a badge by its name.
+    /// @dev Reverts if the badge does not exist.
+    function getBadge(
+        bytes32 name
+    ) external view returns (bytes32, bytes32, address, int256) {
+        require(nameExists[name], "NOT_FOUND");
+        Badge storage b = nameToBadge[name];
+        return (b.name, b.description, b.creator, b.voteScore);
     }
 
     /// @notice Total number of badges created.
@@ -76,9 +122,9 @@ contract TheGuildBadgeRegistry {
     /// @dev Reverts if index is out of bounds.
     function getBadgeAt(
         uint256 index
-    ) external view returns (bytes32, bytes32, address) {
+    ) external view returns (bytes32, bytes32, address, int256) {
         bytes32 name = badgeNames[index];
-        Badge memory b = nameToBadge[name];
-        return (b.name, b.description, b.creator);
+        Badge storage b = nameToBadge[name];
+        return (b.name, b.description, b.creator, b.voteScore);
     }
 }

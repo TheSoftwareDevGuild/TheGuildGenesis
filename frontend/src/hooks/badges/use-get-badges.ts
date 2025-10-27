@@ -47,12 +47,14 @@ export function useGetBadges(): {
 
   const data: Badge[] | undefined = useMemo(() => {
     const results = badgesQuery.data as
-      | [`0x${string}`, `0x${string}`, `0x${string}`][]
+      | [`0x${string}`, `0x${string}`, `0x${string}`, bigint][]
       | undefined;
     if (!results) return undefined;
-    return results.map(([nameBytes, descriptionBytes]) => ({
+    return results.map(([nameBytes, descriptionBytes, creator, voteScore]) => ({
       name: bytes32ToString(nameBytes),
       description: bytes32ToString(descriptionBytes),
+      creator,
+      voteScore: Number(voteScore),
     }));
   }, [badgesQuery.data]);
 

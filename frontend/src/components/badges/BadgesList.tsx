@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { BadgeCheck } from "lucide-react";
+import { BadgeCheck, ThumbsUp, ThumbsDown } from "lucide-react";
 
 import {
   Card,
@@ -8,7 +8,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { useGetBadges } from "@/hooks/badges/use-get-badges";
+import { useVoteBadge } from "@/hooks/badges/use-vote-badge";
 import { HARD_CODED_BADGES } from "@/lib/constants/badgeConstants";
 import type { Badge } from "@/lib/types/badges";
 import { Search } from "lucide-react";
@@ -18,7 +20,8 @@ import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import ErrorDisplay from "@/components/displayError/index";
 
 export function BadgesList(): React.ReactElement {
-  const { data, isLoading, error } = useGetBadges();
+  const { data, isLoading, error, refetch } = useGetBadges();
+  const { vote, isPending } = useVoteBadge();
   const [searchQuery, setSearchQuery] = useState("");
   const list = (data && data.length > 0 ? data : HARD_CODED_BADGES) as Badge[];
 
@@ -27,6 +30,16 @@ export function BadgesList(): React.ReactElement {
     if (!q) return list;
     return list.filter((b) => b.name.toLowerCase().includes(q));
   }, [list, searchQuery]);
+
+  const handleVote = async (badgeName: string, isUpvote: boolean) => {
+    try {
+      await vote(badgeName, isUpvote);
+      // Refetch badges after voting
+      refetch();
+    } catch (error) {
+      console.error("Voting failed:", error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -69,7 +82,31 @@ export function BadgesList(): React.ReactElement {
                   </CardTitle>
                   <CardDescription>{badge.description}</CardDescription>
                 </CardHeader>
-                <CardContent />
+                <CardContent>
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-600">
+                      Score: {badge.voteScore || 0}
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleVote(badge.name, true)}
+                        disabled={isPending}
+                      >
+                        <ThumbsUp className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleVote(badge.name, false)}
+                        disabled={isPending}
+                      >
+                        <ThumbsDown className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
               </Card>
             ))}
           </div>
