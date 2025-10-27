@@ -3,15 +3,7 @@ import { env } from './env.js';
 import { logger } from './logger.js';
 import { testConnection, closePool } from './db.js';
 import { onMessageCreate } from './listeners/messageCreate.js';
-
-// Rate limiting storage (in-memory)
-interface UserRateLimit {
-  count: number;
-  resetTime: number;
-}
-
-const userMessageCounts = new Map<string, UserRateLimit>();
-const RATE_LIMIT_WINDOW = 60 * 1000; // 1 minute
+import { commands, registerCommands } from './commands/index.js';
 
 const client = new Client({
   intents: [
@@ -21,10 +13,15 @@ const client = new Client({
   ],
 });
 
-// Bot ready event
-client.once(Events.ClientReady, (readyClient) => {
+client.once(Events.ClientReady, async (readyClient) => {
   logger.info(`Bot ready as ${readyClient.user.tag}`);
   logger.info(`Bot is in ${readyClient.guilds.cache.size} guilds`);
+  
+  try {
+    await registerCommands();
+  } catch (error) {
+    logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Failed to register commands');
+  }
   
   if (env.DISCORD_GUILD_ID) {
     const targetGuild = readyClient.guilds.cache.get(env.DISCORD_GUILD_ID);
@@ -38,10 +35,36 @@ client.once(Events.ClientReady, (readyClient) => {
   }
 });
 
-// Message create event
 client.on(Events.MessageCreate, onMessageCreate);
 
-// Error handling
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.isChatInputCommand()) return;
+
+  const command = commands.get(interaction.commandName);
+
+  if (!command) {
+    logger.warn(`Unknown command: ${interaction.commandName}`);
+    return;
+  }
+
+  try {
+    await command.execute(interaction);
+  } catch (error) {
+    logger.error({ error: error instanceof Error ? error.message : String(error) }, `Error executing command: ${interaction.commandName}`);
+    
+    const errorMessage = {
+      content: 'There was an error while executing this command!',
+      ephemeral: true,
+    };
+    
+    if (interaction.replied || interaction.deferred) {
+      await interaction.followUp(errorMessage);
+    } else {
+      await interaction.reply(errorMessage);
+    }
+  }
+});
+
 client.on(Events.Error, (error) => {
   logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Discord client error');
 });
@@ -50,7 +73,6 @@ client.on(Events.Warn, (warning) => {
   logger.warn({ warning: String(warning) }, 'Discord client warning');
 });
 
-// Graceful shutdown
 async function shutdown() {
   logger.info('Shutting down bot...');
   
@@ -68,7 +90,6 @@ async function shutdown() {
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
 
-// Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
   logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Uncaught exception');
   shutdown();
@@ -79,13 +100,9 @@ process.on('unhandledRejection', (reason, promise) => {
   shutdown();
 });
 
-// Start the bot
 async function start() {
   try {
-    // Test database connection first
     await testConnection();
-    
-    // Login to Discord
     await client.login(env.DISCORD_BOT_TOKEN);
   } catch (error) {
     logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Failed to start bot');
