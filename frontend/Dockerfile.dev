@@ -1,0 +1,21 @@
+FROM node:20-alpine
+
+# Install Python and build tools for native dependencies
+RUN apk add --no-cache python3 make g++
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Expose port
+EXPOSE 4321
+
+# Start development server
+CMD ["npx", "astro", "dev", "--host", "0.0.0.0"]

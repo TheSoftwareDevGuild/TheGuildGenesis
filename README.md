@@ -39,26 +39,107 @@ This is a monorepo containing:
 
 ### Prerequisites
 - [Docker](https://www.docker.com/)
+- [Node.js](https://nodejs.org/) (for frontend development)
+- [Astro CLI](https://docs.astro.build/en/getting-started/) (for frontend development)
 - [Foundry](https://book.getfoundry.sh/getting-started/installation) (for smart contracts)
+
+### Environment Setup
+
+Create a `.env` file in the project root with the following variables:
+
+```bash
+# Database
+DATABASE_URL=postgresql://guild_user:guild_password@localhost:5433/guild_genesis
+
+# Frontend Environment Variables
+PUBLIC_WALLET_CONNECT_PROJECT_ID=your_wallet_connect_project_id
+PUBLIC_API_URL=http://localhost:3001
+PUBLIC_BADGE_REGISTRY_ADDRESS=0x...
+PUBLIC_EAS_CONTRACT_ADDRESS=0x...
+PUBLIC_ACTIVITY_TOKEN_ADDRESS=0x...
+PUBLIC_SCHEMA_ID=0x...
+
+# Discord Bot (if using)
+DISCORD_TOKEN=your_discord_bot_token
+DISCORD_CLIENT_ID=your_discord_client_id
+DISCORD_GUILD_ID=your_discord_guild_id
+
+# Optional: Skip migrations in development
+SKIP_MIGRATIONS=1
+
+# Optional: Disable SQLx compile-time validation
+SQLX_OFFLINE=true
+```
+
+**Required for Production:**
+- `DATABASE_URL` - PostgreSQL connection string
+- `PUBLIC_WALLET_CONNECT_PROJECT_ID` - Get from [WalletConnect Cloud](https://cloud.walletconnect.com/)
+- Contract addresses - Deploy smart contracts first
+
+**Optional for Development:**
+- `SKIP_MIGRATIONS=1` - Skip automatic migrations (run manually)
+- `SQLX_OFFLINE=true` - Disable SQLx compile-time validation
 
 ### Development Workflow
 
-#### Quick Start
+#### Option 1: Docker Compose (Recommended)
 
+We provide multiple Docker Compose configurations for different environments:
+
+```bash
+# Development with hot reload
+make dev
+
+# Production build
+make prod
+
+# Run tests
+make test
+
+# Database only
+make db
+
+# Stop all services
+make stop
+```
+
+#### Option 2: Local Development
+
+**Backend:**
 ```bash
 cd backend
 cargo install sqlx-cli --no-default-features --features rustls,postgres  
 cargo sqlx prepare -- --bin guild-backend
 ```
 
+**Frontend:**
 ```bash
-docker-compose up -d
+cd frontend
+npm install
+npm run dev
+```
+
+**Database:**
+```bash
+docker compose up -d postgres
+```
+
+### Docker Compose Environments
+
+- **`docker-compose.dev.yml`** - Development with hot reload, volume mounts, and dev tools
+- **`docker-compose.prod.yml`** - Production with optimized builds and restart policies
+- **`docker-compose.test.yml`** - Testing environment with test-specific configurations
+- **`docker-compose.db-only.yml`** - Just PostgreSQL for local development
+
+Use `make` commands or specify files directly:
+```bash
+docker compose -f docker-compose.dev.yml up --build
 ```
 
 **Access the applications:**
-- Frontend: http://localhost:4321
+- Frontend: http://localhost:3000
 - Backend API: http://localhost:3001
-- PostgreSQL: localhost:5432
+- PostgreSQL: localhost:5433
 
 #### Smart Contracts Development
 
@@ -131,9 +212,9 @@ event BadgeCreated(bytes32 indexed name, bytes32 description, address indexed cr
 - [x] Web3 wallet integration
 - [x] Basic profile and badge system
 - [x] Smart contracts for on-chain badges
-- [ ] SIWE authentication
+- [x] SIWE authentication
 - [ ] Database models and migrations
-- [ ] API endpoints for profiles and badges
+- [x] API endpoints for profiles and badges
 
 ### V1+ (Future)
 - [ ] Gasless transactions

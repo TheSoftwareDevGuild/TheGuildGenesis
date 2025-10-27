@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: guild_user
+      POSTGRES_PASSWORD: guild_password
+      POSTGRES_DB: guild_genesis
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_data_dev:/var/lib/postgresql/data
+      # Mount migrations for easy access
+      - ./backend/migrations:/docker-entrypoint-initdb.d
+
+  backend:
+    build:
+      context: ./backend
+      target: dev
+    command: ["cargo", "run", "--bin", "guild-backend"]
+    environment:
+      RUST_LOG: debug
+      RUST_BACKTRACE: 1
+      PORT: 3001
+      DATABASE_URL: postgresql://guild_user:guild_password@postgres:5432/guild_genesis
+      SKIP_MIGRATIONS: 1 # Skip migrations in dev
+      SQLX_OFFLINE: true # Disable compile-time validation
+    env_file:
+      - .env
+    ports:
+      - "3001:3001"
+    volumes:
+      - ./backend:/app
+      - cargo_cache:/usr/local/cargo/registry
+    depends_on:
+      - postgres
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    command: ["npm", "run", "dev"]
+    environment:
+      HOST: 0.0.0.0
+      PORT: 4321
+      NODE_ENV: development
+    ports:
+      - "4321:4321"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  pg_data_dev:
+  cargo_cache:
