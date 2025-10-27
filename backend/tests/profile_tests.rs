@@ -182,4 +182,66 @@ mod github_handle_tests {
         let err_msg = err.unwrap_err();
         assert!(err_msg.contains("GitHub handle already taken"));
     }
+
+    #[tokio::test]
+    async fn empty_github_handle_allowed() {
+        let profile = Profile {
+            address: WalletAddress::new("0x1234567890123456789012345678901234567894".to_string())
+                .unwrap(),
+            name: Some("Bob".into()),
+            description: None,
+            avatar_url: None,
+            github_login: Some("BobUser".into()),
+            login_nonce: 1,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+        };
+        let repo = Arc::new(FakeRepo {
+            profiles: std::sync::Mutex::new(vec![profile.clone()]),
+        });
+
+        // Try updating to empty github handle
+        let req = UpdateProfileRequest {
+            name: None,
+            description: None,
+            avatar_url: None,
+            github_login: Some("".into()),
+        };
+
+        let result = update_profile(repo.clone(), profile.address.to_string(), req).await;
+        assert!(result.is_ok());
+        let resp = result.unwrap();
+        assert!(resp.github_login.is_none()); // Should be None, not Some("")
+    }
+
+    #[tokio::test]
+    async fn user_can_update_own_github_handle() {
+        let profile = Profile {
+            address: WalletAddress::new("0x1234567890123456789012345678901234567895".to_string())
+                .unwrap(),
+            name: Some("Charlie".into()),
+            description: None,
+            avatar_url: None,
+            github_login: Some("CharlieGit".into()),
+            login_nonce: 1,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+        };
+        let repo = Arc::new(FakeRepo {
+            profiles: std::sync::Mutex::new(vec![profile.clone()]),
+        });
+
+        // Try updating with the same handle (should succeed)
+        let req = UpdateProfileRequest {
+            name: None,
+            description: None,
+            avatar_url: None,
+            github_login: Some("CharlieGit".into()),
+        };
+
+        let result = update_profile(repo.clone(), profile.address.to_string(), req).await;
+        assert!(result.is_ok());
+        let resp = result.unwrap();
+        assert_eq!(resp.github_login.unwrap(), "CharlieGit");
+    }
 }

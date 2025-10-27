@@ -36,9 +36,7 @@ interface EditProfileDialogProps {
 }
 
 const formSchema = z.object({
-  name: z
-    .string()
-    .min(2, { message: "Name must be at least 2 characters." }),
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   description: z.string().optional(),
   githubLogin: z.string().optional(),
 });
@@ -57,7 +55,8 @@ export function EditProfileDialog({
   const queryClient = useQueryClient();
   const { address: signerAddress } = useAccount();
   const { signMessageAsync } = useSignMessage();
-  const { data: nonceData, isLoading: isLoadingNonce } = useGetNonce(signerAddress);
+  const { data: nonceData, isLoading: isLoadingNonce } =
+    useGetNonce(signerAddress);
 
   const siweMessage = nonceData ? generateSiweMessage(nonceData) : "";
 
@@ -70,7 +69,6 @@ export function EditProfileDialog({
     },
   });
 
-  
   useEffect(() => {
     if (open) {
       form.reset({
@@ -155,10 +153,7 @@ export function EditProfileDialog({
                   <FormControl>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-gray-500">@</span>
-                      <Input
-                        placeholder="username"
-                        {...field}
-                      />
+                      <Input placeholder="username" {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -172,7 +167,8 @@ export function EditProfileDialog({
                   {siweMessage}
                 </div>
                 <p className="text-xs text-gray-600">
-                  This message will be signed with your wallet to authenticate your profile update.
+                  This message will be signed with your wallet to authenticate
+                  your profile update.
                 </p>
               </div>
             )}
@@ -182,16 +178,17 @@ export function EditProfileDialog({
                   Cancel
                 </Button>
               </DialogClose>
-              <Button 
-                type="submit" 
-                disabled={updateProfile.isPending || isLoadingNonce || !siweMessage}
-              >
-                {isLoadingNonce 
-                  ? "Loading..." 
-                  : updateProfile.isPending 
-                    ? "Updating..." 
-                    : "Update"
+              <Button
+                type="submit"
+                disabled={
+                  updateProfile.isPending || isLoadingNonce || !siweMessage
                 }
+              >
+                {isLoadingNonce
+                  ? "Loading..."
+                  : updateProfile.isPending
+                    ? "Updating..."
+                    : "Update"}
               </Button>
             </div>
             {updateProfile.isError ? (
