@@ -27,7 +27,10 @@ async fn main() -> anyhow::Result<()> {
             panic!("Database connection required");
         });
 
-    sqlx::migrate!("./migrations").run(&pool).await?;
+    // Run migrations automatically in production, manually in development
+    if env::var("SKIP_MIGRATIONS").is_err() {
+        sqlx::migrate!("./migrations").run(&pool).await?;
+    }
 
     let app = create_app(pool).await;
 

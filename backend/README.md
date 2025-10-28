@@ -18,19 +18,24 @@ RUST_LOG=guild_backend=debug,tower_http=debug
 ```
 The server requires `DATABASE_URL` at runtime.
 
-## 3) Start local Postgres
-From the repo root, using Just:
-```
-just db-setup
-```
-This will:
-- init `.postgres/` if missing
-- start Postgres on localhost:5432
-- create DB `guild_genesis` and user `guild_user/guild_password`
-- run backend migrations
+## 3) Database Setup
 
-Manual alternative (repo root):
+### Option A: Use existing PostgreSQL (Recommended)
+If you have PostgreSQL running locally (via Homebrew, Docker, etc.):
+```bash
+# Create database and user
+psql -h localhost -p 5432 -U $(whoami) -c "CREATE DATABASE guild_genesis;" || true
+psql -h localhost -p 5432 -U $(whoami) -c "CREATE USER guild_user WITH PASSWORD 'guild_password';" || true
+psql -h localhost -p 5432 -U $(whoami) -c "GRANT ALL PRIVILEGES ON DATABASE guild_genesis TO guild_user;" || true
+
+# Grant schema permissions
+psql -h localhost -p 5432 -U $(whoami) -d guild_genesis -c "GRANT ALL PRIVILEGES ON SCHEMA public TO guild_user;"
+psql -h localhost -p 5432 -U $(whoami) -d guild_genesis -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO guild_user;"
 ```
+
+### Option B: Start local PostgreSQL instance
+From the repo root:
+```bash
 initdb -D .postgres
 pg_ctl -D .postgres -l .postgres/postgres.log start
 
@@ -38,17 +43,35 @@ createdb guild_genesis || true
 psql -d guild_genesis -c "CREATE USER guild_user WITH PASSWORD 'guild_password';" || true
 psql -d guild_genesis -c "GRANT ALL PRIVILEGES ON DATABASE guild_genesis TO guild_user;" || true
 ```
-Stop Postgres:
-```
+
+Stop local Postgres:
+```bash
 pg_ctl -D .postgres stop
 ```
 
-## 4) Run migrations (optional)
-Migrations run on server startup. To run explicitly:
-```
+## 4) Database Migrations
+
+### Development (Manual Migrations)
+For local development, run migrations manually to avoid SQLx compile-time validation issues:
+```bash
 cd backend
-cargo run --bin guild-backend
+psql -h localhost -p 5432 -U $(whoami) -d guild_genesis -f migrations/001_initial_schema.sql
+psql -h localhost -p 5432 -U $(whoami) -d guild_genesis -f migrations/002_add_github_login.sql
+psql -h localhost -p 5432 -U $(whoami) -d guild_genesis -f migrations/003_add_nonces.sql
+
+# Then start server with migrations disabled
+SKIP_MIGRATIONS=1 cargo run --bin guild-backend
 ```
+
+### Production (Automatic Migrations)
+In production (Heroku, etc.), migrations run automatically on server startup. No additional setup needed.
+
+### Disable SQLx Compile-time Validation (Development Only)
+To avoid SQLx compile-time query validation issues during development:
+```bash
+export SQLX_OFFLINE=true
+```
+This allows compilation without a database connection, but you lose compile-time query validation.
 
 ## 5) Launch the API
 ```
@@ -114,23 +137,55 @@ curl -X PUT \
 
 Integration and automated tests run under `TEST_MODE=1`, which swaps in a test-only auth layer so GitHub handle flows can be exercised without Ethereum signature verification.
 
-## 7) Troubleshooting
-- initdb locale error:
-```
-LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 initdb --locale=en_US.UTF-8 --encoding=UTF8 -D .postgres
-```
-- Permission denied on schema `public`:
-```
-psql -U postgres -d guild_genesis -c "ALTER SCHEMA public OWNER TO guild_user;"
-psql -U postgres -d guild_genesis -c "GRANT USAGE, CREATE ON SCHEMA public TO guild_user;"
-```
-- Rust edition 2024 error: repo pins `base64ct = 1.7.3`. If still present, `rustup update` or `rustup override set nightly` in `backend/`.
+## 7) Deployment
 
-## 8) Structure
-- `src/main.rs`: boot server, run migrations
+### Heroku
+1. Set environment variables:
+   ```bash
+   heroku config:set DATABASE_URL=postgresql://...
+   heroku config:set RUST_LOG=guild_backend=info
+   ```
+
+2. Deploy:
+   ```bash
+   git push heroku main
+   ```
+
+Migrations run automatically on deployment. No additional setup needed.
+
+### Docker
+```bash
+docker build -t guild-backend .
+docker run -e DATABASE_URL=postgresql://... guild-backend
+```
+
+## 8) Troubleshooting
+
+### Database Issues
+- **Port already in use**: Check what's running on port 5432: `lsof -i :5432`
+- **Permission denied**: Ensure `guild_user` has proper permissions:
+  ```bash
+  psql -h localhost -p 5432 -U $(whoami) -d guild_genesis -c "GRANT ALL PRIVILEGES ON SCHEMA public TO guild_user;"
+  psql -h localhost -p 5432 -U $(whoami) -d guild_genesis -c "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO guild_user;"
+  ```
+- **initdb locale error**:
+  ```bash
+  LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 initdb --locale=en_US.UTF-8 --encoding=UTF8 -D .postgres
+  ```
+
+### Server Issues
+- **Port 3001 already in use**: Use a different port: `PORT=3002 cargo run --bin guild-backend`
+- **SQLx compile errors**: 
+  - For development: Set `SQLX_OFFLINE=true` and run migrations manually
+  - For production: Ensure database is accessible during compilation
+- **Migration conflicts**: Use `SKIP_MIGRATIONS=1` to disable automatic migrations
+- **Rust edition 2024 error**: Repo pins `base64ct = 1.7.3`. If still present, `rustup update` or `rustup override set nightly` in `backend/`.
+
+## 9) Structure
+- `src/main.rs`: boot server (automatic migrations in production, manual in dev)
 - `src/bin/migrate.rs`: standalone migrator
 - `src/presentation`: routes, handlers, middlewares
 - `src/infrastructure`: Postgres repository, Ethereum verification
 - `src/domain`: entities, repository traits, services
 - `src/application`: commands and DTOs
-- `migrations/`: SQLx migrations
+- `migrations/`: SQLx migration files

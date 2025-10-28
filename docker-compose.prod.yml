@@ -1,0 +1,84 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: guild_user
+      POSTGRES_PASSWORD: guild_password
+      POSTGRES_DB: guild_genesis
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_data_prod:/var/lib/postgresql/data
+    # Production: no volume mounts for security
+
+  backend:
+    build:
+      context: ./backend
+      target: production
+    command: ["/app/guild-backend"]
+    environment:
+      RUST_LOG: info
+      PORT: 3001
+      # No SKIP_MIGRATIONS - migrations run automatically
+    env_file:
+      - .env
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  indexer:
+    build:
+      context: ./indexer
+      target: production
+    command: ["/app/indexer"]
+    environment:
+      RUST_LOG: info
+      PORT: 3002
+    env_file:
+      - .env
+    ports:
+      - "3002:3002"
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        PUBLIC_WALLET_CONNECT_PROJECT_ID: ${PUBLIC_WALLET_CONNECT_PROJECT_ID}
+        PUBLIC_API_URL: ${PUBLIC_API_URL}
+        PUBLIC_BADGE_REGISTRY_ADDRESS: ${PUBLIC_BADGE_REGISTRY_ADDRESS}
+        PUBLIC_EAS_CONTRACT_ADDRESS: ${PUBLIC_EAS_CONTRACT_ADDRESS}
+        PUBLIC_ACTIVITY_TOKEN_ADDRESS: ${PUBLIC_ACTIVITY_TOKEN_ADDRESS}
+        PUBLIC_SCHEMA_ID: ${PUBLIC_SCHEMA_ID}
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3000
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  discord-bot:
+    build:
+      context: ./discord-bot
+      target: production
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: postgresql://guild_user:guild_password@postgres:5432/guild_genesis
+      NODE_ENV: production
+    depends_on:
+      - postgres
+    restart: unless-stopped
+
+volumes:
+  pg_data_prod:
