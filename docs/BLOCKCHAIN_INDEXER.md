@@ -60,13 +60,10 @@ event BadgeCreated(
 ```
 
 **Indexed Fields:**
-- `name`: The unique identifier for the badge
-- `description`: Badge description
-- `creator`: Ethereum address that created the badge
-- `block_number`: Block number when the badge was created
-- `transaction_hash`: Transaction hash of the badge creation
-- `timestamp`: Unix timestamp of the block
-- `log_index`: Position of the event in the transaction logs
+- `id`: Unique identifier for the event (VARCHAR(255), PRIMARY KEY)
+- `event_type`: Type of the event (TEXT, e.g., "BadgeCreated")
+- `timestamp`: Timestamp when the event was indexed (TIMESTAMPTZ)
+- `created_at`: Timestamp when the record was created (TIMESTAMPTZ)
 
 ## Infrastructure Setup
 
@@ -105,41 +102,29 @@ METRICS_PORT=9090 # Prometheus metrics endpoint
 
 ### Database Schema
 
-The indexer uses the following database tables:
+The indexer uses the following database table structure:
 
 ```sql
--- Badge events table
-CREATE TABLE badge_created_events (
-    id SERIAL PRIMARY KEY,
-    badge_name VARCHAR(66) NOT NULL, -- bytes32 as hex string
-    description VARCHAR(66) NOT NULL,
-    creator VARCHAR(42) NOT NULL,
-    block_number BIGINT NOT NULL,
-    transaction_hash VARCHAR(66) NOT NULL,
-    log_index INTEGER NOT NULL,
-    timestamp BIGINT NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW(),
-    UNIQUE(transaction_hash, log_index)
+-- Ethereum events table
+CREATE TABLE ethereum_events (
+    id VARCHAR(255) PRIMARY KEY,
+    event_type TEXT NOT NULL,
+    timestamp TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
 );
 
--- Index for efficient queries
-CREATE INDEX idx_badge_name ON badge_created_events(badge_name);
-CREATE INDEX idx_creator ON badge_created_events(creator);
-CREATE INDEX idx_block_number ON badge_created_events(block_number);
-CREATE INDEX idx_timestamp ON badge_created_events(timestamp);
-
--- Indexer metadata table
-CREATE TABLE indexer_state (
-    id INTEGER PRIMARY KEY DEFAULT 1,
-    last_indexed_block BIGINT NOT NULL DEFAULT 0,
-    last_indexed_timestamp BIGINT,
-    last_updated_at TIMESTAMP DEFAULT NOW(),
-    CHECK (id = 1) -- Ensure only one row
-);
-
--- Insert initial state
-INSERT INTO indexer_state (id, last_indexed_block) VALUES (1, 0);
+-- Indexes for efficient queries
+CREATE INDEX idx_event_type ON ethereum_events(event_type);
+CREATE INDEX idx_timestamp ON ethereum_events(timestamp);
+CREATE INDEX idx_created_at ON ethereum_events(created_at);
 ```
+
+**Column Descriptions:**
+
+- **id** (VARCHAR(255)): Unique identifier for each event, typically constructed from transaction hash and log index
+- **event_type** (TEXT): The type of event (e.g., "BadgeCreated", "BadgeUpdated")
+- **timestamp** (TIMESTAMPTZ): The timestamp when the blockchain event occurred
+- **created_at** (TIMESTAMPTZ): The timestamp when the record was inserted into the database
 
 ## Installation & Setup
 
@@ -328,7 +313,7 @@ npm run reorg-recovery -- --from-block=18456700
 
 **Issue: Duplicate events**
 - **Cause**: Re-org handling or restart during processing
-- **Solution**: Database constraints prevent duplicates automatically; check logs for warnings
+- **Solution**: Database primary key constraints prevent duplicates automatically; check logs for warnings
 
 **Issue: Missing events**
 - **Cause**: RPC endpoint issues or gaps in block processing
@@ -369,21 +354,30 @@ This checks:
 The backend API can query indexed data:
 
 ```typescript
-// Example: Get all badges created by an address
-const badges = await db.query(
-  'SELECT * FROM badge_created_events WHERE creator = $1 ORDER BY block_number DESC',
-  [creatorAddress]
+// Example: Get all events of a specific type
+const events = await db.query(
+  'SELECT * FROM ethereum_events WHERE event_type = $1 ORDER BY timestamp DESC',
+  ['BadgeCreated']
 );
 
-// Example: Get recent badge creations
-const recentBadges = await db.query(
-  'SELECT * FROM badge_created_events ORDER BY timestamp DESC LIMIT 10'
+// Example: Get recent events
+const recentEvents = await db.query(
+  'SELECT * FROM ethereum_events ORDER BY timestamp DESC LIMIT 10'
 );
 
-// Example: Check if a badge name exists
-const exists = await db.query(
-  'SELECT EXISTS(SELECT 1 FROM badge_created_events WHERE badge_name = $1)',
-  [badgeName]
+// Example: Get events within a time range
+const timeRangeEvents = await db.query(
+  `SELECT * FROM ethereum_events 
+   WHERE timestamp BETWEEN $1 AND $2 
+   ORDER BY timestamp ASC`,
+  [startTime, endTime]
+);
+
+// Example: Count events by type
+const eventCounts = await db.query(
+  `SELECT event_type, COUNT(*) as count 
+   FROM ethereum_events 
+   GROUP BY event_type`
 );
 ```
 
@@ -397,7 +391,7 @@ For optimal performance:
 - **Connection Pooling**: Set PostgreSQL max connections to 20-50
 - **Caching**: Cache recent blocks to reduce RPC calls
 - **Parallel Processing**: Process multiple block ranges in parallel for backfilling
-- **Partitioning**: For high-volume chains, partition tables by block_number ranges
+- **Partitioning**: For high-volume chains, partition tables by timestamp ranges
 
 ### Scaling Considerations
 
