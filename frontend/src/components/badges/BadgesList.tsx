@@ -19,8 +19,8 @@ import ErrorDisplay from "@/components/displayError/index";
 
 const ICONS: Record<string, string> = {
   "Bug Hunter": "/badge_bug_hunter.svg",
-  Community: "/badge_community.svg",
-  Documentation: "/badge_documentation.svg",
+  "Community": "/badge_community.svg",
+  "Documentation": "/badge_documentation.svg",
   "Open Source": "/badge_open_source.svg",
   "Smart Contract": "/badge_smart_contract.svg",
 };
