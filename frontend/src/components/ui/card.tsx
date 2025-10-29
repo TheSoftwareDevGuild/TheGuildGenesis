@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
+// Customized ShadCn component, don't overwrite it
 interface CardProps extends React.ComponentProps<"div"> {
   with3D?: boolean;
   foregroundIcon?: React.ReactNode;

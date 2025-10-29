@@ -17,7 +17,13 @@ import { Input } from "../ui/input";
 import { AiOutlineLoading3Quarters } from "react-icons/ai";
 import ErrorDisplay from "@/components/displayError/index";
 
-const BUG_HUNTER_ICON = "/badge_smart_contract.svg";
+const ICONS: Record<string, string> = {
+  "Bug Hunter": "/badge_bug_hunter.svg",
+  Community: "/badge_community.svg",
+  Documentation: "/badge_documentation.svg",
+  "Open Source": "/badge_open_source.svg",
+  "Smart Contract": "/badge_smart_contract.svg",
+};
 
 export function BadgesList(): React.ReactElement {
   const { data, isLoading, error } = useGetBadges();
@@ -65,8 +71,8 @@ export function BadgesList(): React.ReactElement {
                 key={badge.id ?? badge.name}
                 foregroundIcon={
                   <img
-                    src={BUG_HUNTER_ICON}
-                    alt="Bug Hunter badge"
+                    src={ICONS[badge.name] ?? "/badge_default.svg"}
+                    alt={`${badge.name} badge`}
                     className="h-20 w-20 mr-2"
                   />
                 }
