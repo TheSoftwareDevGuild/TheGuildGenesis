@@ -1,4 +1,5 @@
-export function AppBackground() {
+// components/Background.tsx
+export function Background() {
   return (
     <div className="absolute inset-0 z-10 flex items-center justify-center overflow-hidden">
       <svg

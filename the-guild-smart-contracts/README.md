@@ -7,6 +7,9 @@ Anybody can create a badge. The idea is to let the community input whatever they
 
 We will create a smart contract TheGuildBadgeRegistry that will have a list of badges with unique non-duplicate names.
 
+### Badge Ranking
+Community members can vote on badge relevancy to filter spam and promote the most relevant badges. The BadgeRanking contract tracks upvotes per badge and prevents duplicate voting from the same address.
+
 ### Attestations
 Then, we let users create an attestation of a badge to another user. The attestation can contain an optional justification (link to a project, or text explanation).
 
@@ -148,6 +151,40 @@ Deploy:
 
 ```shell
 forge script script/TheGuildActivityToken.s.sol:TheGuildActivityTokenScript \
+  --rpc-url <your_rpc_url> \
+  --private-key <your_private_key> \
+  --broadcast
+```
+
+### Badge Ranking
+
+`TheGuildBadgeRanking` enables voting/ranking of badges for relevancy. Features:
+
+- Tracks upvotes per badge
+- Prevents duplicate voting from the same address on the same badge
+- Integrates with `TheGuildBadgeRegistry` to validate badges before voting
+- Emits `BadgeUpvoted` event for off-chain indexing
+
+**Key Functions:**
+- `upvoteBadge(bytes32 badgeName)`: Vote for a badge (one vote per address per badge)
+- `getUpvotes(bytes32 badgeName)`: Get total upvote count for a badge
+- `hasVotedForBadge(bytes32 badgeName, address voter)`: Check if address has voted for a badge
+
+Deploy individually:
+
+```shell
+# Set BADGE_REGISTRY_ADDRESS to your deployed registry, or use default (Amoy dev)
+forge script script/TheGuildBadgeRanking.s.sol:TheGuildBadgeRankingScript \
+  --rpc-url <your_rpc_url> \
+  --private-key <your_private_key> \
+  --broadcast
+```
+
+Or use environment variable:
+
+```shell
+export BADGE_REGISTRY_ADDRESS=0x8ac95734e778322684f1d318fb7633777baa8427
+forge script script/TheGuildBadgeRanking.s.sol:TheGuildBadgeRankingScript \
   --rpc-url <your_rpc_url> \
   --private-key <your_private_key> \
   --broadcast

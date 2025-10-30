@@ -1,9 +1,8 @@
 import "@rainbow-me/rainbowkit/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiProvider } from "wagmi";
-import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import { RainbowKitProvider, ConnectButton } from "@rainbow-me/rainbowkit";
 import { config } from "../lib/wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
   SidebarProvider,
   SidebarTrigger,
@@ -11,7 +10,7 @@ import {
 } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ActivityTokenBalance } from "@/components/ActivityTokenBalance";
-import { AppBackground } from "@/components/AppBackground";
+import { Background } from "@/components/Background";
 
 const queryClient = new QueryClient();
 
@@ -25,7 +24,7 @@ export function AppWrapper({ children }: AppWrapperProps) {
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
           <div className="relative min-h-screen">
-            <AppBackground />
+            <Background />
             <SidebarProvider>
               <AppSidebar />
               <SidebarInset>
