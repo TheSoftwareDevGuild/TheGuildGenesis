@@ -1,0 +1,19 @@
+[project]
+name = "the-guild-notebooks"
+version = "0.0.1"
+description = "Jupyter notebooks workspace for The Guild"
+readme = "README.md"
+requires-python = ">=3.12"
+authors = [{ name = "The Guild" }]
+dependencies = [
+  "jupyterlab>=4.2",
+  "notebook>=7.2",
+  "ipykernel>=6.29",
+  "numpy>=1.26",
+  "pandas>=2.2",
+  "matplotlib>=3.9",
+  "seaborn>=0.13",
+  "scipy>=1.13",
+  "python-dotenv>=1.0",
+  "requests>=2.32",
+]
