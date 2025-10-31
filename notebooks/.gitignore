@@ -1,0 +1,20 @@
+# Jupyter
+.ipynb_checkpoints/
+
+# Virtual environments
+.venv/
+
+# Data artifacts
+*.csv
+*.tsv
+*.parquet
+*.feather
+*.h5
+*.hdf5
+*.zip
+*.gz
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db

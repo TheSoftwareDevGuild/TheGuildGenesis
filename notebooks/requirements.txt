@@ -1,0 +1,15 @@
+# Core
+jupyterlab>=4.2
+notebook>=7.2
+ipykernel>=6.29
+
+# Common scientific stack
+numpy>=1.26
+pandas>=2.2
+matplotlib>=3.9
+seaborn>=0.13
+scipy>=1.13
+
+# Utilities
+python-dotenv>=1.0
+requests>=2.32
