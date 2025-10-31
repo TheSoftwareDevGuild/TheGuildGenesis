@@ -13,12 +13,12 @@ function tryDecodeBadgeData(data: `0x${string}` | null | undefined): {
   if (!data) return { badgeName: "", justification: "" };
   try {
     const [nameBytes, justificationBytes] = decodeAbiParameters(
-      [{ type: "bytes32" }, { type: "bytes32" }],
+      [{ type: "bytes32" }, { type: "bytes" }],
       data
     ) as [`0x${string}`, `0x${string}`];
     return {
       badgeName: bytes32ToString(nameBytes),
-      justification: bytes32ToString(justificationBytes),
+      justification: justificationBytes === "0x" ? "" : Buffer.from(justificationBytes.slice(2), "hex").toString("utf-8"),
     };
   } catch {
     return { badgeName: "", justification: "" };
