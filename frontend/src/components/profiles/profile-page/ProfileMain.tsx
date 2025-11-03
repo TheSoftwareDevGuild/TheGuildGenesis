@@ -1,5 +1,6 @@
 import ProfileHeader from "@/components/profiles/profile-page/ProfileHeader";
 import ProfileActions from "@/components/profiles/profile-page/ProfileActions";
+import ProfileDescription from "@/components/profiles/profile-page/ProfileDescription";
 import ProfileAttestations from "@/components/profiles/profile-page/ProfileAttestations";
 import ProfileIssuedAttestations from "@/components/profiles/profile-page/ProfileIssuedAttestations";
 import { useGetProfiles } from "@/hooks/profiles/use-get-profiles";
@@ -32,6 +33,7 @@ export function ProfileMain({ address }: { address: string }) {
           githubLogin={profile?.github_login}
         />
       </div>
+      <ProfileDescription description={profile?.description} />
       <ProfileAttestations address={address} />
       <ProfileIssuedAttestations address={address} />
     </div>

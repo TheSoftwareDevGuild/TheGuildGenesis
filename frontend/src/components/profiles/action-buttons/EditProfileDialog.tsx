@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Form,
   FormControl,
@@ -135,8 +136,9 @@ export function EditProfileDialog({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
                       placeholder="Write a short introduction..."
+                      className="resize-none"
                       {...field}
                     />
                   </FormControl>

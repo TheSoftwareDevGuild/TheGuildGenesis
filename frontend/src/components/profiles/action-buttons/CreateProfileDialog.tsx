@@ -11,6 +11,7 @@ import {
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useCreateProfile } from "@/hooks/profiles/use-create-profile";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -109,8 +110,9 @@ export function CreateProfileButton() {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Input
+                    <Textarea
                       placeholder="Write a short introduction..."
+                      className="resize-none"
                       {...field}
                     />
                   </FormControl>
