@@ -22,19 +22,25 @@ For detailed frontend integration instructions, see [INTEGRATION.md](./INTEGRATI
 
 ### Amoy 
 
-Salt: "theguild_v_0.1.0"
+Salt: "theguild_v_0.1.2"
 
 TheGuildActivityToken
-https://amoy.polygonscan.com/address/0x5db978bc69e54250f577ed343273508baea136cd 
+https://amoy.polygonscan.com/address/0x4649490B118389d0Be8F48b8953eFb235d8CB545
 
 TheGuildBadgeRegistry
-https://amoy.polygonscan.com/address/0xc142ab6b4688b7b81cb4cc8b305f517bba3bfd25 
+https://amoy.polygonscan.com/address/0x94f5F12BE60a338D263882a1A49E81ca8A0c30F4
+
+TheGuildAttestationResolver
+https://amoy.polygonscan.com/address/0x8B481fB56b133b590348B2B3B1D3Ae2fce0D4324
+
+TheGuildBadgeRanking
+https://amoy.polygonscan.com/address/0x435576DFA5B151a6A1c8a4B5EdDfB4ceEd5A55aF
 
 EAS Schema ID:
-0xb167f07504166f717f2a2710dbcfbfdf8fad6e8c6128c1a7fa80768f61b1d0b2
+0xbcd7561083784f9b5a1c2b3ddb7aa9db263d43c58f7374cfa4875646824a47de
 
 ### Amoy for dev
-Salt: "theguild_v_0.1.1_dev"
+Salt: "theguild_v_0.1.3_dev"
 
 TheGuildActivityToken
 https://amoy.polygonscan.com/address/0x82eba5400b4e914a9b5e4573867b9a73c488c1ed 
@@ -46,7 +52,7 @@ EAS Schema ID:
 0x8ef2fdb896e42534302cc992c2b2daf614ccabf3fc6d78ce15dc35534b8fa481
 
 ### Base Sepolia
-Salt: "theguild_v_0.1.1"
+Salt: "theguild_v_0.1.3"
 
 TheGuildActivityToken
 https://amoy.polygonscan.com/address/0xba838e90ca2a84aed0de2119e7e6f53b9174ce42 

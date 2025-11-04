@@ -15,19 +15,22 @@ import {console} from "forge-std/console.sol";
 contract FullDeploymentScript is Script {
     function run() public {
         EAS eas;
-        bytes32 salt = bytes32("theguild_v_0.1.1");
+        bytes32 salt = bytes32("theguild_v_0.1.3");
         // EAS addresses per https://github.com/ethereum-attestation-service/eas-contracts deployments
         // Base mainnet (8453) and Base Goerli/Sepolia (84531/84532) use the canonical predeploy 0x...21
         // Optimism mainnet (10) and OP Sepolia (11155420) also use canonical 0x...21
 
         eas = EAS(EASUtils.getEASAddress(vm));
 
-        vm.startBroadcast();
+        // Derive deployer EOA from PRIVATE_KEY to keep ownership consistent under CREATE2 factory
+        uint256 pk = vm.envUint("PRIVATE_KEY");
+        address deployer = vm.addr(pk);
+        vm.startBroadcast(pk);
 
-        // Deploy activity token via CREATE2
+        // Deploy activity token via CREATE2 with initial owner set to EOA (tx.origin)
         TheGuildActivityToken activityToken = new TheGuildActivityToken{
             salt: salt
-        }();
+        }(deployer);
 
         // Deploy or attach to existing badge registry via CREATE2 (needs to exist before resolver)
         TheGuildBadgeRegistry badgeRegistry = new TheGuildBadgeRegistry{
@@ -38,6 +41,7 @@ contract FullDeploymentScript is Script {
         TheGuildAttestationResolver resolver = new TheGuildAttestationResolver{
             salt: salt
         }(eas, activityToken, badgeRegistry);
+        // Transfer ownership from EOA to resolver so it can mint on attest
         activityToken.transferOwnership(address(resolver));
 
         // Register TheGuild Schema

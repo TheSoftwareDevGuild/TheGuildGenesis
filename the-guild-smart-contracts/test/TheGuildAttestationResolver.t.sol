@@ -27,7 +27,7 @@ contract TheGuildAttestationResolverTest is Test {
         eas = new EAS(schemaRegistry);
 
         // Deploy token, registry & resolver and transfer ownership to resolver
-        token = new TheGuildActivityToken();
+        token = new TheGuildActivityToken(address(this));
         badgeRegistry = new TheGuildBadgeRegistry();
         resolver = new TheGuildAttestationResolver(
             IEAS(address(eas)),
@@ -79,7 +79,9 @@ contract TheGuildAttestationResolverTest is Test {
 
     function test_AttestWithoutOwnershipTransferWouldFail() public {
         // Fresh token not owned by resolver
-        TheGuildActivityToken tempToken = new TheGuildActivityToken();
+        TheGuildActivityToken tempToken = new TheGuildActivityToken(
+            address(this)
+        );
         TheGuildBadgeRegistry tempRegistry = new TheGuildBadgeRegistry();
         TheGuildAttestationResolver tempResolver = new TheGuildAttestationResolver(
                 IEAS(address(eas)),

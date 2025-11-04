@@ -17,8 +17,10 @@ contract TheGuildActivityTokenScript is Script {
 
         eas = EASUtils.getEASAddress(vm);
 
-        vm.startBroadcast();
-        TheGuildActivityToken token = new TheGuildActivityToken();
+        uint256 pk = vm.envUint("PRIVATE_KEY");
+        address deployer = vm.addr(pk);
+        vm.startBroadcast(pk);
+        TheGuildActivityToken token = new TheGuildActivityToken(deployer);
         TheGuildBadgeRegistry badgeRegistry = new TheGuildBadgeRegistry();
         TheGuildAttestationResolver resolver = new TheGuildAttestationResolver(
             IEAS(eas),

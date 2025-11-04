@@ -11,7 +11,7 @@ contract TheGuildActivityTokenTest is Test {
     address private user = address(0xBEEF);
 
     function setUp() public {
-        token = new TheGuildActivityToken();
+        token = new TheGuildActivityToken(owner);
     }
 
     function test_Metadata() public view {

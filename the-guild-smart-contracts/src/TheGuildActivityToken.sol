@@ -7,7 +7,9 @@ import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 /// @title TheGuildActivityToken (TGA)
 /// @notice Pure ERC20 token; ownership is transferred to resolver to mint on attest.
 contract TheGuildActivityToken is ERC20, Ownable {
-    constructor() ERC20("TheGuildActivityToken", "TGA") Ownable(msg.sender) {}
+    constructor(
+        address initialOwner
+    ) ERC20("TheGuildActivityToken", "TGA") Ownable(initialOwner) {}
 
     /// @notice Mint tokens to a recipient. Only owner can mint.
     function mint(address to, uint256 amount) external onlyOwner {
