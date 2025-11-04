@@ -57,6 +57,7 @@ PUBLIC_API_URL=http://localhost:3001
 PUBLIC_BADGE_REGISTRY_ADDRESS=0x...
 PUBLIC_EAS_CONTRACT_ADDRESS=0x...
 PUBLIC_ACTIVITY_TOKEN_ADDRESS=0x...
+PUBLIC_ATTESTATION_RESOLVER_ADDRESS=0x...
 PUBLIC_SCHEMA_ID=0x...
 
 # Discord Bot (if using)
@@ -167,7 +168,7 @@ forge script script/TheGuildBadgeRegistry.s.sol:TheGuildBadgeRegistryScript --rp
 
 ## Smart Contracts
 
-The `the-guild-smart-contracts/` directory contains our Solidity smart contracts built with Foundry.
+The `the-guild-smart-contracts/` directory contains our Solidity smart contracts built with Foundry. See the dedicated docs for deployment details, addresses, and usage: [the-guild-smart-contracts/README.md](the-guild-smart-contracts/README.md).
 
 ### TheGuildBadgeRegistry
 
@@ -202,6 +203,33 @@ function badgeNameAt(uint256 index) external view returns (bytes32)
 ```solidity
 event BadgeCreated(bytes32 indexed name, bytes32 description, address indexed creator)
 ```
+
+### TheGuildActivityToken (TGA)
+
+An ERC20 token used to reward attestations. Ownable; the owner is the attestation resolver contract.
+
+**Key Points:**
+- 18 decimals; symbol `TGA`
+- Owner-only `mint(address to, uint256 amount)`
+
+### TheGuildAttestationResolver
+
+An EAS `SchemaResolver` that validates attestations and mints TGA on success.
+
+**Validation and Behavior:**
+- Decodes schema data: `bytes32 badgeName, bytes justification`
+- Requires `badgeName` to exist in `TheGuildBadgeRegistry`
+- Prevents duplicate `(attester, recipient, badgeName)` via a keyed mapping
+- Mints `10 * 10^decimals()` TGA to the attester on success
+
+### TheGuildBadgeRanking
+
+Simple community ranking via upvotes on badges.
+
+**Key Functions:**
+- `upvoteBadge(bytes32 badgeName)` – One vote per address per badge
+- `getUpvotes(bytes32 badgeName)` – Read total votes
+- `hasVotedForBadge(bytes32 badgeName, address voter)` – Read if voted
 
 ## Features
 
