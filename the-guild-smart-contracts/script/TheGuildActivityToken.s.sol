@@ -4,6 +4,7 @@ pragma solidity ^0.8.13;
 import {Script} from "forge-std/Script.sol";
 import {IEAS} from "eas-contracts/IEAS.sol";
 import {TheGuildActivityToken} from "../src/TheGuildActivityToken.sol";
+import {TheGuildAttestationResolver} from "../src/TheGuildAttestationResolver.sol";
 import {EASUtils} from "./utils/EASUtils.s.sol";
 
 contract TheGuildActivityTokenScript is Script {
@@ -16,7 +17,12 @@ contract TheGuildActivityTokenScript is Script {
         eas = EASUtils.getEASAddress(vm);
 
         vm.startBroadcast();
-        new TheGuildActivityToken(IEAS(eas));
+        TheGuildActivityToken token = new TheGuildActivityToken();
+        TheGuildAttestationResolver resolver = new TheGuildAttestationResolver(
+            IEAS(eas),
+            token
+        );
+        token.transferOwnership(address(resolver));
         vm.stopBroadcast();
     }
 }

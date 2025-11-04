@@ -2,7 +2,6 @@
 pragma solidity ^0.8.13;
 
 import {Test} from "forge-std/Test.sol";
-import {IEAS} from "eas-contracts/IEAS.sol";
 import {TheGuildActivityToken} from "../src/TheGuildActivityToken.sol";
 
 contract TheGuildActivityTokenTest is Test {
@@ -12,7 +11,7 @@ contract TheGuildActivityTokenTest is Test {
     address private user = address(0xBEEF);
 
     function setUp() public {
-        token = new TheGuildActivityToken(IEAS(address(0x1)));
+        token = new TheGuildActivityToken();
     }
 
     function test_Metadata() public view {

@@ -6,6 +6,7 @@ import {EAS} from "eas-contracts/EAS.sol";
 import {AttestationRequestData, AttestationRequest} from "eas-contracts/IEAS.sol";
 import {SchemaRegistry} from "eas-contracts/SchemaRegistry.sol";
 import {TheGuildActivityToken} from "../src/TheGuildActivityToken.sol";
+import {TheGuildAttestationResolver} from "../src/TheGuildAttestationResolver.sol";
 import {TheGuildBadgeRegistry} from "../src/TheGuildBadgeRegistry.sol";
 import {TheGuildBadgeRanking} from "../src/TheGuildBadgeRanking.sol";
 import {EASUtils} from "./utils/EASUtils.s.sol";
@@ -23,20 +24,28 @@ contract FullDeploymentScript is Script {
 
         vm.startBroadcast();
 
-        // Deploy or attach to existing activity token via CREATE2
-        TheGuildActivityToken activityToken = new TheGuildActivityToken{salt: salt}(eas);
+        // Deploy activity token and resolver via CREATE2
+        TheGuildActivityToken activityToken = new TheGuildActivityToken{
+            salt: salt
+        }();
+        TheGuildAttestationResolver resolver = new TheGuildAttestationResolver{
+            salt: salt
+        }(eas, activityToken);
+        activityToken.transferOwnership(address(resolver));
 
         // Register TheGuild Schema
         string memory schema = "bytes32 badgeName, bytes justification";
         SchemaRegistry schemaRegistry = SchemaRegistry(
             EASUtils.getSchemaRegistryAddress(vm)
         );
-        bytes32 schemaId = schemaRegistry.register(schema, activityToken, true);
+        bytes32 schemaId = schemaRegistry.register(schema, resolver, true);
         console.logString("Schema ID:");
         console.logBytes32(schemaId);
 
         // Deploy or attach to existing badge registry via CREATE2
-        TheGuildBadgeRegistry badgeRegistry = new TheGuildBadgeRegistry{salt: salt}();
+        TheGuildBadgeRegistry badgeRegistry = new TheGuildBadgeRegistry{
+            salt: salt
+        }();
 
         // Create some badges
         badgeRegistry.createBadge(
@@ -53,7 +62,9 @@ contract FullDeploymentScript is Script {
         );
 
         // Deploy or attach to existing badge ranking via CREATE2
-        TheGuildBadgeRanking badgeRanking = new TheGuildBadgeRanking{salt: salt}(badgeRegistry);
+        TheGuildBadgeRanking badgeRanking = new TheGuildBadgeRanking{
+            salt: salt
+        }(badgeRegistry);
 
         // Create some attestations
         AttestationRequestData memory data = AttestationRequestData({
