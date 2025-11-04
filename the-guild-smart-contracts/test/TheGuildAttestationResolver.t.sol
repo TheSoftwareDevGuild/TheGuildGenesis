@@ -9,7 +9,7 @@ import {TheGuildBadgeRegistry} from "../src/TheGuildBadgeRegistry.sol";
 // EAS contracts
 import {EAS} from "eas-contracts/EAS.sol";
 import {SchemaRegistry} from "eas-contracts/SchemaRegistry.sol";
-import {IEAS, AttestationRequest, AttestationRequestData} from "eas-contracts/IEAS.sol";
+import {IEAS, AttestationRequest, AttestationRequestData, Attestation, RevocationRequestData, RevocationRequest} from "eas-contracts/IEAS.sol";
 
 contract TheGuildAttestationResolverTest is Test {
     TheGuildActivityToken private token;
@@ -134,6 +134,67 @@ contract TheGuildAttestationResolverTest is Test {
         vm.prank(attester);
         vm.expectRevert(); // resolver returns false -> EAS reverts
         eas.attest(request);
+    }
+
+    function test_AttestationIndexerGetters() public {
+        bytes32 schemaId = _registerSchema();
+        badgeRegistry.createBadge(
+            bytes32("Rust"),
+            bytes32("Know how to code in Rust")
+        );
+
+        vm.prank(attester);
+        bytes32 uid = eas.attest(
+            AttestationRequest({
+                schema: schemaId,
+                data: AttestationRequestData({
+                    recipient: recipient,
+                    expirationTime: 0,
+                    revocable: true,
+                    refUID: bytes32(0),
+                    data: abi.encode(bytes32("Rust"), bytes("any")),
+                    value: 0
+                })
+            })
+        );
+
+        assertEq(resolver.getAttestationCount(), 1);
+        Attestation memory a = resolver.getAttestationAtIndex(0);
+        assertEq(a.uid, uid);
+        assertEq(a.attester, attester);
+        assertEq(a.recipient, recipient);
+    }
+
+    function test_Revoke_NoRevert() public {
+        bytes32 schemaId = _registerSchema();
+        badgeRegistry.createBadge(
+            bytes32("Rust"),
+            bytes32("Know how to code in Rust")
+        );
+
+        vm.prank(attester);
+        bytes32 uid = eas.attest(
+            AttestationRequest({
+                schema: schemaId,
+                data: AttestationRequestData({
+                    recipient: recipient,
+                    expirationTime: 0,
+                    revocable: true,
+                    refUID: bytes32(0),
+                    data: abi.encode(bytes32("Rust"), bytes("any")),
+                    value: 0
+                })
+            })
+        );
+
+        vm.prank(attester);
+        eas.revoke(
+            RevocationRequest({
+                schema: schemaId,
+                data: RevocationRequestData({uid: uid, value: 0})
+            })
+        );
+        // success == no revert
     }
 
     function test_DuplicateAttestationIsRejected() public {

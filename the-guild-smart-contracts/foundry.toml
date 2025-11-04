@@ -2,6 +2,9 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+coverage = true
+# Exclude scripts, libs, and tests from coverage
+no_match_coverage = "^(script/|lib/|test/)"
 
 # Deterministic deployments settings (see: https://getfoundry.sh/guides/deterministic-deployments-using-create2)
 solc = "0.8.28"

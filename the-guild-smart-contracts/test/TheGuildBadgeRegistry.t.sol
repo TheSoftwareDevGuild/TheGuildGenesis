@@ -52,4 +52,21 @@ contract TheGuildBadgeRegistryTest is Test {
         vm.expectRevert(bytes("EMPTY_NAME"));
         registry.createBadge(bytes32(0), bytes32("desc"));
     }
+
+    function test_GetBadgeAt_ByIndex() public {
+        bytes32 a = bytes32("BADGE_A");
+        bytes32 b = bytes32("BADGE_B");
+        registry.createBadge(a, bytes32("descA"));
+        registry.createBadge(b, bytes32("descB"));
+
+        (bytes32 n0, bytes32 d0, address c0) = registry.getBadgeAt(0);
+        assertEq(n0, a);
+        assertEq(d0, bytes32("descA"));
+        assertEq(c0, address(this));
+
+        (bytes32 n1, bytes32 d1, address c1) = registry.getBadgeAt(1);
+        assertEq(n1, b);
+        assertEq(d1, bytes32("descB"));
+        assertEq(c1, address(this));
+    }
 }
