@@ -129,30 +129,35 @@ forge script script/TheGuildBadgeRegistry.s.sol:TheGuildBadgeRegistryScript --rp
 ### Tokens & Resolver
 
 - `TheGuildActivityToken` (symbol `TGA`) is a plain ERC20 with standard 18 decimals. The deployer is the initial owner and can mint. See `src/TheGuildActivityToken.sol`.
-- `TheGuildAttestationResolver` is an EAS `SchemaResolver` that mints TGA to the attester on successful attestations. It takes the global `IEAS` and the deployed `TheGuildActivityToken` in its constructor. See `src/TheGuildAttestationResolver.sol`.
+- `TheGuildAttestationResolver` is an EAS `SchemaResolver` that mints TGA to the attester on successful attestations and enforces basic validity rules. It takes the global `IEAS`, the deployed `TheGuildActivityToken`, and the deployed `TheGuildBadgeRegistry` in its constructor. See `src/TheGuildAttestationResolver.sol`.
 
 #### EAS Resolver behavior (TheGuildAttestationResolver)
 
 - Inherits `SchemaResolver` and implements:
-  - `onAttest(attestation, value)`: mints `10 * 10^decimals()` to `attestation.attester` and returns `true`.
+  - `onAttest(attestation, value)`:
+    - Decodes schema data `"bytes32 badgeName, bytes justification"`.
+    - Requires `badgeName` exists in `TheGuildBadgeRegistry`.
+    - Rejects duplicate attestations for the same `(attester, recipient, badgeName)` using a single-slot `keccak256(attester, recipient, badgeName)` mapping.
+    - If valid, mints `10 * 10^decimals()` to `attestation.attester` and returns `true`.
   - `onRevoke(...)`: no-op, returns `true`.
 - Deployment wiring:
   - Deploy `TheGuildActivityToken`.
-  - Deploy `TheGuildAttestationResolver` with `(IEAS, token)`.
+  - Deploy `TheGuildBadgeRegistry` (if not already deployed).
+  - Deploy `TheGuildAttestationResolver` with `(IEAS, token, badgeRegistry)`.
   - Transfer ownership of the token to the resolver so it can mint: `token.transferOwnership(resolver)`.
-- Register your EAS Schema with `resolver` set to the resolver address (not the token!). When EAS processes an attestation for that schema, it will call the resolver which mints tokens.
+- Register your EAS Schema with `resolver` set to the resolver address (not the token!). When EAS processes an attestation for that schema, it calls the resolver which validates and mints tokens.
 - Learn more about EAS resolvers: [Resolver Contracts](https://docs.attest.org/docs/core--concepts/resolver-contracts).
 
 Quick steps:
 
-1. Deploy TGA and the resolver, then transfer token ownership to the resolver.
+1. Deploy TGA, Badge Registry, and the Resolver; transfer token ownership to the resolver.
 2. Register your schema in EAS with `resolver` set to the resolver address.
-3. Create attestations against that schema. Each attestation mints 10 TGA to the attester automatically.
+3. Create attestations against that schema. Each valid attestation mints 10 TGA to the attester automatically; unknown badges or duplicates are rejected.
 
 Deploy (example):
 
 ```shell
-forge script script/TheGuildActivityToken.s.sol:TheGuildActivityTokenScript \
+forge script script/TheGuildAttestationResolver.s.sol:TheGuildActivityTokenScript \
   --rpc-url <your_rpc_url> \
   --private-key <your_private_key> \
   --broadcast

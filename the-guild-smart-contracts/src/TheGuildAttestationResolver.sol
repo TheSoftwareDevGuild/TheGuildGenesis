@@ -15,6 +15,10 @@ contract TheGuildAttestationResolver is SchemaResolver {
     // TODO: get rid of this when we have our graphQL setup
     bytes32[] private _attestationIds;
 
+    // Tracks seen (attester, recipient, badgeName) tuples to prevent duplicates.
+    // Key = keccak256(abi.encode(attester, recipient, badgeName))
+    mapping(bytes32 => bool) private _seenAttestations;
+
     constructor(
         IEAS eas,
         TheGuildActivityToken token,
@@ -33,6 +37,13 @@ contract TheGuildAttestationResolver is SchemaResolver {
         if (!_badgeRegistry.exists(badgeName)) {
             return false;
         }
+        bytes32 key = keccak256(
+            abi.encode(attestation.attester, attestation.recipient, badgeName)
+        );
+        if (_seenAttestations[key]) {
+            return false;
+        }
+        _seenAttestations[key] = true;
 
         _token.mint(attestation.attester, 10 * (10 ** _token.decimals()));
         // TODO: get rid of this when we have our graphQL setup

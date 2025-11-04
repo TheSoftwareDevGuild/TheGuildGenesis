@@ -135,4 +135,34 @@ contract TheGuildAttestationResolverTest is Test {
         vm.expectRevert(); // resolver returns false -> EAS reverts
         eas.attest(request);
     }
+
+    function test_DuplicateAttestationIsRejected() public {
+        bytes32 schemaId = _registerSchema();
+        // Ensure badge exists
+        badgeRegistry.createBadge(
+            bytes32("Rust"),
+            bytes32("Know how to code in Rust")
+        );
+
+        AttestationRequest memory request = AttestationRequest({
+            schema: schemaId,
+            data: AttestationRequestData({
+                recipient: recipient,
+                expirationTime: 0,
+                revocable: true,
+                refUID: bytes32(0),
+                data: abi.encode(bytes32("Rust"), bytes("First")),
+                value: 0
+            })
+        });
+
+        // First attest succeeds
+        vm.prank(attester);
+        eas.attest(request);
+
+        // Second identical attestation should revert (resolver returns false)
+        vm.prank(attester);
+        vm.expectRevert();
+        eas.attest(request);
+    }
 }
