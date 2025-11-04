@@ -24,13 +24,20 @@ contract FullDeploymentScript is Script {
 
         vm.startBroadcast();
 
-        // Deploy activity token and resolver via CREATE2
+        // Deploy activity token via CREATE2
         TheGuildActivityToken activityToken = new TheGuildActivityToken{
             salt: salt
         }();
+
+        // Deploy or attach to existing badge registry via CREATE2 (needs to exist before resolver)
+        TheGuildBadgeRegistry badgeRegistry = new TheGuildBadgeRegistry{
+            salt: salt
+        }();
+
+        // Deploy resolver via CREATE2
         TheGuildAttestationResolver resolver = new TheGuildAttestationResolver{
             salt: salt
-        }(eas, activityToken);
+        }(eas, activityToken, badgeRegistry);
         activityToken.transferOwnership(address(resolver));
 
         // Register TheGuild Schema
@@ -41,11 +48,6 @@ contract FullDeploymentScript is Script {
         bytes32 schemaId = schemaRegistry.register(schema, resolver, true);
         console.logString("Schema ID:");
         console.logBytes32(schemaId);
-
-        // Deploy or attach to existing badge registry via CREATE2
-        TheGuildBadgeRegistry badgeRegistry = new TheGuildBadgeRegistry{
-            salt: salt
-        }();
 
         // Create some badges
         badgeRegistry.createBadge(
@@ -62,9 +64,7 @@ contract FullDeploymentScript is Script {
         );
 
         // Deploy or attach to existing badge ranking via CREATE2
-        TheGuildBadgeRanking badgeRanking = new TheGuildBadgeRanking{
-            salt: salt
-        }(badgeRegistry);
+        new TheGuildBadgeRanking{salt: salt}(badgeRegistry);
 
         // Create some attestations
         AttestationRequestData memory data = AttestationRequestData({

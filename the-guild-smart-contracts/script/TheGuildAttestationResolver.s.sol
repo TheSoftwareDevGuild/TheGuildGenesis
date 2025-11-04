@@ -5,6 +5,7 @@ import {Script} from "forge-std/Script.sol";
 import {IEAS} from "eas-contracts/IEAS.sol";
 import {TheGuildActivityToken} from "../src/TheGuildActivityToken.sol";
 import {TheGuildAttestationResolver} from "../src/TheGuildAttestationResolver.sol";
+import {TheGuildBadgeRegistry} from "../src/TheGuildBadgeRegistry.sol";
 import {EASUtils} from "./utils/EASUtils.s.sol";
 
 contract TheGuildActivityTokenScript is Script {
@@ -18,9 +19,11 @@ contract TheGuildActivityTokenScript is Script {
 
         vm.startBroadcast();
         TheGuildActivityToken token = new TheGuildActivityToken();
+        TheGuildBadgeRegistry badgeRegistry = new TheGuildBadgeRegistry();
         TheGuildAttestationResolver resolver = new TheGuildAttestationResolver(
             IEAS(eas),
-            token
+            token,
+            badgeRegistry
         );
         token.transferOwnership(address(resolver));
         vm.stopBroadcast();
