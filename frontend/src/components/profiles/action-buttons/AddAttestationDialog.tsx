@@ -76,7 +76,6 @@ export function AddAttestationDialog({
       );
     } catch (e) {
       const message = (e as Error)?.message || String(e);
-      console.log("message", message);
       const isRpcRevert =
         message.includes("Internal JSON-RPC error") ||
         message.includes('Contract function "attest" reverted') ||
