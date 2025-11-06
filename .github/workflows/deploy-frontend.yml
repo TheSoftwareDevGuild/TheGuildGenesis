@@ -53,6 +53,7 @@ jobs:
           PUBLIC_BADGE_REGISTRY_ADDRESS: ${{ secrets.PUBLIC_BADGE_REGISTRY_ADDRESS }}
           PUBLIC_EAS_CONTRACT_ADDRESS: ${{ secrets.PUBLIC_EAS_CONTRACT_ADDRESS }}
           PUBLIC_ACTIVITY_TOKEN_ADDRESS: ${{ secrets.PUBLIC_ACTIVITY_TOKEN_ADDRESS }}
+          PUBLIC_ATTESTATION_RESOLVER_ADDRESS: ${{ secrets.PUBLIC_ATTESTATION_RESOLVER_ADDRESS }}
           PUBLIC_SCHEMA_ID: ${{ secrets.PUBLIC_SCHEMA_ID }}
         run: |
           DOCKER_BUILDKIT=0 docker build \
@@ -65,6 +66,7 @@ jobs:
             --build-arg PUBLIC_EAS_CONTRACT_ADDRESS="${PUBLIC_EAS_CONTRACT_ADDRESS}" \
             --build-arg PUBLIC_ACTIVITY_TOKEN_ADDRESS="${PUBLIC_ACTIVITY_TOKEN_ADDRESS}" \
             --build-arg PUBLIC_SCHEMA_ID="${PUBLIC_SCHEMA_ID}" \
+            --build-arg PUBLIC_ATTESTATION_RESOLVER_ADDRESS="${PUBLIC_ATTESTATION_RESOLVER_ADDRESS}" \
 
           docker push registry.heroku.com/${HEROKU_FRONTEND_APP}/web
         if: steps.changes.outputs.frontend == 'true'

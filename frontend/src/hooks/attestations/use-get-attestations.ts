@@ -1,9 +1,9 @@
 import { useMemo } from "react";
 import { useReadContract, useReadContracts } from "wagmi";
 import { decodeAbiParameters } from "viem";
-import { activityTokenAbi } from "@/lib/abis/activityTokenAbi";
-import { ACTIVITY_TOKEN_ADDRESS } from "@/lib/constants/blockchainConstants";
-import { bytes32ToString } from "@/lib/utils/blockchainUtils";
+import { attestationResolverAbi } from "@/lib/abis/attestationResolverAbi";
+import { ATTESTATION_RESOLVER_ADDRESS } from "@/lib/constants/blockchainConstants";
+import { bytes32ToString, bytesToString } from "@/lib/utils/blockchainUtils";
 import type { AttestationItem } from "@/lib/types/attestation";
 
 function tryDecodeBadgeData(data: `0x${string}` | null | undefined): {
@@ -13,12 +13,12 @@ function tryDecodeBadgeData(data: `0x${string}` | null | undefined): {
   if (!data) return { badgeName: "", justification: "" };
   try {
     const [nameBytes, justificationBytes] = decodeAbiParameters(
-      [{ type: "bytes32" }, { type: "bytes32" }],
+      [{ type: "bytes32" }, { type: "bytes" }],
       data
     ) as [`0x${string}`, `0x${string}`];
     return {
       badgeName: bytes32ToString(nameBytes),
-      justification: bytes32ToString(justificationBytes),
+      justification: bytesToString(justificationBytes),
     };
   } catch {
     return { badgeName: "", justification: "" };
@@ -31,10 +31,11 @@ export function useGetAttestations(): {
   error: Error | null;
   refetch: () => void;
 } {
-  const address = ACTIVITY_TOKEN_ADDRESS;
+  // Use resolver contract for attestation enumeration
+  const address = ATTESTATION_RESOLVER_ADDRESS;
 
   const countQuery = useReadContract({
-    abi: activityTokenAbi,
+    abi: attestationResolverAbi,
     address,
     functionName: "getAttestationCount",
     query: { enabled: Boolean(address) },
@@ -46,7 +47,7 @@ export function useGetAttestations(): {
     () =>
       count > 0
         ? Array.from({ length: count }, (_, i) => ({
-            abi: activityTokenAbi,
+            abi: attestationResolverAbi,
             address,
             functionName: "getAttestationAtIndex" as const,
             args: [BigInt(i)],

@@ -1,5 +1,5 @@
-// Minimal ABI fragments we need from TheGuildActivityToken / EAS
-export const activityTokenAbi = [
+// Minimal ABI fragments we need from
+export const attestationResolverAbi = [
   {
     type: "function",
     name: "getAttestationCount",

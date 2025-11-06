@@ -25,14 +25,23 @@ function stringToBytes32(value: string): `0x${string}` {
   return hex as `0x${string}`;
 }
 
+function stringToBytes(value: string): `0x${string}` {
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(value);
+  let hex = "0x";
+  for (let i = 0; i < bytes.length; i++)
+    hex += bytes[i].toString(16).padStart(2, "0");
+  return hex as `0x${string}`;
+}
+
 function encodeBadgeData(
   badgeName: `0x${string}`,
-  justification: `0x${string}`
+  justificationBytes: `0x${string}`
 ) {
-  // Encode according to schema: bytes32 badgeName, bytes32 justification
+  // Encode according to schema: bytes32 badgeName, bytes justification
   return encodeAbiParameters(
-    [{ type: "bytes32" }, { type: "bytes32" }],
-    [badgeName, justification]
+    [{ type: "bytes32" }, { type: "bytes" }],
+    [badgeName, justificationBytes]
   );
 }
 
@@ -62,7 +71,7 @@ export function useCreateAttestation() {
       isBusyRef.current = true;
       // Convert strings to bytes32
       const badgeNameBytes = stringToBytes32(badgeName);
-      const justificationBytes = stringToBytes32(justification);
+      const justificationBytes = stringToBytes(justification);
 
       // Encode data according to schema
       const encodedData = encodeBadgeData(badgeNameBytes, justificationBytes);

@@ -18,6 +18,19 @@ export function bytes32ToString(value: `0x${string}`): string {
   }
 }
 
+export function bytesToString(value: `0x${string}`): string {
+  try {
+    const hex = value.startsWith("0x") ? value.slice(2) : value;
+    const arr = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < arr.length; i++) {
+      arr[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+    }
+    return new TextDecoder().decode(arr);
+  } catch (_e) {
+    return "";
+  }
+}
+
 export function stringToBytes32(value: string): `0x${string}` {
   // Encode to utf8, pad/truncate to 32 bytes, return as hex
   const encoder = new TextEncoder();
