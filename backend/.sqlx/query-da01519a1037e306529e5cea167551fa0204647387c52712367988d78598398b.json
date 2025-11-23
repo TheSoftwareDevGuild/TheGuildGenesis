@@ -1,0 +1,19 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                INSERT INTO distributions (id, distribution_id, address, badge_name, metadata, created_at)\n                VALUES ($1, $2, $3, $4, $5::jsonb, $6)\n                ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Text",
+        "Jsonb",
+        "Timestamptz"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "da01519a1037e306529e5cea167551fa0204647387c52712367988d78598398b"
+}
