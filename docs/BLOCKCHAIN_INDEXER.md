@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Guild Genesis blockchain indexer is a high-performance service that monitors and indexes on-chain events from TheGuildBadgeRegistry smart contract. It extracts blockchain data, transforms it into a structured format, and stores it in a PostgreSQL database for fast querying and retrieval by the backend API.
+The Guild Genesis blockchain indexer is a high-performance service that monitors and indexes on-chain events from TheGuildBadgeRegistry Activity token. It extracts blockchain data, transforms it into a structured format, and stores it in a PostgreSQL database for fast querying and retrieval by the backend API.
 
 ## Architecture
 
@@ -133,7 +133,7 @@ DATABASE_URL=postgresql://postgres:password@localhost:5432/guild_genesis
 # Blockchain Configuration
 RPC_URL=https://mainnet.infura.io/v3/YOUR_INFURA_KEY
 CHAIN_ID=1
-CONTRACT_ADDRESS=0x... # TheGuildBadgeRegistry contract address
+CONTRACT_ADDRESS=0x... # Activity Token contract address
 START_BLOCK=0 # Block number to start indexing from
 
 # Indexer Configuration
@@ -704,7 +704,7 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for detailed guidelines.
 
 ### Version 0.1.0 (Current)
 - Initial release
-- BadgeCreated event indexing
+- Activitytoken indexing
 - PostgreSQL storage
 - RESTful API
 - Docker support
