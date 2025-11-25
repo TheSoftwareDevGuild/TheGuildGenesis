@@ -2,7 +2,7 @@ Contributing to The Guild Genesis
 
 Thank you for your interest in contributing! Please follow these steps before working on an issue or feature:
 
-1. Join our Discord: https://discord.gg/pg4UgaTr
+1. Join our Discord: https://discord.gg/axCqT23Xhj
 2. Create your profile on https://theguild.dev
 3. Edit your Guild profile to include your Discord username (so we can verify your identity and attribute rewards).
 4. Discuss the terms for fulfilling the ticket with Antoine (scope, deliverables, timeline).
