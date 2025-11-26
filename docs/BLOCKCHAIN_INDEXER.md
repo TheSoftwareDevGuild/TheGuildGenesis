@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Guild Genesis blockchain indexer is a high-performance service that monitors and indexes on-chain events from TheGuildBadgeRegistry Activity token. It extracts blockchain data, transforms it into a structured format, and stores it in a PostgreSQL database for fast querying and retrieval by the backend API.
+The Guild Genesis blockchain indexer is a high-performance service that monitors and indexes on-chain events from The Guild Activity token. It extracts blockchain data, transforms it into a structured format, and stores it in a PostgreSQL database for fast querying and retrieval by the backend API.
 
 ## Architecture
 
