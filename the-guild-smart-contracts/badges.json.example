@@ -1,0 +1,25 @@
+{
+  "badges": [
+    {
+      "name": "Rust",
+      "description": "Know how to code in Rust"
+    },
+    {
+      "name": "Solidity",
+      "description": "Know how to code in Solidity"
+    },
+    {
+      "name": "TypeScript",
+      "description": "Know how to code in TypeScript"
+    },
+    {
+      "name": "Python",
+      "description": "Know how to code in Python"
+    },
+    {
+      "name": "JavaScript",
+      "description": "Know how to code in JavaScript"
+    }
+  ]
+}
+
