@@ -1,0 +1,139 @@
+{
+  "attestations": [
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "jupyter-notebook",
+      "justification": "Awarded for contributions to issue #126: Use jupyter notebook to analyze github issues (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/126)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "python",
+      "justification": "Awarded for contributions to issue #126: Use jupyter notebook to analyze github issues (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/126)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "bug",
+      "justification": "Awarded for contributions to issue #119: Discord Link (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/119)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "documentation",
+      "justification": "Awarded for contributions to issue #119: Discord Link (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/119)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "documentation",
+      "justification": "Awarded for contributions to issue #91: Improve instructions to run things locally (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/91)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "documentation",
+      "justification": "Awarded for contributions to issue #72: Contribution token feature plan (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/72)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "planning",
+      "justification": "Awarded for contributions to issue #72: Contribution token feature plan (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/72)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "solidity",
+      "justification": "Awarded for contributions to issue #55: Could be a good idea to merge ActivityToken and BadgeRegistry contracts into one (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/55)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "foundry",
+      "justification": "Awarded for contributions to issue #55: Could be a good idea to merge ActivityToken and BadgeRegistry contracts into one (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/55)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "good first issue",
+      "justification": "Awarded for contributions to issue #54: Display user activity token balance in the top bar (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/54)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "front end",
+      "justification": "Awarded for contributions to issue #54: Display user activity token balance in the top bar (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/54)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "react",
+      "justification": "Awarded for contributions to issue #54: Display user activity token balance in the top bar (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/54)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "typescript",
+      "justification": "Awarded for contributions to issue #54: Display user activity token balance in the top bar (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/54)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "wagmi",
+      "justification": "Awarded for contributions to issue #54: Display user activity token balance in the top bar (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/54)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "documentation",
+      "justification": "Awarded for contributions to issue #51: Add a Getting Started page on the front end (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/51)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "front end",
+      "justification": "Awarded for contributions to issue #51: Add a Getting Started page on the front end (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/51)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "in progress",
+      "justification": "Awarded for contributions to issue #51: Add a Getting Started page on the front end (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/51)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "solidity",
+      "justification": "Awarded for contributions to issue #48: Prevent duplicate attestations (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/48)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "foundry",
+      "justification": "Awarded for contributions to issue #48: Prevent duplicate attestations (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/48)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "bug",
+      "justification": "Awarded for contributions to issue #47: Submitting too many attestations in a row emits error (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/47)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "front end",
+      "justification": "Awarded for contributions to issue #47: Submitting too many attestations in a row emits error (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/47)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "documentation",
+      "justification": "Awarded for contributions to issue #45: Update contribution guide (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/45)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "front end",
+      "justification": "Awarded for contributions to issue #34: Api doesn't seem to work on mobile (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/34)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "good first issue",
+      "justification": "Awarded for contributions to issue #32: Issuer should link to profile (and use name) (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/32)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "front end",
+      "justification": "Awarded for contributions to issue #32: Issuer should link to profile (and use name) (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/32)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "solidity",
+      "justification": "Awarded for contributions to issue #29: Full contract test coverage (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/29)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "front end",
+      "justification": "Awarded for contributions to issue #22: Add basic project description in the front end (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/22)"
+    }
+  ]
+}
