@@ -40,7 +40,7 @@ contract CreateBadgesFromJson is Script {
         // Read and validate JSON file
         string memory jsonPath = vm.envOr(
             "JSON_PATH",
-            string("badges.json")
+            string("badges-latest.json")
         );
         console.log("Reading JSON from:", jsonPath);
 
@@ -141,7 +141,10 @@ contract CreateBadgesFromJson is Script {
                 description := mload(add(descriptionBytes, 32))
             }
 
-            tempBadges[count] = BadgeData({name: name, description: description});
+            tempBadges[count] = BadgeData({
+                name: name,
+                description: description
+            });
 
             count++;
         }
@@ -280,4 +283,3 @@ contract CreateBadgesFromJson is Script {
         console.log("Execution completed successfully!");
     }
 }
-

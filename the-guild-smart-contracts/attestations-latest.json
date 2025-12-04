@@ -1,0 +1,139 @@
+{
+  "attestations": [
+    {
+      "recipient": "0x2b33E4D2bD2f34310956dCb462d58413d3dCcdf8",
+      "badgeName": "Solidity",
+      "justification": "Awarded for contributions to issue #130: Add foundry batch attestation distribution script (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/130)\nAwarded for contributions to issue #122: Badge TCR/Vote ranking: Smart Contract (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/122)"
+    },
+    {
+      "recipient": "0x2b33E4D2bD2f34310956dCb462d58413d3dCcdf8",
+      "badgeName": "Foundry",
+      "justification": "Awarded for contributions to issue #130: Add foundry batch attestation distribution script (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/130)\nAwarded for contributions to issue #122: Badge TCR/Vote ranking: Smart Contract (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/122)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "Jupyter-notebook",
+      "justification": "Awarded for contributions to issue #126: Use jupyter notebook to analyze github issues (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/126)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "Python",
+      "justification": "Awarded for contributions to issue #126: Use jupyter notebook to analyze github issues (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/126)"
+    },
+    {
+      "recipient": "0x2b33E4D2bD2f34310956dCb462d58413d3dCcdf8",
+      "badgeName": "Blockchain",
+      "justification": "Awarded for contributions to issue #122: Badge TCR/Vote ranking: Smart Contract (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/122)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "Documentation",
+      "justification": "Awarded for contributions to issue #119: Discord Link (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/119)\nAwarded for contributions to issue #91: Improve instructions to run things locally (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/91)\nAwarded for contributions to issue #72: Contribution token feature plan (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/72)\nAwarded for contributions to issue #51: Add a Getting Started page on the front end (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/51)\nAwarded for contributions to issue #45: Update contribution guide (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/45)"
+    },
+    {
+      "recipient": "0x2b33E4D2bD2f34310956dCb462d58413d3dCcdf8",
+      "badgeName": "Rust",
+      "justification": "Awarded for contributions to issue #114: Github handle errors (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/114)\nAwarded for contributions to issue #42: Improve SIWE logic to use dynamic, user-specific nonce - backend (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/42)"
+    },
+    {
+      "recipient": "0x2b33E4D2bD2f34310956dCb462d58413d3dCcdf8",
+      "badgeName": "Back-end",
+      "justification": "Awarded for contributions to issue #114: Github handle errors (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/114)\nAwarded for contributions to issue #42: Improve SIWE logic to use dynamic, user-specific nonce - backend (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/42)"
+    },
+    {
+      "recipient": "0x2b33E4D2bD2f34310956dCb462d58413d3dCcdf8",
+      "badgeName": "Front end",
+      "justification": "Awarded for contributions to issue #107: Implement SIWE for the front end (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/107)\nAwarded for contributions to issue #50: Add copy to clipboard icons next to all ethereum addresses (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/50)\nAwarded for contributions to issue #49: Add description on the profile page (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/49)"
+    },
+    {
+      "recipient": "0x2b33E4D2bD2f34310956dCb462d58413d3dCcdf8",
+      "badgeName": "React",
+      "justification": "Awarded for contributions to issue #107: Implement SIWE for the front end (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/107)\nAwarded for contributions to issue #50: Add copy to clipboard icons next to all ethereum addresses (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/50)\nAwarded for contributions to issue #49: Add description on the profile page (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/49)"
+    },
+    {
+      "recipient": "0x2b33E4D2bD2f34310956dCb462d58413d3dCcdf8",
+      "badgeName": "TypeScript",
+      "justification": "Awarded for contributions to issue #107: Implement SIWE for the front end (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/107)\nAwarded for contributions to issue #49: Add description on the profile page (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/49)"
+    },
+    {
+      "recipient": "0x63E5a246937549b3ECcBB410AF42da54F999D172",
+      "badgeName": "Front end",
+      "justification": "Awarded for contributions to issue #98: Feature: add a github handle to profile in Front end (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/98)\nAwarded for contributions to issue #58: On the profile, there should be a section with the badges issued by that profile (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/58)"
+    },
+    {
+      "recipient": "0x63E5a246937549b3ECcBB410AF42da54F999D172",
+      "badgeName": "React",
+      "justification": "Awarded for contributions to issue #98: Feature: add a github handle to profile in Front end (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/98)\nAwarded for contributions to issue #58: On the profile, there should be a section with the badges issued by that profile (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/58)"
+    },
+    {
+      "recipient": "0x63E5a246937549b3ECcBB410AF42da54F999D172",
+      "badgeName": "TypeScript",
+      "justification": "Awarded for contributions to issue #98: Feature: add a github handle to profile in Front end (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/98)\nAwarded for contributions to issue #58: On the profile, there should be a section with the badges issued by that profile (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/58)"
+    },
+    {
+      "recipient": "0x63E5a246937549b3ECcBB410AF42da54F999D172",
+      "badgeName": "Documentation",
+      "justification": "Awarded for contributions to issue #83: Add doc for indexer (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/83)"
+    },
+    {
+      "recipient": "0x63E5a246937549b3ECcBB410AF42da54F999D172",
+      "badgeName": "Rust",
+      "justification": "Awarded for contributions to issue #83: Add doc for indexer (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/83)"
+    },
+    {
+      "recipient": "0x63E5a246937549b3ECcBB410AF42da54F999D172",
+      "badgeName": "Back-end",
+      "justification": "Awarded for contributions to issue #83: Add doc for indexer (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/83)"
+    },
+    {
+      "recipient": "0xB66442A4Bf0636B6b533D607dB6066AD987368FE",
+      "badgeName": "Front end",
+      "justification": "Awarded for contributions to issue #64: Implement 3D Card Component for Badge Page (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/64)\nAwarded for contributions to issue #63: Improve landing page design with animated background (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/63)"
+    },
+    {
+      "recipient": "0xB66442A4Bf0636B6b533D607dB6066AD987368FE",
+      "badgeName": "React",
+      "justification": "Awarded for contributions to issue #64: Implement 3D Card Component for Badge Page (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/64)\nAwarded for contributions to issue #63: Improve landing page design with animated background (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/63)"
+    },
+    {
+      "recipient": "0xB66442A4Bf0636B6b533D607dB6066AD987368FE",
+      "badgeName": "UX",
+      "justification": "Awarded for contributions to issue #64: Implement 3D Card Component for Badge Page (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/64)\nAwarded for contributions to issue #63: Improve landing page design with animated background (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/63)"
+    },
+    {
+      "recipient": "0xB66442A4Bf0636B6b533D607dB6066AD987368FE",
+      "badgeName": "Design",
+      "justification": "Awarded for contributions to issue #64: Implement 3D Card Component for Badge Page (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/64)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "Foundry",
+      "justification": "Awarded for contributions to issue #55: Could be a good idea to merge ActivityToken and BadgeRegistry contracts into one (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/55)\nAwarded for contributions to issue #48: Prevent duplicate attestations (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/48)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "Front end",
+      "justification": "Awarded for contributions to issue #54: Display user activity token balance in the top bar (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/54)\nAwarded for contributions to issue #51: Add a Getting Started page on the front end (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/51)\nAwarded for contributions to issue #47: Submitting too many attestations in a row emits error (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/47)\nAwarded for contributions to issue #34: Api doesn't seem to work on mobile (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/34)\nAwarded for contributions to issue #32: Issuer should link to profile (and use name) (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/32)\nAwarded for contributions to issue #22: Add basic project description in the front end (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/22)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "React",
+      "justification": "Awarded for contributions to issue #54: Display user activity token balance in the top bar (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/54)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "TypeScript",
+      "justification": "Awarded for contributions to issue #54: Display user activity token balance in the top bar (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/54)"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "badgeName": "Wagmi",
+      "justification": "Awarded for contributions to issue #54: Display user activity token balance in the top bar (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/54)"
+    },
+    {
+      "recipient": "0x2b33E4D2bD2f34310956dCb462d58413d3dCcdf8",
+      "badgeName": "DB",
+      "justification": "Awarded for contributions to issue #42: Improve SIWE logic to use dynamic, user-specific nonce - backend (https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/42)"
+    }
+  ]
+}

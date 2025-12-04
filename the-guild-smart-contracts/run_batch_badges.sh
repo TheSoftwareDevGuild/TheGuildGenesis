@@ -1,8 +1,8 @@
 #!/bin/bash
 
-# Helper script for running TheGuild batch attestation script
-# Usage: ./run_batch_attestations.sh [json_file] [dry_run]
-#   json_file: Path to JSON file with attestations (default: attestations-latest.json)
+# Helper script for running TheGuild batch badge creation script
+# Usage: ./run_batch_badges.sh [json_file] [dry_run]
+#   json_file: Path to JSON file with badges (default: badges-latest.json)
 #   dry_run: Set to 'true' for dry run (default: false)
 
 set -e
@@ -12,16 +12,16 @@ if [ -f .env ]; then
     source .env
 fi
 
-# Parse arguments - JSON file is optional, defaults to attestations-latest.json
+# Parse arguments - JSON file is optional, defaults to badges-latest.json
 if [ $# -eq 0 ]; then
     # No arguments: use default JSON file
-    JSON_FILE="attestations-latest.json"
+    JSON_FILE="badges-latest.json"
     DRY_RUN="false"
 elif [ $# -eq 1 ]; then
     # One argument: could be JSON file or dry_run flag
     if [ "$1" = "true" ] || [ "$1" = "false" ]; then
         # It's a dry_run flag
-        JSON_FILE="attestations-latest.json"
+        JSON_FILE="badges-latest.json"
         DRY_RUN="$1"
     else
         # It's a JSON file path
@@ -62,12 +62,18 @@ if [ -z "$RPC_URL" ]; then
     exit 1
 fi
 
+if [ -z "$BADGE_REGISTRY_ADDRESS" ]; then
+    echo "Error: BADGE_REGISTRY_ADDRESS environment variable not set"
+    exit 1
+fi
+
 # Run the script
 if [ "$DRY_RUN" = "true" ]; then
-    forge script script/EmitAttestationsJson.s.sol:EmitAttestationsJson \
+    forge script script/CreateBadgesFromJson.s.sol:CreateBadgesFromJson \
         --rpc-url "$RPC_URL"
 else
-    forge script script/EmitAttestationsJson.s.sol:EmitAttestationsJson \
+    forge script script/CreateBadgesFromJson.s.sol:CreateBadgesFromJson \
         --rpc-url "$RPC_URL" \
         --broadcast
 fi
+

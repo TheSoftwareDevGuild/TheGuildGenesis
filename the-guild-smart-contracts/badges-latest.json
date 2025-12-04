@@ -1,0 +1,60 @@
+{
+  "badges": [
+    {
+      "name": "Back-end",
+      "description": "Back-end services & APIs."
+    },
+    {
+      "name": "Blockchain",
+      "description": "Blockchain & dapp knowledge."
+    },
+    {
+      "name": "DB",
+      "description": "Design & query databases."
+    },
+    {
+      "name": "Design",
+      "description": "Visual design for products."
+    },
+    {
+      "name": "Discord-bot",
+      "description": "Discord bots & integrations."
+    },
+    {
+      "name": "Documentation",
+      "description": "Writes helpful documentation."
+    },
+    {
+      "name": "Foundry",
+      "description": "Foundry smart contract dev."
+    },
+    {
+      "name": "Front end",
+      "description": "Builds UI and client logic."
+    },
+    {
+      "name": "Jupyter-notebook",
+      "description": "Jupyter Notebooks for data."
+    },
+    {
+      "name": "Nodejs",
+      "description": "Node.js back-end services."
+    },
+    {
+      "name": "Planning",
+      "description": "Plans work and milestones."
+    },
+    {
+      "name": "React",
+      "description": "React components & apps."
+    },
+    {
+      "name": "UX",
+      "description": "User experience focus."
+    },
+    {
+      "name": "Wagmi",
+      "description": "Wagmi Web3 front-end use."
+    }
+  ]
+}
