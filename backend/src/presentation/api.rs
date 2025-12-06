@@ -21,7 +21,7 @@ use tower_http::{
 
 use super::handlers::{
     create_profile_handler, delete_profile_handler, get_all_profiles_handler, get_nonce_handler,
-    get_profile_handler, update_profile_handler,
+    get_profile_handler, login_handler, update_profile_handler,
 };
 
 use super::middlewares::{eth_auth_layer, test_auth_layer};
@@ -40,6 +40,7 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
         .route("/profiles/", post(create_profile_handler))
         .route("/profiles/:address", put(update_profile_handler))
         .route("/profiles/:address", delete(delete_profile_handler))
+        .route("/auth/login", post(login_handler))
         .with_state(state.clone());
 
     let protected_with_auth = if std::env::var("TEST_MODE").is_ok() {
@@ -82,6 +83,7 @@ pub fn test_api(state: AppState) -> Router {
         .route("/profiles", post(create_profile_handler))
         .route("/profiles/:address", put(update_profile_handler))
         .route("/profiles/:address", delete(delete_profile_handler))
+        .route("/auth/login", post(login_handler))
         .with_state(state.clone())
         .layer(from_fn(test_auth_layer));
 

@@ -7,8 +7,8 @@ use axum::{
 
 use crate::{
     application::{
-        commands::{create_profile::create_profile, update_profile::update_profile},
-        dtos::{CreateProfileRequest, NonceResponse, ProfileResponse, UpdateProfileRequest},
+        commands::{create_profile::create_profile, login::login, update_profile::update_profile},
+        dtos::{AuthTokenResponse, CreateProfileRequest, NonceResponse, ProfileResponse, UpdateProfileRequest},
         queries::{
             get_all_profiles::get_all_profiles, get_login_nonce::get_login_nonce,
             get_profile::get_profile,
@@ -85,5 +85,22 @@ pub async fn get_nonce_handler(
     match get_login_nonce(state.profile_repository, address.clone()).await {
         Ok(nonce) => Json(NonceResponse { nonce, address }).into_response(),
         Err(e) => (StatusCode::NOT_FOUND, Json(serde_json::json!({"error": e}))).into_response(),
+    }
+}
+
+pub async fn login_handler(
+    Extension(VerifiedWallet(address)): Extension<VerifiedWallet>,
+) -> impl IntoResponse {
+    match login(address.clone()).await {
+        Ok(token) => (
+            StatusCode::OK,
+            Json(AuthTokenResponse { token, address }),
+        )
+            .into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": e})),
+        )
+            .into_response(),
     }
 }

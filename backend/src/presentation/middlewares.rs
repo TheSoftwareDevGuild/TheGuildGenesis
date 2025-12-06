@@ -7,6 +7,7 @@ use axum::{
 };
 
 use crate::domain::services::auth_service::AuthChallenge;
+use crate::infrastructure::jwt::JwtManager;
 
 use super::api::AppState;
 
@@ -31,6 +32,21 @@ pub async fn eth_auth_layer(
         return Ok(next.run(req).await);
     }
 
+    // Try JWT token first
+    if let Some(auth_header) = headers.get("authorization") {
+        if let Ok(auth_str) = auth_header.to_str() {
+            if let Some(token) = auth_str.strip_prefix("Bearer ") {
+                let jwt_manager = JwtManager::new();
+                if let Ok(claims) = jwt_manager.validate_token(token) {
+                    req.extensions_mut()
+                        .insert(VerifiedWallet(claims.address));
+                    return Ok(next.run(req).await);
+                }
+            }
+        }
+    }
+
+    // Fall back to signature verification
     let address = headers
         .get("x-eth-address")
         .and_then(|v| v.to_str().ok())

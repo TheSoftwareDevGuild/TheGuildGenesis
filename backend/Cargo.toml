@@ -26,6 +26,7 @@ serde_json = "1.0"
 siwe = "0.6"
 ethers = { version = "2.0", features = ["rustls"] }
 sha3 = "0.10"
+jsonwebtoken = "9.3"
 
 # Pin problematic dependencies to avoid edition 2024
 base64ct = "1.7.3"
