@@ -203,6 +203,165 @@ forge script script/TheGuildBadgeRanking.s.sol:TheGuildBadgeRankingScript \
   --broadcast
 ```
 
+### Batch Badge Creation
+
+The `CreateBadgesFromJson.s.sol` script allows batch creation of badges from JSON data.
+
+#### JSON Format
+
+Prepare your badges data in JSON format:
+```json
+{
+  "badges": [
+    {
+      "name": "Rust",
+      "description": "Know how to code in Rust"
+    },
+    {
+      "name": "Solidity",
+      "description": "Know how to code in Solidity"
+    }
+  ]
+}
+```
+
+- `name`: Name of the badge (max 32 characters, will be converted to bytes32)
+- `description`: Description of the badge (max 32 characters, will be converted to bytes32)
+
+#### Usage
+
+```shell
+# Using the helper script (recommended)
+export PRIVATE_KEY=your_private_key
+export RPC_URL=https://polygon-amoy.drpc.org
+export BADGE_REGISTRY_ADDRESS=0x8ac95734e778322684f1d318fb7633777baa8427
+
+# Dry run first (uses badges-latest.json by default)
+./run_batch_badges.sh true
+
+# Dry run with custom JSON file
+./run_batch_badges.sh badges.json true
+
+# Production run (uses badges-latest.json by default)
+./run_batch_badges.sh false
+
+# Production run with custom JSON file
+./run_batch_badges.sh badges.json false
+
+# Manual approach
+# Set environment variables
+export PRIVATE_KEY=your_private_key
+export JSON_PATH=./badges.json
+export BADGE_REGISTRY_ADDRESS=0x8ac95734e778322684f1d318fb7633777baa8427
+
+# Dry run (recommended first)
+export DRY_RUN=true
+forge script script/CreateBadgesFromJson.s.sol:CreateBadgesFromJson \
+  --rpc-url <your_rpc_url>
+
+# Production run
+unset DRY_RUN
+forge script script/CreateBadgesFromJson.s.sol:CreateBadgesFromJson \
+  --rpc-url <your_rpc_url> \
+  --broadcast
+```
+
+#### Environment Variables
+
+- `PRIVATE_KEY`: Private key for transaction signing
+- `JSON_PATH`: Path to the JSON file (default: `badges-latest.json`)
+- `BADGE_REGISTRY_ADDRESS`: Address of the deployed TheGuildBadgeRegistry contract (required)
+- `DRY_RUN`: Set to `true` for validation without broadcasting (default: `false`)
+- `RPC_URL`: RPC endpoint URL (for helper script)
+
+The script will:
+1. Read the JSON file directly using `vm.readFile()`
+2. Parse and validate all badges
+3. Check if each badge already exists (skips if it does)
+4. Create badges that don't exist yet
+5. Log creation summary with success and skip counts
+
+### Batch Attestations
+
+The `EmitAttestationsJson.s.sol` script allows batch creation of attestations from JSON data using EAS's `multiAttest()` function for gas efficiency.
+
+#### JSON Format
+
+Prepare your attestations data in JSON format:
+```json
+{
+  "attestations": [
+    {
+      "recipient": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+      "badgeName": "Rust",
+      "justification": "Outstanding Rust contributions to the project"
+    },
+    {
+      "recipient": "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+      "badgeName": "Solidity",
+      "justification": "Excellent Solidity smart contract development"
+    }
+  ]
+}
+```
+
+- `recipient`: Ethereum address of the recipient
+- `badgeName`: Name of the badge to attest (will be converted to bytes32)
+- `justification`: Text explanation or link justifying the attestation
+
+#### Usage
+
+```shell
+# Using the helper script (recommended)
+export PRIVATE_KEY=your_private_key
+export RPC_URL=https://polygon-amoy.drpc.org
+
+# Dry run first (uses attestations-latest.json by default)
+./run_batch_attestations.sh true
+
+# Dry run with custom JSON file
+./run_batch_attestations.sh attestations.json true
+
+# Production run (uses attestations-latest.json by default)
+./run_batch_attestations.sh false
+
+# Production run with custom JSON file
+./run_batch_attestations.sh attestations.json false
+
+# Manual approach
+# Set environment variables
+export PRIVATE_KEY=your_private_key
+export JSON_PATH=./attestations.json
+export SCHEMA_ID=0xbcd7561083784f9b5a1c2b3ddb7aa9db263d43c58f7374cfa4875646824a47de
+
+# Dry run (recommended first)
+export DRY_RUN=true
+forge script script/EmitAttestationsJson.s.sol:EmitAttestationsJson \
+  --rpc-url <your_rpc_url>
+
+# Production run
+unset DRY_RUN
+forge script script/EmitAttestationsJson.s.sol:EmitAttestationsJson \
+  --rpc-url <your_rpc_url> \
+  --broadcast
+```
+
+#### Environment Variables
+
+- `PRIVATE_KEY`: Private key for transaction signing
+- `JSON_PATH`: Path to the JSON file (default: `attestations-latest.json`)
+- `SCHEMA_ID`: EAS schema ID to use (default: Amoy production schema)
+- `DRY_RUN`: Set to `true` for validation without broadcasting (default: `false`)
+- `EAS_ADDRESS`: EAS contract address (auto-detected for Amoy/Base Sepolia, required for other networks)
+- `RPC_URL`: RPC endpoint URL (for helper script)
+
+The script will:
+1. Read the JSON file directly using `vm.readFile()`
+2. Parse and validate all attestations
+3. Create `MultiAttestationRequest` batches (max 50 per batch)
+4. Call EAS `multiAttest()` for gas-efficient batch processing
+5. Log all attestation UIDs upon completion
+
 ### Cast
 
 ```shell

@@ -5,6 +5,8 @@ libs = ["lib"]
 coverage = true
 # Exclude scripts, libs, and tests from coverage
 no_match_coverage = "^(script/|lib/|test/)"
+# Allow file reading for scripts
+fs_permissions = [{ access = "read", path = "./" }]
 
 # Deterministic deployments settings (see: https://getfoundry.sh/guides/deterministic-deployments-using-create2)
 solc = "0.8.28"

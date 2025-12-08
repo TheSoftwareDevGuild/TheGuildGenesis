@@ -18,3 +18,9 @@ pub struct NonceResponse {
     pub nonce: i64,
     pub address: String,
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct AuthTokenResponse {
+    pub token: String,
+    pub address: String,
+}
