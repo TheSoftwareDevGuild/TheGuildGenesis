@@ -1,3 +1,5 @@
 pub mod postgres_profile_repository;
+pub mod postgres_project_repository;
 
 pub use postgres_profile_repository::PostgresProfileRepository;
+pub use postgres_project_repository::PostgresProjectRepository;
