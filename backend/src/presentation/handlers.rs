@@ -1,5 +1,5 @@
 use axum::{
-    extract::{Path, Query, State},
+    extract::{Path, State},
     http::StatusCode,
     response::IntoResponse,
     Extension, Json,
@@ -22,22 +22,6 @@ use crate::{
     domain::value_objects::WalletAddress,
 };
 
-// Project imports
-use crate::{
-    application::{
-        commands::{
-            create_project::create_project,
-            delete_project::delete_project,
-            update_project::update_project,
-        },
-        dtos::project_dtos::{CreateProjectRequest, ProjectResponse, UpdateProjectRequest},
-        queries::{
-            get_all_projects::get_all_projects,
-            get_project::get_project,
-            get_projects_by_creator::get_projects_by_creator,
-        },
-    },
-};
 
 use super::{api::AppState, middlewares::VerifiedWallet};
 

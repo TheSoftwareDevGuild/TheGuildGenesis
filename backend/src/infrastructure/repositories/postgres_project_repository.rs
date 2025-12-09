@@ -66,8 +66,8 @@ impl ProjectRepository for PostgresProjectRepository {
                     description: r.description,
                     status,
                     creator: WalletAddress(r.creator),
-                    created_at: r.created_at.unwrap(),
-                    updated_at: r.updated_at.unwrap(),
+                   created_at: r.created_at,
+                   updated_at: r.updated_at,
                 }
             }))
     }
@@ -193,8 +193,8 @@ impl ProjectRepository for PostgresProjectRepository {
                     description: r.description,
                     status,
                     creator: WalletAddress(r.creator),
-                    created_at: r.created_at.unwrap(),
-                    updated_at: r.updated_at.unwrap(),
+                    created_at: r.created_at,
+                    updated_at: r.updated_at,
                 }
             })
             .collect())
