@@ -27,7 +27,7 @@ pub async fn create_project(
     }
 
     // Create project entity
-    let mut project = Project::new(request.name, request.description, request.status, creator);
+    let project = Project::new(request.name, request.description, request.status, creator);
 
     // Validate project
     project.validate()?;
