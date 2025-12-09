@@ -11,8 +11,7 @@ pub async fn get_project(
     project_id: String,
 ) -> Result<ProjectResponse, String> {
     // Parse project ID
-    let id = Uuid::parse_str(&project_id)
-        .map_err(|_| "Invalid project ID".to_string())?;
+    let id = Uuid::parse_str(&project_id).map_err(|_| "Invalid project ID".to_string())?;
     let project_id = ProjectId::from_uuid(id);
 
     // Get project

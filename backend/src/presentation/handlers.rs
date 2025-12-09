@@ -22,7 +22,6 @@ use crate::{
     domain::value_objects::WalletAddress,
 };
 
-
 use super::{api::AppState, middlewares::VerifiedWallet};
 
 /// Query parameters for listing projects

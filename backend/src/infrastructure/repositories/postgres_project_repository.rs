@@ -57,19 +57,18 @@ impl ProjectRepository for PostgresProjectRepository {
         .await
         .map_err(|e| Box::new(e) as Box<dyn std::error::Error>)?;
 
-        Ok(row
-            .map(|r| {
-                let status = r.status.parse().unwrap_or(ProjectStatus::Proposal);
-                Project {
-                    id: ProjectId::from_uuid(r.id),
-                    name: r.name,
-                    description: r.description,
-                    status,
-                    creator: WalletAddress(r.creator),
-                   created_at: r.created_at,
-                   updated_at: r.updated_at,
-                }
-            }))
+        Ok(row.map(|r| {
+            let status = r.status.parse().unwrap_or(ProjectStatus::Proposal);
+            Project {
+                id: ProjectId::from_uuid(r.id),
+                name: r.name,
+                description: r.description,
+                status,
+                creator: WalletAddress(r.creator),
+                created_at: r.created_at,
+                updated_at: r.updated_at,
+            }
+        }))
     }
 
     async fn find_all(
@@ -118,15 +117,18 @@ impl ProjectRepository for PostgresProjectRepository {
             query.push_str(&format!(" OFFSET ${}", param_num));
         }
 
-        let mut query_builder = sqlx::query_as::<_, (
-            sqlx::types::Uuid,
-            String,
-            String,
-            String,
-            String,
-            Option<chrono::DateTime<chrono::Utc>>,
-            Option<chrono::DateTime<chrono::Utc>>,
-        )>(&query);
+        let mut query_builder = sqlx::query_as::<
+            _,
+            (
+                sqlx::types::Uuid,
+                String,
+                String,
+                String,
+                String,
+                Option<chrono::DateTime<chrono::Utc>>,
+                Option<chrono::DateTime<chrono::Utc>>,
+            ),
+        >(&query);
 
         if let Some(s) = status {
             query_builder = query_builder.bind(s.as_str());
@@ -151,18 +153,20 @@ impl ProjectRepository for PostgresProjectRepository {
 
         Ok(rows
             .into_iter()
-            .map(|(id, name, description, status, creator, created_at, updated_at)| {
-                let status = status.parse().unwrap_or(ProjectStatus::Proposal);
-                Project {
-                    id: ProjectId::from_uuid(id),
-                    name,
-                    description,
-                    status,
-                    creator: WalletAddress(creator),
-                    created_at: created_at.unwrap(),
-                    updated_at: updated_at.unwrap(),
-                }
-            })
+            .map(
+                |(id, name, description, status, creator, created_at, updated_at)| {
+                    let status = status.parse().unwrap_or(ProjectStatus::Proposal);
+                    Project {
+                        id: ProjectId::from_uuid(id),
+                        name,
+                        description,
+                        status,
+                        creator: WalletAddress(creator),
+                        created_at: created_at.unwrap(),
+                        updated_at: updated_at.unwrap(),
+                    }
+                },
+            )
             .collect())
     }
 
