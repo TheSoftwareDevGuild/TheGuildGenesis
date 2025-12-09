@@ -16,8 +16,7 @@ pub async fn update_project(
     request: UpdateProjectRequest,
 ) -> Result<ProjectResponse, String> {
     // Parse project ID
-    let id = Uuid::parse_str(&project_id)
-        .map_err(|_| "Invalid project ID".to_string())?;
+    let id = Uuid::parse_str(&project_id).map_err(|_| "Invalid project ID".to_string())?;
     let project_id = ProjectId::from_uuid(id);
 
     // Validate requester address

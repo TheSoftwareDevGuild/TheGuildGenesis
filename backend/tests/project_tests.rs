@@ -1,9 +1,8 @@
-
 #[cfg(test)]
 mod project_tests {
     use guild_backend::application::commands::create_project::create_project;
-    use guild_backend::application::commands::update_project::update_project;
     use guild_backend::application::commands::delete_project::delete_project;
+    use guild_backend::application::commands::update_project::update_project;
     use guild_backend::application::dtos::project_dtos::{
         CreateProjectRequest, UpdateProjectRequest,
     };
@@ -141,8 +140,8 @@ mod project_tests {
 
     #[tokio::test]
     async fn update_project_by_creator_succeeds() {
-        let creator = WalletAddress::new("0x1234567890123456789012345678901234567890".to_string())
-            .unwrap();
+        let creator =
+            WalletAddress::new("0x1234567890123456789012345678901234567890".to_string()).unwrap();
 
         let project = Project::new(
             "Original Name".into(),
@@ -178,8 +177,8 @@ mod project_tests {
 
     #[tokio::test]
     async fn update_project_by_non_creator_fails() {
-        let creator = WalletAddress::new("0x1234567890123456789012345678901234567890".to_string())
-            .unwrap();
+        let creator =
+            WalletAddress::new("0x1234567890123456789012345678901234567890".to_string()).unwrap();
         let other_user =
             WalletAddress::new("0x0987654321098765432109876543210987654321".to_string()).unwrap();
 
@@ -216,8 +215,8 @@ mod project_tests {
 
     #[tokio::test]
     async fn delete_project_by_creator_succeeds() {
-        let creator = WalletAddress::new("0x1234567890123456789012345678901234567890".to_string())
-            .unwrap();
+        let creator =
+            WalletAddress::new("0x1234567890123456789012345678901234567890".to_string()).unwrap();
 
         let project = Project::new(
             "To Delete".into(),
@@ -231,9 +230,12 @@ mod project_tests {
             projects: std::sync::Mutex::new(vec![project]),
         });
 
-        let result =
-            delete_project(repo.clone(), creator.to_string(), project_id.value().to_string())
-                .await;
+        let result = delete_project(
+            repo.clone(),
+            creator.to_string(),
+            project_id.value().to_string(),
+        )
+        .await;
 
         assert!(result.is_ok());
 
@@ -244,8 +246,8 @@ mod project_tests {
 
     #[tokio::test]
     async fn delete_project_by_non_creator_fails() {
-        let creator = WalletAddress::new("0x1234567890123456789012345678901234567890".to_string())
-            .unwrap();
+        let creator =
+            WalletAddress::new("0x1234567890123456789012345678901234567890".to_string()).unwrap();
         let other_user =
             WalletAddress::new("0x0987654321098765432109876543210987654321".to_string()).unwrap();
 
@@ -275,8 +277,8 @@ mod project_tests {
 
     #[tokio::test]
     async fn get_project_by_id_succeeds() {
-        let creator = WalletAddress::new("0x1234567890123456789012345678901234567890".to_string())
-            .unwrap();
+        let creator =
+            WalletAddress::new("0x1234567890123456789012345678901234567890".to_string()).unwrap();
 
         let project = Project::new(
             "Findable Project".into(),
