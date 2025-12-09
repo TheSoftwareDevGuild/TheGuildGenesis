@@ -24,13 +24,13 @@ use crate::{
 
 // Project imports
 use crate::{
-    application::projects::{
+    application::{
         commands::{
             create_project::create_project,
             delete_project::delete_project,
             update_project::update_project,
         },
-        dtos::{CreateProjectRequest, ProjectResponse, UpdateProjectRequest},
+        dtos::project_dtos::{CreateProjectRequest, ProjectResponse, UpdateProjectRequest},
         queries::{
             get_all_projects::get_all_projects,
             get_project::get_project,
