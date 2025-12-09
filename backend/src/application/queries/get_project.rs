@@ -2,7 +2,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{
-    application::projects::dtos::ProjectResponse,
+    application::dtos::project_dtos::ProjectResponse,
     domain::{entities::projects::ProjectId, repositories::project_repository::ProjectRepository},
 };
 
@@ -15,7 +15,7 @@ pub async fn get_project(
         .map_err(|_| "Invalid project ID".to_string())?;
     let project_id = ProjectId::from_uuid(id);
 
-    
+    // Get project
     let project = repository
         .find_by_id(&project_id)
         .await
