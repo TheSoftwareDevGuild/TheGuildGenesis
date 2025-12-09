@@ -1,7 +1,7 @@
 use std::sync::Arc;
 
 use crate::{
-    application::projects::dtos::{CreateProjectRequest, ProjectResponse},
+    application::dtos::project_dtos::{CreateProjectRequest, ProjectResponse},
     domain::{
         entities::projects::Project, repositories::project_repository::ProjectRepository,
         value_objects::WalletAddress,

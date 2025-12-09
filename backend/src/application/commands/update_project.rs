@@ -2,7 +2,7 @@ use std::sync::Arc;
 use uuid::Uuid;
 
 use crate::{
-    application::projects::dtos::{ProjectResponse, UpdateProjectRequest},
+    application::dtos::project_dtos::{ProjectResponse, UpdateProjectRequest},
     domain::{
         entities::projects::ProjectId, repositories::project_repository::ProjectRepository,
         value_objects::WalletAddress,
