@@ -34,7 +34,7 @@ pub async fn get_all_projects(
     };
 
     // Validate and limit pagination
-    let limit = limit.map(|l| l.max(1).min(100));
+    let limit = limit.map(|l| l.clamp(1, 100));
     let offset = offset.map(|o| o.max(0));
 
     // Get projects
