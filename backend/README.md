@@ -1,6 +1,6 @@
 # Guild Backend (Rust + Axum + SQLx)
 
-This service exposes a REST API for managing profiles, backed by PostgreSQL.
+This service exposes a REST API for managing profiles and projects, backed by PostgreSQL.
 
 - HTTP: 0.0.0.0:3001
 - DB: PostgreSQL (SQLx)
@@ -66,25 +66,131 @@ SKIP_MIGRATIONS=1 cargo run --bin guild-backend
 ### Production (Automatic Migrations)
 In production (Heroku, etc.), migrations run automatically on server startup. No additional setup needed.
 
-### Disable SQLx Compile-time Validation (Development Only)
-To avoid SQLx compile-time query validation issues during development:
-```bash
-export SQLX_OFFLINE=true
-```
-This allows compilation without a database connection, but you lose compile-time query validation.
+## 5) SQLx Offline Mode & Query Validation
 
-## 5) Launch the API
+### Overview
+SQLx uses compile-time verification of SQL queries. This requires either:
+- A live database connection during compilation, OR
+- Pre-generated `.sqlx/*.json` metadata files for offline compilation
+
+### Generate SQLx Metadata Files
+After adding new database queries or modifying the schema:
+
+```bash
+cd backend
+
+# Ensure database is running and migrations are applied
+sqlx migrate run
+
+# Generate .sqlx metadata for offline compilation
+cargo sqlx prepare -- --bin guild-backend
+
+# Or if you have multiple targets:
+cargo sqlx prepare -- --all-targets
+```
+
+This creates `.sqlx/*.json` files containing validated query metadata.
+
+### Building Without Database Access
+Once `.sqlx` files are generated, you can build without a database connection:
+
+```bash
+SQLX_OFFLINE=true cargo build
+```
+
+### When to Regenerate `.sqlx` Files
+Regenerate whenever you:
+- ✅ Add new migrations
+- ✅ Add new SQL queries
+- ✅ Modify existing queries
+- ✅ Change database schema
+
+### Regeneration Workflow
+```bash
+cd backend
+
+# 1. Apply any new migrations
+sqlx migrate run
+
+# 2. Regenerate metadata
+cargo sqlx prepare -- --bin guild-backend
+
+# 3. Commit the updated files
+git add .sqlx/
+git commit -m "Update SQLx offline data"
+```
+
+### Troubleshooting SQLx Issues
+
+#### "Query data not found for query"
+**Cause:** `.sqlx` files don't contain metadata for your query.
+
+**Solution:**
+```bash
+cargo sqlx prepare -- --bin guild-backend
+```
+
+#### "Password authentication failed"
+**Cause:** Wrong `DATABASE_URL` in `.env`.
+
+**Solution:** Update `.env` with correct port and credentials:
+```bash
+# Check which port PostgreSQL is running on
+sudo ss -tlnp | grep postgres
+
+# Update .env
+DATABASE_URL=postgresql://guild_user:guild_password@localhost:5432/guild_genesis
+```
+
+#### "Connection refused"
+**Cause:** PostgreSQL isn't running.
+
+**Solution:**
+```bash
+# Start PostgreSQL
+sudo systemctl start postgresql
+
+# Or with Homebrew
+brew services start postgresql
+
+# Or with Docker
+docker start <postgres-container-name>
+```
+
+### CI/CD Integration
+For CI/CD pipelines where database isn't available:
+
+```yaml
+# .github/workflows/rust.yml
+env:
+  SQLX_OFFLINE: true
+
+steps:
+  - name: Build
+    run: cargo build --release
+```
+
+**Note:** Make sure `.sqlx/` files are committed to your repository!
+
+## 6) Launch the API
 ```
 cd backend
 cargo run
 ```
 The server listens on `http://0.0.0.0:3001`.
 
-## 6) API quickstart
-All endpoints require Ethereum header-based auth.
+## 7) API Documentation
 
-Create profile:
-```
+### Authentication
+All protected endpoints require Ethereum signature-based authentication with these headers:
+- `x-eth-address`: Your Ethereum wallet address
+- `x-eth-signature`: Signature of the payload
+- `x-siwe-message`: Login nonce
+
+### Profile Endpoints
+
+#### Create Profile (Protected)
+```bash
 curl -X POST \
   -H 'Content-Type: application/json' \
   -H 'x-eth-address: 0x2581aAa94299787a8A588B2Fceb161A302939E28' \
@@ -97,15 +203,14 @@ curl -X POST \
   }' \
   http://0.0.0.0:3001/profiles
 ```
-Get profile:
+
+#### Get Profile (Public)
+```bash
+curl http://0.0.0.0:3001/profiles/0x2581aAa94299787a8A588B2Fceb161A302939E28
 ```
-curl -H 'x-eth-address: 0x2581aAa94299787a8A588B2Fceb161A302939E28' \
-     -H 'x-eth-signature: 0x00000000000000' \
-     -H 'x-siwe-message: LOGIN_NONCE' \
-     http://0.0.0.0:3001/profiles/0x2581aAa94299787a8A588B2Fceb161A302939E28
-```
-Update profile:
-```
+
+#### Update Profile (Protected)
+```bash
 curl -X PUT \
   -H 'Content-Type: application/json' \
   -H 'x-eth-address: 0x2581aAa94299787a8A588B2Fceb161A302939E28' \
@@ -115,17 +220,14 @@ curl -X PUT \
   http://0.0.0.0:3001/profiles/0x2581aAa94299787a8A588B2Fceb161A302939E28
 ```
 
-### GitHub handle support
+#### GitHub Handle Support
+Profiles can include an optional GitHub username stored as `github_login`:
+- Stored with original casing, uniqueness enforced case-insensitively
+- Must match pattern `^[a-zA-Z0-9-]{1,39}$`
+- Returns **400 Bad Request** for invalid format
+- Returns **409 Conflict** if already taken
 
-Profiles can now include an optional GitHub username stored as `github_login`.
-
-- The value is stored with its original casing, but uniqueness is enforced case-insensitively ("Alice" conflicts with "alice").
-- `github_login` must match the pattern `^[a-zA-Z0-9-]{1,39}$`; otherwise the API returns **400 Bad Request**.
-- When the normalized value is already claimed by another profile, the API returns **409 Conflict**.
-- Successful creates return **201 Created** and updates return **200 OK**.
-- Include the field when creating or updating a profile:
-
-```
+```bash
 curl -X PUT \
   -H 'Content-Type: application/json' \
   -H 'x-eth-address: 0x2581aAa94299787a8A588B2Fceb161A302939E28' \
@@ -135,9 +237,127 @@ curl -X PUT \
   http://0.0.0.0:3001/profiles/0x2581aAa94299787a8A588B2Fceb161A302939E28
 ```
 
-Integration and automated tests run under `TEST_MODE=1`, which swaps in a test-only auth layer so GitHub handle flows can be exercised without Ethereum signature verification.
+### Project Endpoints
 
-## 7) Deployment
+#### List All Projects (Public)
+```bash
+# Get all projects
+curl http://0.0.0.0:3001/projects
+
+# Filter by status
+curl http://0.0.0.0:3001/projects?status=ongoing
+
+# Filter by creator
+curl http://0.0.0.0:3001/projects?creator=0x2581aAa94299787a8A588B2Fceb161A302939E28
+
+# Pagination
+curl http://0.0.0.0:3001/projects?limit=10&offset=0
+```
+
+**Query Parameters:**
+- `status` - Filter by status (proposal, ongoing, rejected)
+- `creator` - Filter by creator address
+- `limit` - Max results (default: all, max: 100)
+- `offset` - Skip N results
+
+#### Get Project by ID (Public)
+```bash
+curl http://0.0.0.0:3001/projects/123e4567-e89b-12d3-a456-426614174000
+```
+
+#### Get User's Projects (Public)
+```bash
+curl http://0.0.0.0:3001/users/0x2581aAa94299787a8A588B2Fceb161A302939E28/projects
+```
+
+#### Create Project (Protected)
+```bash
+curl -X POST \
+  -H 'Content-Type: application/json' \
+  -H 'x-eth-address: 0x2581aAa94299787a8A588B2Fceb161A302939E28' \
+  -H 'x-eth-signature: 0x00000000000000' \
+  -H 'x-siwe-message: LOGIN_NONCE' \
+  -d '{
+    "name": "Guild Treasury Management",
+    "description": "A system for managing guild funds",
+    "status": "proposal"
+  }' \
+  http://0.0.0.0:3001/projects
+```
+
+**Valid statuses:** `proposal`, `ongoing`, `rejected`
+
+#### Update Project (Protected, Creator Only)
+```bash
+curl -X PATCH \
+  -H 'Content-Type: application/json' \
+  -H 'x-eth-address: 0x2581aAa94299787a8A588B2Fceb161A302939E28' \
+  -H 'x-eth-signature: 0x00000000000000' \
+  -H 'x-siwe-message: LOGIN_NONCE' \
+  -d '{
+    "status": "ongoing",
+    "description": "Updated description"
+  }' \
+  http://0.0.0.0:3001/projects/123e4567-e89b-12d3-a456-426614174000
+```
+
+**Note:** Only the project creator can update projects.
+
+#### Delete Project (Protected, Creator Only)
+```bash
+curl -X DELETE \
+  -H 'x-eth-address: 0x2581aAa94299787a8A588B2Fceb161A302939E28' \
+  -H 'x-eth-signature: 0x00000000000000' \
+  -H 'x-siwe-message: LOGIN_NONCE' \
+  http://0.0.0.0:3001/projects/123e4567-e89b-12d3-a456-426614174000
+```
+
+**Note:** Only the project creator can delete projects.
+
+### API Response Codes
+- **200 OK** - Successful GET/PUT/PATCH
+- **201 Created** - Resource created
+- **204 No Content** - Successful DELETE
+- **400 Bad Request** - Invalid input
+- **401 Unauthorized** - Missing/invalid authentication
+- **403 Forbidden** - Not authorized (e.g., not project creator)
+- **404 Not Found** - Resource doesn't exist
+- **409 Conflict** - Duplicate resource (e.g., GitHub handle taken)
+
+## 8) Testing
+
+### Automated Test Scripts
+Test scripts are available in the `scripts/` directory:
+
+```bash
+# Test authentication and profile endpoints
+./scripts/test_auth_login.sh
+
+# Test project endpoints (requires keys.json)
+./scripts/test_projects_api.sh
+```
+
+**Note:** Test scripts require `keys.json` in the project root:
+```json
+{
+  "publicKey": "0x...",
+  "privateKey": "0x..."
+}
+```
+
+### Running Unit Tests
+```bash
+cd backend
+cargo test
+```
+
+### Integration Tests (Test Mode)
+Integration tests run under `TEST_MODE=1`, which uses a test-only auth layer:
+```bash
+TEST_MODE=1 cargo test
+```
+
+## 9) Deployment
 
 ### Heroku
 1. Set environment variables:
@@ -159,10 +379,11 @@ docker build -t guild-backend .
 docker run -e DATABASE_URL=postgresql://... guild-backend
 ```
 
-## 8) Troubleshooting
+## 10) Troubleshooting
 
 ### Database Issues
 - **Port already in use**: Check what's running on port 5432: `lsof -i :5432`
+- **Port mismatch**: Ensure `.env` uses correct port (5432, not 5433)
 - **Permission denied**: Ensure `guild_user` has proper permissions:
   ```bash
   psql -h localhost -p 5432 -U $(whoami) -d guild_genesis -c "GRANT ALL PRIVILEGES ON SCHEMA public TO guild_user;"
@@ -177,15 +398,16 @@ docker run -e DATABASE_URL=postgresql://... guild-backend
 - **Port 3001 already in use**: Use a different port: `PORT=3002 cargo run --bin guild-backend`
 - **SQLx compile errors**: 
   - For development: Set `SQLX_OFFLINE=true` and run migrations manually
-  - For production: Ensure database is accessible during compilation
+  - For production: Run `cargo sqlx prepare` to generate metadata
 - **Migration conflicts**: Use `SKIP_MIGRATIONS=1` to disable automatic migrations
 - **Rust edition 2024 error**: Repo pins `base64ct = 1.7.3`. If still present, `rustup update` or `rustup override set nightly` in `backend/`.
 
-## 9) Structure
+## 11) Structure
 - `src/main.rs`: boot server (automatic migrations in production, manual in dev)
 - `src/bin/migrate.rs`: standalone migrator
 - `src/presentation`: routes, handlers, middlewares
-- `src/infrastructure`: Postgres repository, Ethereum verification
-- `src/domain`: entities, repository traits, services
-- `src/application`: commands and DTOs
+- `src/infrastructure`: Postgres repositories, Ethereum verification
+- `src/domain`: entities, repository traits, services, value objects
+- `src/application`: commands, queries, and DTOs
 - `migrations/`: SQLx migration files
+- `.sqlx/`: SQLx offline query metadata (committed to repo)
