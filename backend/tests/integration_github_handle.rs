@@ -2,7 +2,7 @@ use guild_backend::application::dtos::profile_dtos::ProfileResponse;
 use guild_backend::infrastructure::repositories::postgres_project_repository::PostgresProjectRepository;
 use guild_backend::presentation::api::{test_api, AppState};
 use serde_json::json;
-use std::sync::Arc;  
+use std::sync::Arc;
 use tokio::net::TcpListener;
 
 #[tokio::test]
@@ -24,7 +24,7 @@ async fn valid_github_handle_works() {
     let state = AppState {
         profile_repository,
         project_repository,
-        auth_service: std::sync::Arc::new(auth_service),  // ← WRAP IN Arc
+        auth_service: std::sync::Arc::new(auth_service),
     };
     let app = test_api(state);
 
@@ -54,7 +54,6 @@ async fn valid_github_handle_works() {
         .await
         .unwrap();
 
-    // Accept either 200 or 201
     assert_eq!(create_resp.status(), reqwest::StatusCode::CREATED);
 
     let body = create_resp.json::<serde_json::Value>().await.unwrap();
@@ -95,7 +94,7 @@ async fn invalid_format_rejected() {
     let state = AppState {
         profile_repository,
         project_repository,
-        auth_service: std::sync::Arc::new(auth_service),  // ← WRAP IN Arc
+        auth_service: std::sync::Arc::new(auth_service),
     };
     let app = test_api(state);
 
@@ -124,7 +123,6 @@ async fn invalid_format_rejected() {
         .send()
         .await
         .unwrap();
-    // Similar acceptance for create
     assert_eq!(
         create_resp.status(),
         reqwest::StatusCode::CREATED,
@@ -147,7 +145,6 @@ async fn invalid_format_rejected() {
 
     assert_eq!(update_resp.status(), reqwest::StatusCode::BAD_REQUEST);
 
-    // Optionally, try parse message if provided
     if let Ok(err_json) = update_resp.json::<serde_json::Value>().await {
         let msg = err_json["error"].as_str().unwrap_or("");
         assert!(msg.contains("Invalid GitHub handle"));
@@ -173,7 +170,7 @@ async fn conflict_case_insensitive() {
     let state = AppState {
         profile_repository,
         project_repository,
-        auth_service: std::sync::Arc::new(auth_service),  // ← WRAP IN Arc
+        auth_service: std::sync::Arc::new(auth_service),
     };
     let app = test_api(state);
 
