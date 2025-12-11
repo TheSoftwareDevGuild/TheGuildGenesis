@@ -9,7 +9,7 @@ use tokio::net::TcpListener;
 async fn valid_github_handle_works() {
     std::env::set_var("TEST_MODE", "1");
     let database_url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
-        "postgres://guild_user:guild_password@localhost:5433/guild_genesis".to_string()
+        "postgres://guild_user:guild_password@localhost:5432/guild_genesis".to_string()
     });
 
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -80,7 +80,7 @@ async fn valid_github_handle_works() {
 async fn invalid_format_rejected() {
     std::env::set_var("TEST_MODE", "1");
     let database_url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
-        "postgres://guild_user:guild_password@localhost:5433/guild_genesis".to_string()
+        "postgres://guild_user:guild_password@localhost:5432/guild_genesis".to_string()
     });
 
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -158,7 +158,7 @@ async fn invalid_format_rejected() {
 async fn conflict_case_insensitive() {
     std::env::set_var("TEST_MODE", "1");
     let database_url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
-        "postgres://guild_user:guild_password@localhost:5433/guild_genesis".to_string()
+        "postgres://guild_user:guild_password@localhost:5432/guild_genesis".to_string()
     });
 
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
