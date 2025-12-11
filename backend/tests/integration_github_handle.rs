@@ -1,6 +1,8 @@
 use guild_backend::application::dtos::profile_dtos::ProfileResponse;
+use guild_backend::infrastructure::repositories::postgres_project_repository::PostgresProjectRepository;
 use guild_backend::presentation::api::{test_api, AppState};
 use serde_json::json;
+use std::sync::Arc;  
 use tokio::net::TcpListener;
 
 #[tokio::test]
@@ -17,9 +19,12 @@ async fn valid_github_handle_works() {
         guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone()),
     );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
+    let project_repository = Arc::from(PostgresProjectRepository::new(pool.clone()));
+
     let state = AppState {
         profile_repository,
-        auth_service: std::sync::Arc::new(auth_service),
+        project_repository,
+        auth_service: std::sync::Arc::new(auth_service),  // ← WRAP IN Arc
     };
     let app = test_api(state);
 
@@ -85,9 +90,12 @@ async fn invalid_format_rejected() {
         guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone()),
     );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
+    let project_repository = Arc::from(PostgresProjectRepository::new(pool.clone()));
+
     let state = AppState {
         profile_repository,
-        auth_service: std::sync::Arc::new(auth_service),
+        project_repository,
+        auth_service: std::sync::Arc::new(auth_service),  // ← WRAP IN Arc
     };
     let app = test_api(state);
 
@@ -160,9 +168,12 @@ async fn conflict_case_insensitive() {
         guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone()),
     );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
+    let project_repository = Arc::from(PostgresProjectRepository::new(pool.clone()));
+
     let state = AppState {
         profile_repository,
-        auth_service: std::sync::Arc::new(auth_service),
+        project_repository,
+        auth_service: std::sync::Arc::new(auth_service),  // ← WRAP IN Arc
     };
     let app = test_api(state);
 
