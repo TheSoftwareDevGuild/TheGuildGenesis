@@ -8,14 +8,14 @@ contract TheGuildBadgeRegistry {
     /// @notice Representation of a badge.
     struct Badge {
         bytes32 name;
-        bytes32 description;
+        bytes description;
         address creator;
     }
 
     /// @notice Emitted when a new badge is created.
     event BadgeCreated(
         bytes32 indexed name,
-        bytes32 description,
+        bytes description,
         address indexed creator
     );
 
@@ -30,7 +30,7 @@ contract TheGuildBadgeRegistry {
     /// @notice Create a new badge with a unique name.
     /// @param name The unique badge name (bytes32).
     /// @param description The badge description (bytes32).
-    function createBadge(bytes32 name, bytes32 description) external {
+    function createBadge(bytes32 name, bytes calldata description) external {
         require(name != bytes32(0), "EMPTY_NAME");
         require(!nameExists[name], "DUPLICATE_NAME");
 
@@ -50,7 +50,7 @@ contract TheGuildBadgeRegistry {
     /// @dev Reverts if the badge does not exist.
     function getBadge(
         bytes32 name
-    ) external view returns (bytes32, bytes32, address) {
+    ) external view returns (bytes32, bytes memory, address) {
         require(nameExists[name], "NOT_FOUND");
         Badge memory b = nameToBadge[name];
         return (b.name, b.description, b.creator);
@@ -76,7 +76,7 @@ contract TheGuildBadgeRegistry {
     /// @dev Reverts if index is out of bounds.
     function getBadgeAt(
         uint256 index
-    ) external view returns (bytes32, bytes32, address) {
+    ) external view returns (bytes32, bytes memory, address) {
         bytes32 name = badgeNames[index];
         Badge memory b = nameToBadge[name];
         return (b.name, b.description, b.creator);
