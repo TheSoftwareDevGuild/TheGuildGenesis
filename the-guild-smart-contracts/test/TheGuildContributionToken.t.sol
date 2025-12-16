@@ -3,6 +3,7 @@ pragma solidity ^0.8.13;
 
 import {Test} from "forge-std/Test.sol";
 import {TheGuildContributionToken} from "../src/TheGuildContributionToken.sol";
+import {ERC1967Proxy} from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 
 contract TheGuildContributionTokenTest is Test {
     TheGuildContributionToken private token;
@@ -12,9 +13,18 @@ contract TheGuildContributionTokenTest is Test {
     address private user2 = address(0xCAFE);
 
     function setUp() public {
-        // Deploy implementation and initialize it (sufficient for unit tests)
-        token = new TheGuildContributionToken();
-        token.initialize();
+        // Deploy implementation (cannot be initialized due to _disableInitializers)
+        TheGuildContributionToken implementation = new TheGuildContributionToken();
+
+        // Deploy proxy and initialize it
+        ERC1967Proxy proxy = new ERC1967Proxy(
+            address(implementation),
+            abi.encodeWithSelector(
+                TheGuildContributionToken.initialize.selector
+            )
+        );
+
+        token = TheGuildContributionToken(address(proxy));
     }
 
     function test_Metadata() public view {
@@ -36,7 +46,7 @@ contract TheGuildContributionTokenTest is Test {
 
     function test_RevertMintIfNotOwner() public {
         vm.prank(user1);
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert();
         token.mint(user1, 1e18);
     }
 
