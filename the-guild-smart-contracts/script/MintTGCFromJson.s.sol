@@ -35,14 +35,12 @@ contract MintTGCFromJson is Script {
 
         address proxyAddress = vm.envAddress("TGC_PROXY_ADDRESS");
         require(proxyAddress != address(0), "TGC_PROXY_ADDRESS not set");
-        TheGuildContributionToken tgc = TheGuildContributionToken(
-            proxyAddress
-        );
+        TheGuildContributionToken tgc = TheGuildContributionToken(proxyAddress);
 
         // Read JSON file
         string memory jsonPath = vm.envOr(
             "JSON_PATH",
-            string("tgc-mints.json")
+            string("contribution-tokens-latest.json")
         );
         console.log("Reading JSON from:", jsonPath);
 
@@ -111,13 +109,12 @@ contract MintTGCFromJson is Script {
                 (uint256)
             );
 
-            bytes memory reason = abi.decode(
-                vm.parseJson(
-                    jsonData,
-                    string(abi.encodePacked(basePath, ".reason"))
-                ),
-                (bytes)
+            // Parse reason as hex string (e.g. "0x...") using stdJson, then convert to bytes.
+            // Using stdJson.readString avoids type inference issues with parseJson.
+            string memory reasonStr = jsonData.readString(
+                string(abi.encodePacked(basePath, ".reason"))
             );
+            bytes memory reason = vm.parseBytes(reasonStr);
 
             tempMints[count] = MintData({
                 recipient: recipient,
@@ -199,5 +196,3 @@ contract MintTGCFromJson is Script {
         console.log("Execution completed successfully!");
     }
 }
-
-

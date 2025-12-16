@@ -27,6 +27,9 @@ Salt: "theguild_v_0.1.2"
 TheGuildActivityToken
 https://amoy.polygonscan.com/address/0x4649490B118389d0Be8F48b8953eFb235d8CB545
 
+TheGuildContributionToken (proxy)
+https://amoy.polygonscan.com/address/0x14d403EaE3E0b2E2dc6379C9729Df6906fF38bE7
+
 TheGuildBadgeRegistry
 https://amoy.polygonscan.com/address/0x94f5F12BE60a338D263882a1A49E81ca8A0c30F4
 
@@ -243,7 +246,7 @@ Environment variables:
 
 - `PRIVATE_KEY`: signer that owns the TGC proxy
 - `TGC_PROXY_ADDRESS`: address of the deployed TGC proxy
-- `JSON_PATH`: path to the JSON file (default: `tgc-mints.json`)
+- `JSON_PATH`: path to the JSON file (default: `contribution-tokens-latest.json`)
 - `DRY_RUN`: set to `true` to simulate without broadcasting (default: `false`)
 
 #### Upgrading the TGC implementation
