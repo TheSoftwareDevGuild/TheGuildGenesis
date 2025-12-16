@@ -7,6 +7,12 @@ Anybody can create a badge. The idea is to let the community input whatever they
 
 We will create a smart contract TheGuildBadgeRegistry that will have a list of badges with unique non-duplicate names.
 
+**Contract Versions:**
+- **V1**: `description` stored as `bytes32` (max 32 characters)
+- **V2 (current)**: `description` stored as `bytes` (unlimited length)
+
+The frontend is retrocompatible with both V1 and V2 deployed contracts.
+
 ### Badge Ranking
 Community members can vote on badge relevancy to filter spam and promote the most relevant badges. The BadgeRanking contract tracks upvotes per badge and prevents duplicate voting from the same address.
 
@@ -324,7 +330,7 @@ Prepare your badges data in JSON format:
 ```
 
 - `name`: Name of the badge (max 32 characters, will be converted to bytes32)
-- `description`: Description of the badge (max 32 characters, will be converted to bytes32)
+- `description`: Description of the badge (V2: unlimited length as bytes; V1: max 32 characters as bytes32)
 
 #### Usage
 

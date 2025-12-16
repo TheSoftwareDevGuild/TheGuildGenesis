@@ -46,3 +46,14 @@ export function stringToBytes32(value: string): `0x${string}` {
   }
   return hex as `0x${string}`;
 }
+
+export function stringToBytes(value: string): `0x${string}` {
+  // Encode to utf8, return as hex (variable length)
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(value);
+  let hex = "0x";
+  for (let i = 0; i < bytes.length; i++) {
+    hex += bytes[i].toString(16).padStart(2, "0");
+  }
+  return hex as `0x${string}`;
+}
