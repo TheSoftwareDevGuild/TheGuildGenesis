@@ -13,7 +13,7 @@ contract CreateBadgesFromJson is Script {
 
     struct BadgeData {
         bytes32 name;
-        bytes32 description;
+        string description;
     }
 
     function run() public {
@@ -76,7 +76,7 @@ contract CreateBadgesFromJson is Script {
                             ": ",
                             vm.toString(badges[i].name),
                             " - ",
-                            vm.toString(badges[i].description)
+                            badges[i].description
                         )
                     )
                 );
@@ -126,20 +126,14 @@ contract CreateBadgesFromJson is Script {
                 name := mload(add(nameBytes, 32))
             }
 
-            // Parse description with proper bytes32 conversion
-            string memory descriptionStr = abi.decode(
+            // Parse description as string
+            string memory description = abi.decode(
                 vm.parseJson(
                     jsonData,
                     string(abi.encodePacked(basePath, ".description"))
                 ),
                 (string)
             );
-            bytes32 description;
-            bytes memory descriptionBytes = bytes(descriptionStr);
-            require(descriptionBytes.length <= 32, "description too long");
-            assembly {
-                description := mload(add(descriptionBytes, 32))
-            }
 
             tempBadges[count] = BadgeData({
                 name: name,
@@ -215,7 +209,7 @@ contract CreateBadgesFromJson is Script {
                 continue;
             }
 
-            try badgeRegistry.createBadge(badge.name, badge.description) {
+            try badgeRegistry.createBadge(badge.name, bytes(badge.description)) {
                 console.log(
                     string(
                         abi.encodePacked(
@@ -226,7 +220,7 @@ contract CreateBadgesFromJson is Script {
                             ": ",
                             vm.toString(badge.name),
                             " - ",
-                            vm.toString(badge.description)
+                            badge.description
                         )
                     )
                 );

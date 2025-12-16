@@ -18,7 +18,7 @@ contract TheGuildBadgeRankingTest is Test {
         ranking = new TheGuildBadgeRanking(registry);
         
         // Create a badge for testing
-        registry.createBadge(badgeName, bytes32("A test badge"));
+        registry.createBadge(badgeName, bytes("A test badge"));
     }
 
     function test_UpvoteBadge_SucceedsAndEmitsEvent() public {

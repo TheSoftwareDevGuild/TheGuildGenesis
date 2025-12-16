@@ -56,15 +56,15 @@ contract FullDeploymentScript is Script {
         // Create some badges
         badgeRegistry.createBadge(
             bytes32("Rust"),
-            bytes32("Know how to code in Rust")
+            bytes("Know how to code in Rust")
         );
         badgeRegistry.createBadge(
             bytes32("Solidity"),
-            bytes32("Know how to code in Solidity")
+            bytes("Know how to code in Solidity")
         );
         badgeRegistry.createBadge(
             bytes32("TypeScript"),
-            bytes32("Know how to code in TypeScript")
+            bytes("Know how to code in TypeScript")
         );
 
         // Deploy or attach to existing badge ranking via CREATE2
