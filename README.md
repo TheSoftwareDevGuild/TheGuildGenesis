@@ -181,13 +181,13 @@ A community-driven badge registry where anyone can create badges with unique nam
 - **Gas-efficient**: Simple storage patterns
 - **Event-driven**: Emits events for badge creation
 
-**Contract Interface:**
+**Contract Interface (V2 - current):**
 ```solidity
 // Create a new badge
-function createBadge(bytes32 name, bytes32 description) external
+function createBadge(bytes32 name, bytes calldata description) external
 
 // Get badge information
-function getBadge(bytes32 name) external view returns (bytes32, bytes32, address)
+function getBadge(bytes32 name) external view returns (bytes32, bytes memory, address)
 
 // Check if badge exists
 function exists(bytes32 name) external view returns (bool)
@@ -197,12 +197,15 @@ function totalBadges() external view returns (uint256)
 
 // Enumerate badges
 function badgeNameAt(uint256 index) external view returns (bytes32)
+function getBadgeAt(uint256 index) external view returns (bytes32, bytes memory, address)
 ```
 
 **Events:**
 ```solidity
-event BadgeCreated(bytes32 indexed name, bytes32 description, address indexed creator)
+event BadgeCreated(bytes32 indexed name, bytes description, address indexed creator)
 ```
+
+> **Note:** V1 contracts used `bytes32` for descriptions (max 32 chars). V2 uses `bytes` for unlimited length. The frontend is retrocompatible with both versions.
 
 ### TheGuildActivityToken (TGA)
 

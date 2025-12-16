@@ -1,8 +1,11 @@
 import { useMemo } from "react";
 import { useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { BADGE_REGISTRY_ADDRESS } from "@/lib/constants/blockchainConstants";
-import { badgeRegistryAbi } from "@/lib/abis/badgeRegistryAbi";
-import { stringToBytes32 } from "@/lib/utils/blockchainUtils";
+import {
+  badgeRegistryAbiV1,
+  badgeRegistryAbiV2,
+} from "@/lib/abis/badgeRegistryAbi";
+import { stringToBytes32, stringToBytes } from "@/lib/utils/blockchainUtils";
 
 export function useCreateBadge() {
   const { writeContractAsync, isPending, error, data, reset } =
@@ -12,13 +15,24 @@ export function useCreateBadge() {
     return async (name: string, description: string) => {
       if (!BADGE_REGISTRY_ADDRESS) throw new Error("Missing registry address");
       const nameBytes = stringToBytes32(name);
-      const descriptionBytes = stringToBytes32(description);
-      return writeContractAsync({
-        abi: badgeRegistryAbi,
-        address: BADGE_REGISTRY_ADDRESS,
-        functionName: "createBadge",
-        args: [nameBytes, descriptionBytes],
-      });
+
+      // Try V2 first (bytes description), fallback to V1 (bytes32)
+      try {
+        return await writeContractAsync({
+          abi: badgeRegistryAbiV2,
+          address: BADGE_REGISTRY_ADDRESS,
+          functionName: "createBadge",
+          args: [nameBytes, stringToBytes(description)],
+        });
+      } catch {
+        // Fallback to V1 (bytes32 description with truncation/padding)
+        return writeContractAsync({
+          abi: badgeRegistryAbiV1,
+          address: BADGE_REGISTRY_ADDRESS,
+          functionName: "createBadge",
+          args: [nameBytes, stringToBytes32(description)],
+        });
+      }
     };
   }, [writeContractAsync]);
 
