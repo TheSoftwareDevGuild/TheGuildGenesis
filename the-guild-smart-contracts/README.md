@@ -169,6 +169,101 @@ forge script script/TheGuildAttestationResolver.s.sol:TheGuildActivityTokenScrip
   --broadcast
 ```
 
+### Contribution Token (TGC)
+
+`TheGuildContributionToken` (symbol `TGC`) is an **upgradeable ERC20** used to reward contributions.
+
+- **Contract**: `src/TheGuildContributionToken.sol`
+  - Upgradable via UUPS (`UUPSUpgradeable`)
+  - Standard 18 decimals
+  - `mint(address to, uint256 amount)` – owner-only mint
+  - `mintWithReason(address to, uint256 amount, bytes reason)` – owner-only mint that emits `MintedWithReason`
+  - `batchMint(address[] recipients, uint256[] amounts)` – owner-only batch mint
+  - `batchMintWithReason(address[] recipients, uint256[] amounts, bytes[] reasons)` – owner-only batch mint with reasons
+- **Tests**: `test/TheGuildContributionToken.t.sol`
+  - Covers metadata, ownership, minting, `MintedWithReason` event, and batch mint helpers.
+
+#### Deploying the upgradable TGC proxy
+
+Use `script/DeployTGC.s.sol` to deploy the implementation + ERC1967 proxy and call `initialize()` on the proxy:
+
+```shell
+export PRIVATE_KEY=your_private_key
+forge script script/DeployTGC.s.sol:DeployTGC \
+  --rpc-url <your_rpc_url> \
+  --broadcast
+```
+
+The script logs both the proxy (TGC) address and the implementation address.
+
+#### Batch minting TGC from JSON
+
+Use `script/MintTGCFromJson.s.sol` to batch-mint TGC using `mintWithReason` from a JSON file.
+
+JSON format:
+
+```json
+{
+  "mints": [
+    {
+      "recipient": "0x...",
+      "amount": "1000000000000000000",
+      "reason": "0x..." 
+    }
+  ]
+}
+```
+
+- `recipient`: recipient address
+- `amount`: amount as a uint256 (string-encoded in JSON)
+- `reason`: ABI-encoded bytes explaining the reason (e.g. `abi.encodePacked("issue-123")`)
+
+Usage:
+
+```shell
+export PRIVATE_KEY=your_private_key
+export TGC_PROXY_ADDRESS=0xYourTGCProxy
+
+# Optional: override JSON path (default: tgc-mints.json)
+export JSON_PATH=contribution-tokens-latest.json
+
+# Dry run
+export DRY_RUN=true
+forge script script/MintTGCFromJson.s.sol:MintTGCFromJson \
+  --rpc-url <your_rpc_url>
+
+# Production run
+unset DRY_RUN
+forge script script/MintTGCFromJson.s.sol:MintTGCFromJson \
+  --rpc-url <your_rpc_url> \
+  --broadcast
+```
+
+Environment variables:
+
+- `PRIVATE_KEY`: signer that owns the TGC proxy
+- `TGC_PROXY_ADDRESS`: address of the deployed TGC proxy
+- `JSON_PATH`: path to the JSON file (default: `tgc-mints.json`)
+- `DRY_RUN`: set to `true` to simulate without broadcasting (default: `false`)
+
+#### Upgrading the TGC implementation
+
+Use `script/UpgradeTGCImplementation.s.sol` to deploy a new implementation and upgrade the existing proxy.
+
+```shell
+export PRIVATE_KEY=your_private_key
+export TGC_PROXY_ADDRESS=0xYourTGCProxy
+
+forge script script/UpgradeTGCImplementation.s.sol:UpgradeTGCImplementation \
+  --rpc-url <your_rpc_url> \
+  --broadcast
+```
+
+The script:
+- Deploys a new `TheGuildContributionToken` implementation
+- Calls `upgradeToAndCall` on the proxy (with empty data)
+- Logs the proxy and new implementation addresses
+
 ### Badge Ranking
 
 `TheGuildBadgeRanking` enables voting/ranking of badges for relevancy. Features:
