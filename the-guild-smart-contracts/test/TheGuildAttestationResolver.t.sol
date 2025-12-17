@@ -51,7 +51,7 @@ contract TheGuildAttestationResolverTest is Test {
         // Ensure badge exists
         badgeRegistry.createBadge(
             bytes32("Rust"),
-            bytes32("Know how to code in Rust")
+            bytes("Know how to code in Rust")
         );
 
         // Build attestation request
@@ -142,7 +142,7 @@ contract TheGuildAttestationResolverTest is Test {
         bytes32 schemaId = _registerSchema();
         badgeRegistry.createBadge(
             bytes32("Rust"),
-            bytes32("Know how to code in Rust")
+            bytes("Know how to code in Rust")
         );
 
         vm.prank(attester);
@@ -171,7 +171,7 @@ contract TheGuildAttestationResolverTest is Test {
         bytes32 schemaId = _registerSchema();
         badgeRegistry.createBadge(
             bytes32("Rust"),
-            bytes32("Know how to code in Rust")
+            bytes("Know how to code in Rust")
         );
 
         vm.prank(attester);
@@ -204,7 +204,7 @@ contract TheGuildAttestationResolverTest is Test {
         // Ensure badge exists
         badgeRegistry.createBadge(
             bytes32("Rust"),
-            bytes32("Know how to code in Rust")
+            bytes("Know how to code in Rust")
         );
 
         AttestationRequest memory request = AttestationRequest({
