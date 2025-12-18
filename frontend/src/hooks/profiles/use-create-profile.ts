@@ -9,27 +9,37 @@ import type {
   CreateProfileResponse,
 } from "@/lib/types/api";
 import { API_BASE_URL } from "@/lib/constants/apiConstants";
+import { getToken } from "@/lib/utils/jwt";
+import { useAuthHeader } from "@/hooks/use-auth-header";
 
 async function postCreateProfile(
   input: CreateProfileInput,
   address: string,
-  signature: string
+  signature: string,
+  token?: string
 ): Promise<CreateProfileResponse> {
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+  // Use JWT token if available, otherwise use SIWE signature
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  } else {
+    headers["x-eth-address"] = address;
+    headers["x-eth-signature"] = signature;
+  }
+
   const response = await fetch(`${API_BASE_URL}/profiles/`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-eth-address": address,
-      "x-eth-signature": signature,
-    },
+    headers,
     body: JSON.stringify(input),
   });
 
   if (!response.ok) {
     const text = await response.text().catch(() => "");
     throw new Error(
-      `Failed to create profile: ${response.status} ${response.statusText}${
-        text ? ` - ${text}` : ""
+      `Failed to create profile: ${response.status} ${response.statusText}${text ? ` - ${text}` : ""
       }`
     );
   }
@@ -61,7 +71,8 @@ export function useCreateProfile(): UseMutationResult<
       if (!address) {
         throw new Error("Wallet not connected");
       }
-      return postCreateProfile(input, address, signature);
+      const token = getToken();
+      return postCreateProfile(input, address, signature, token || undefined);
     },
     onSuccess: () => {
       // Invalidate nonce query since it was incremented

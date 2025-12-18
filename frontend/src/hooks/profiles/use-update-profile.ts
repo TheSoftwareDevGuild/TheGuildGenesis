@@ -5,28 +5,37 @@ import type {
   UpdateProfileResponse,
 } from "@/lib/types/api";
 import { API_BASE_URL } from "@/lib/constants/apiConstants";
+import { getToken } from "@/lib/utils/jwt";
 
 async function putUpdateProfile(
   address: string,
   body: UpdateProfileInput,
   signerAddress: string,
-  signature: string
+  signature: string,
+  token?: string
 ): Promise<UpdateProfileResponse> {
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+  };
+
+  // Use JWT token if available, otherwise use SIWE signature
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  } else {
+    headers["x-eth-address"] = signerAddress;
+    headers["x-eth-signature"] = signature;
+  }
+
   const response = await fetch(`${API_BASE_URL}/profiles/${address}`, {
     method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      "x-eth-address": signerAddress,
-      "x-eth-signature": signature,
-    },
+    headers,
     body: JSON.stringify(body),
   });
 
   if (!response.ok) {
     const text = await response.text().catch(() => "");
     throw new Error(
-      `Failed to update profile: ${response.status} ${response.statusText}${
-        text ? ` - ${text}` : ""
+      `Failed to update profile: ${response.status} ${response.statusText}${text ? ` - ${text}` : ""
       }`
     );
   }
@@ -55,7 +64,8 @@ export function useUpdateProfile(): UseMutationResult<
     mutationKey: ["update-profile"],
     mutationFn: async ({ input, signature }) => {
       if (!address) throw new Error("Wallet not connected");
-      return putUpdateProfile(address, input, address, signature);
+      const token = getToken();
+      return putUpdateProfile(address, input, address, signature, token || undefined);
     },
     onSuccess: () => {
       // Invalidate nonce query since it was incremented
