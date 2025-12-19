@@ -26,7 +26,7 @@ const ICONS: Record<string, string> = {
 };
 
 export function BadgesList(): React.ReactElement {
-  const { data, isLoading, error } = useGetBadges();
+  const { data, isLoading, error, refetch } = useGetBadges();
   const [searchQuery, setSearchQuery] = useState("");
   const list = (data && data.length > 0 ? data : HARD_CODED_BADGES) as Badge[];
 
@@ -62,7 +62,7 @@ export function BadgesList(): React.ReactElement {
               />
             </div>
 
-            <CreateBadgeButton />
+            <CreateBadgeButton onBadgeCreated={refetch} />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
