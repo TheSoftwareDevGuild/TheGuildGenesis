@@ -7,7 +7,27 @@ import {
 import { BADGE_REGISTRY_ADDRESS } from "@/lib/constants/blockchainConstants";
 import type { Badge } from "@/lib/types/badges";
 import { bytes32ToString, bytesToString } from "@/lib/utils/blockchainUtils";
-import { useBadgeRegistryVersion } from "./use-badge-registry-version";
+
+/**
+ * Check if error is a decode error (ABI mismatch).
+ * V2 ABI will fail to decode V1 contract responses with decode errors.
+ * Must NOT classify RPC/network errors as decode errors.
+ */
+function isDecodeError(error: Error | null): boolean {
+  if (!error) return false;
+  const message = error.message.toLowerCase();
+  const name = error.name.toLowerCase();
+  // Only detect actual decode errors, not RPC/network issues
+  return (
+    name.includes("positionoutofbounds") ||
+    name.includes("decodefunctionresult") ||
+    (name.includes("contractfunctionexecution") &&
+      (message.includes("decode") || message.includes("position"))) ||
+    (message.includes("decode") &&
+      (message.includes("function") || message.includes("abi"))) ||
+    (message.includes("position") && message.includes("out of bounds"))
+  );
+}
 
 export function useGetBadges(): {
   data: Badge[] | undefined;
@@ -16,65 +36,115 @@ export function useGetBadges(): {
   refetch: () => void;
 } {
   const address = BADGE_REGISTRY_ADDRESS;
-  const {
-    version,
-    isLoading: versionLoading,
-    error: versionError,
-  } = useBadgeRegistryVersion(address);
 
   const totalBadgesQuery = useReadContract({
-    abi: badgeRegistryAbiV2, // totalBadges has same signature in both versions
+    abi: badgeRegistryAbiV2,
     address,
     functionName: "totalBadges",
     query: {
       enabled: Boolean(address),
+      retry: false,
     },
   });
 
   const count = Number((totalBadgesQuery.data as bigint | undefined) ?? 0n);
 
+  // Probe version with single getBadgeAt(0) call
+  // This probe runs once per address and is cached forever
+  // Only enabled if count > 0 (no probe for empty registries)
+  const versionProbeQuery = useReadContract({
+    abi: badgeRegistryAbiV2,
+    address,
+    functionName: "getBadgeAt",
+    args: [0n],
+    query: {
+      enabled: Boolean(address) && count > 0,
+      staleTime: Infinity,
+      retry: 0,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
+    },
+  });
+
+  // Determine ABI mode: V2 if probe succeeds, V1 if decode error, undefined while loading
+  // If count === 0, abiMode remains undefined (no probe, no multicall)
+  const abiMode = useMemo<"v1" | "v2" | undefined>(() => {
+    if (count === 0) return undefined; // No badges, no ABI needed
+    if (versionProbeQuery.isSuccess) return "v2";
+    if (versionProbeQuery.error && isDecodeError(versionProbeQuery.error)) {
+      return "v1"; // Decode error indicates V1 contract
+    }
+    return undefined; // Still loading or unknown
+  }, [count, versionProbeQuery.isSuccess, versionProbeQuery.error]);
+
+  // Build multicall contracts with correct ABI based on probe result
   const badgeContracts = useMemo(
     () =>
-      count > 0 && version !== null
+      count > 0 && abiMode !== undefined
         ? Array.from({ length: count }, (_, i) => ({
-            abi: version === "v2" ? badgeRegistryAbiV2 : badgeRegistryAbiV1,
+            abi: abiMode === "v2" ? badgeRegistryAbiV2 : badgeRegistryAbiV1,
             address,
             functionName: "getBadgeAt" as const,
             args: [BigInt(i)],
           }))
         : [],
-    [address, count, version]
+    [address, count, abiMode]
   );
 
+  // Execute multicall with detected ABI
   const badgesQuery = useReadContracts({
     contracts: badgeContracts,
     allowFailure: false,
     query: {
-      enabled: Boolean(address) && count > 0 && version !== null,
+      enabled: Boolean(address) && count > 0 && abiMode !== undefined,
+      retry: 0,
+      staleTime: Infinity,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
     },
   });
 
+  // Decode descriptions based on detected ABI
+  // If count === 0, return empty array
   const data: Badge[] | undefined = useMemo(() => {
+    if (count === 0) return [];
     const results = badgesQuery.data as
       | [`0x${string}`, `0x${string}`, `0x${string}`][]
       | undefined;
     if (!results) return undefined;
-    const isV2 = version === "v2";
-    return results.map(([nameBytes, descriptionBytes]) => ({
-      name: bytes32ToString(nameBytes),
-      description: isV2
-        ? bytesToString(descriptionBytes)
-        : bytes32ToString(descriptionBytes),
-    }));
-  }, [badgesQuery.data, version]);
+
+    return results.map((item) => {
+      if (!Array.isArray(item) || item.length < 2) {
+        throw new Error(`Unexpected item shape: ${JSON.stringify(item)}`);
+      }
+
+      const [nameBytes, descriptionBytes] = item as [`0x${string}`, `0x${string}`, `0x${string}`];
+      const name = bytes32ToString(nameBytes);
+      const description =
+        abiMode === "v2"
+          ? bytesToString(descriptionBytes) // V2: bytes (variable length)
+          : bytes32ToString(descriptionBytes); // V1: bytes32 (fixed 32 bytes)
+
+      return { name, description };
+    });
+  }, [count, badgesQuery.data, abiMode]);
 
   const isLoading =
-    versionLoading || totalBadgesQuery.isLoading || badgesQuery.isLoading;
+    totalBadgesQuery.isLoading ||
+    (count > 0 && abiMode === undefined ? versionProbeQuery.isLoading : false) ||
+    (count > 0 && badgesQuery.isLoading);
 
   const error =
-    versionError ||
     (totalBadgesQuery.error as Error | null) ||
-    (badgesQuery.error as Error | null) ||
+    // Only propagate probe error if it's NOT a decode error (decode errors are expected for V1)
+    (count > 0 &&
+    versionProbeQuery.error &&
+    !isDecodeError(versionProbeQuery.error)
+      ? (versionProbeQuery.error as Error | null)
+      : null) ||
+    (count > 0 ? (badgesQuery.error as Error | null) : null) ||
     null;
 
   return { data, isLoading, error, refetch: totalBadgesQuery.refetch };

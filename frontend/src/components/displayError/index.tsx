@@ -3,7 +3,7 @@ type ErrorDisplayProps = {
 };
 
 export default function ErrorDisplay({ error }: ErrorDisplayProps) {
-  if (!error) return null; 
+  if (!error) return null;
 
   return (
     <p className="text-2xl text-yellow-600 flex items-center gap-2">
