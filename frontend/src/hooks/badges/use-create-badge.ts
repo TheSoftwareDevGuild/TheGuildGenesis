@@ -16,6 +16,7 @@ export function useCreateBadge() {
       if (!BADGE_REGISTRY_ADDRESS) throw new Error("Missing registry address");
       const nameBytes = stringToBytes32(name);
 
+      // TODO(cleanup): Remove V1 fallback after V2 full deployment
       // Try V2 first (bytes description), fallback to V1 (bytes32)
       try {
         return await writeContractAsync({

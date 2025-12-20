@@ -9,6 +9,7 @@ import type { Badge } from "@/lib/types/badges";
 import { bytes32ToString, bytesToString } from "@/lib/utils/blockchainUtils";
 
 /**
+ * TODO(cleanup): Remove decode error detection after V2 full deployment
  * Check if error is a decode error (ABI mismatch).
  * V2 ABI will fail to decode V1 contract responses with decode errors.
  * Must NOT classify RPC/network errors as decode errors.
@@ -49,6 +50,7 @@ export function useGetBadges(): {
 
   const count = Number((totalBadgesQuery.data as bigint | undefined) ?? 0n);
 
+  // TODO(cleanup): Remove version probe after V2 full deployment
   // Probe version with single getBadgeAt(0) call
   // This probe runs once per address and is cached forever
   // Only enabled if count > 0 (no probe for empty registries)
@@ -67,6 +69,7 @@ export function useGetBadges(): {
     },
   });
 
+  // TODO(cleanup): Simplify to always use V2 ABI after V2 full deployment
   // Determine ABI mode: V2 if probe succeeds, V1 if decode error, undefined while loading
   // If count === 0, abiMode remains undefined (no probe, no multicall)
   const abiMode = useMemo<"v1" | "v2" | undefined>(() => {
@@ -83,6 +86,7 @@ export function useGetBadges(): {
     () =>
       count > 0 && abiMode !== undefined
         ? Array.from({ length: count }, (_, i) => ({
+            // TODO(cleanup): Remove conditional ABI selection after V2 full deployment
             abi: abiMode === "v2" ? badgeRegistryAbiV2 : badgeRegistryAbiV1,
             address,
             functionName: "getBadgeAt" as const,
@@ -122,6 +126,7 @@ export function useGetBadges(): {
 
       const [nameBytes, descriptionBytes] = item as [`0x${string}`, `0x${string}`, `0x${string}`];
       const name = bytes32ToString(nameBytes);
+      // TODO(cleanup): Remove conditional decoding after V2 full deployment
       const description =
         abiMode === "v2"
           ? bytesToString(descriptionBytes) // V2: bytes (variable length)
