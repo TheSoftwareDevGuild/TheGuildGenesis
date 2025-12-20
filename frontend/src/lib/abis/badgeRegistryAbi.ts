@@ -1,3 +1,4 @@
+// TODO(cleanup): Remove V1 ABI after all BadgeRegistry deployments are V2
 // ABI fragments for V1 contract (bytes32 description)
 export const badgeRegistryAbiV1 = [
   {
