@@ -10,7 +10,6 @@ import type {
 } from "@/lib/types/api";
 import { API_BASE_URL } from "@/lib/constants/apiConstants";
 import { getToken } from "@/lib/utils/jwt";
-import { useAuthHeader } from "@/hooks/use-auth-header";
 
 async function postCreateProfile(
   input: CreateProfileInput,

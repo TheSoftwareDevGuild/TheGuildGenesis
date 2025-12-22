@@ -1,6 +1,6 @@
 import { useCallback, useState } from "react";
 import { useAccount, useSignMessage } from "wagmi";
-import { getToken, saveToken, clearToken } from "@/lib/utils/jwt";
+import { getToken, saveToken, clearToken, isTokenValid } from "@/lib/utils/jwt";
 import { useGetNonce } from "./profiles/use-get-nonce";
 import { generateSiweMessage } from "@/lib/utils/siwe";
 import { API_BASE_URL } from "@/lib/constants/apiConstants";
@@ -16,13 +16,14 @@ export function useAuthHeader() {
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     const getAuthHeaders = useCallback((): AuthHeaders => {
-        const token = getToken();
-
-        // If JWT token exists, use it
-        if (token) {
-            return {
-                Authorization: `Bearer ${token}`,
-            };
+        // Check if token is valid and not expired
+        if (isTokenValid()) {
+            const token = getToken();
+            if (token) {
+                return {
+                    Authorization: `Bearer ${token}`,
+                };
+            }
         }
 
         // Fall back to empty headers (caller will add SIWE headers)
@@ -74,6 +75,6 @@ export function useAuthHeader() {
         getAuthHeaders,
         refreshToken,
         isRefreshing,
-        hasToken: () => getToken() !== null,
+        hasToken: isTokenValid,
     };
 }
