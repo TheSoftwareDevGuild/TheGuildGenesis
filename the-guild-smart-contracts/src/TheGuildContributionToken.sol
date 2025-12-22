@@ -17,7 +17,11 @@ contract TheGuildContributionToken is
     /// @param to The recipient of the minted tokens.
     /// @param amount The amount of tokens minted.
     /// @param reason Arbitrary bytes describing why the user received contribution tokens.
-    event MintedWithReason(address indexed to, uint256 amount, bytes reason);
+    event MintedWithReason(
+        address indexed to,
+        uint256 indexed amount,
+        bytes indexed reason
+    );
 
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
