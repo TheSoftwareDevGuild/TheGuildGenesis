@@ -12,7 +12,7 @@ import {TheGuildContributionToken} from "../src/TheGuildContributionToken.sol";
 ///     {
 ///       "recipient": "0x...",
 ///       "amount": "1000000000000000000",
-///       "reason": "0x..." // bytes, e.g. abi.encodePacked(...)
+///       "reason": "Some human readable text"
 ///     }
 ///   ]
 /// }
@@ -109,12 +109,12 @@ contract MintTGCFromJson is Script {
                 (uint256)
             );
 
-            // Parse reason as hex string (e.g. "0x...") using stdJson, then convert to bytes.
-            // Using stdJson.readString avoids type inference issues with parseJson.
+            // Parse reason as a normal UTF-8 string and convert to bytes.
+            // This makes the JSON human-readable for non-technical contributors.
             string memory reasonStr = jsonData.readString(
                 string(abi.encodePacked(basePath, ".reason"))
             );
-            bytes memory reason = vm.parseBytes(reasonStr);
+            bytes memory reason = bytes(reasonStr);
 
             tempMints[count] = MintData({
                 recipient: recipient,
