@@ -3,35 +3,25 @@ import {
   type UseMutationResult,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useAccount, useSignMessage } from "wagmi";
+import { useAccount } from "wagmi";
 import type {
   CreateProfileInput,
   CreateProfileResponse,
 } from "@/lib/types/api";
 import { API_BASE_URL } from "@/lib/constants/apiConstants";
-import { getToken } from "@/lib/utils/jwt";
+import { isTokenValid, getToken } from "@/lib/utils/jwt";
+import { useLogin } from "@/hooks/use-login";
 
 async function postCreateProfile(
   input: CreateProfileInput,
-  address: string,
-  signature: string,
-  token?: string
+  token: string
 ): Promise<CreateProfileResponse> {
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-  };
-
-  // Use JWT token if available, otherwise use SIWE signature
-  if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
-  } else {
-    headers["x-eth-address"] = address;
-    headers["x-eth-signature"] = signature;
-  }
-
   const response = await fetch(`${API_BASE_URL}/profiles/`, {
     method: "POST",
-    headers,
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
     body: JSON.stringify(input),
   });
 
@@ -43,7 +33,6 @@ async function postCreateProfile(
     );
   }
 
-  // Attempt to parse JSON, but allow empty body
   try {
     return (await response.json()) as CreateProfileResponse;
   } catch {
@@ -53,7 +42,6 @@ async function postCreateProfile(
 
 type MutationVariables = {
   input: CreateProfileInput;
-  signature: string;
 };
 
 export function useCreateProfile(): UseMutationResult<
@@ -63,19 +51,29 @@ export function useCreateProfile(): UseMutationResult<
 > {
   const { address } = useAccount();
   const queryClient = useQueryClient();
+  const { login } = useLogin();
 
   return useMutation<CreateProfileResponse, Error, MutationVariables>({
     mutationKey: ["create-profile"],
-    mutationFn: async ({ input, signature }) => {
+    mutationFn: async ({ input }) => {
       if (!address) {
         throw new Error("Wallet not connected");
       }
+
+      // Check if token is valid, if not trigger login
+      if (!isTokenValid()) {
+        await login();
+      }
+
       const token = getToken();
-      return postCreateProfile(input, address, signature, token || undefined);
+      if (!token) {
+        throw new Error("Authentication required. Please sign in.");
+      }
+
+      return postCreateProfile(input, token);
     },
     onSuccess: () => {
-      // Invalidate nonce query since it was incremented
-      queryClient.invalidateQueries({ queryKey: ["nonce", address] });
+      queryClient.invalidateQueries({ queryKey: ["profiles"] });
     },
   });
 }
