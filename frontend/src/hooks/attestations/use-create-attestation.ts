@@ -49,7 +49,7 @@ export function useCreateAttestation() {
         );
       }
       isBusyRef.current = true;
-      // Convert strings to bytes
+      // Convert strings to bytes32
       const badgeNameBytes = stringToBytes32(badgeName);
       const justificationBytes = stringToBytes(justification);
 
@@ -97,6 +97,7 @@ export function useCreateAttestation() {
 
   const wait = useWaitForTransactionReceipt({
     hash: hash as `0x${string}` | undefined,
+    confirmations: 6,
     query: { enabled: Boolean(hash) },
   });
 
