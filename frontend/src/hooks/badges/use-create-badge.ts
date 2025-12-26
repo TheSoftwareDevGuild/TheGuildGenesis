@@ -39,6 +39,7 @@ export function useCreateBadge() {
       });
       const currentCount = Number(totalBadgesResult ?? 0n);
 
+      // TODO(cleanup-after-v2): Remove V1 fallback logic after V2 full deployment. Always use V2 ABI. See docs/V2_CLEANUP.md.
       const finalAbiMode = await detectBadgeRegistryVersion(
         config,
         account as `0x${string}`,

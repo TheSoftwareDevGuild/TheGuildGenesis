@@ -1,4 +1,6 @@
 /**
+ * TODO(cleanup-after-v2): Remove this entire module after V2 full deployment. See docs/V2_CLEANUP.md for details.
+ * 
  * ABI version detection utilities for BadgeRegistry contracts.
  * 
  * These functions detect contract version (V1 vs V2) by analyzing error messages
