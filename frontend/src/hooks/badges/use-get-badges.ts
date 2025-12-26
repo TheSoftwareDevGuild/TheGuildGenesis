@@ -29,6 +29,7 @@ export function useGetBadges(): {
 
   const count = Number((totalBadgesQuery.data as bigint | undefined) ?? 0n);
 
+  // TODO(cleanup-after-v2): Remove V1 fallback logic after V2 full deployment. Always use V2 ABI. See docs/V2_CLEANUP.md.
   // TODO(cleanup): Remove version probe after V2 full deployment
   // Probe version with single getBadgeAt(0) call
   // This probe runs once per address and is cached forever

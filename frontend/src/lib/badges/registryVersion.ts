@@ -1,3 +1,7 @@
+/**
+ * TODO(cleanup-after-v2): Remove this entire module after V2 full deployment. See docs/V2_CLEANUP.md for details.
+ */
+
 import type { Config } from "wagmi";
 import { simulateContract, readContract } from "@wagmi/core";
 import { BADGE_REGISTRY_ADDRESS } from "@/lib/constants/blockchainConstants";
