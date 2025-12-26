@@ -1,0 +1,15 @@
+---
+import Layout from "@/layouts/Layout.astro";
+// Alias the component to something like 'LeaderboardContent'
+import LeaderboardContent from "@/components/pages/Leaderboardcontent"; 
+import { AppWrapper } from "@/components/AppWrapper";
+---
+
+<Layout title="Leaderboard - The Guild Genesis">
+  <div class="min-h-screen bg-gray-50">
+    <AppWrapper client:only="react">
+      <!-- Use the aliased name here -->
+      <LeaderboardContent />
+    </AppWrapper>
+  </div>
+</Layout>
