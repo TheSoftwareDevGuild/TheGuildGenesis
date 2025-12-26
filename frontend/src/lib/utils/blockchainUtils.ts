@@ -57,3 +57,17 @@ export function stringToBytes(value: string): `0x${string}` {
   }
   return hex as `0x${string}`;
 }
+
+/**
+ * Builds createBadge function arguments based on ABI version.
+ * V2 uses bytes for description, V1 uses bytes32.
+ */
+export function buildCreateBadgeArgs(
+  nameBytes: `0x${string}`,
+  description: string,
+  abiMode: "v1" | "v2"
+): [`0x${string}`, `0x${string}`] {
+  return abiMode === "v2"
+    ? [nameBytes, stringToBytes(description)]
+    : [nameBytes, stringToBytes32(description)];
+}

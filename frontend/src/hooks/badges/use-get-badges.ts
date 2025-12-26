@@ -7,28 +7,7 @@ import {
 import { BADGE_REGISTRY_ADDRESS } from "@/lib/constants/blockchainConstants";
 import type { Badge } from "@/lib/types/badges";
 import { bytes32ToString, bytesToString } from "@/lib/utils/blockchainUtils";
-
-/**
- * TODO(cleanup): Remove decode error detection after V2 full deployment
- * Check if error is a decode error (ABI mismatch).
- * V2 ABI will fail to decode V1 contract responses with decode errors.
- * Must NOT classify RPC/network errors as decode errors.
- */
-function isDecodeError(error: Error | null): boolean {
-  if (!error) return false;
-  const message = error.message.toLowerCase();
-  const name = error.name.toLowerCase();
-  // Only detect actual decode errors, not RPC/network issues
-  return (
-    name.includes("positionoutofbounds") ||
-    name.includes("decodefunctionresult") ||
-    (name.includes("contractfunctionexecution") &&
-      (message.includes("decode") || message.includes("position"))) ||
-    (message.includes("decode") &&
-      (message.includes("function") || message.includes("abi"))) ||
-    (message.includes("position") && message.includes("out of bounds"))
-  );
-}
+import { isDecodeError } from "@/lib/utils/abiDetection";
 
 export function useGetBadges(): {
   data: Badge[] | undefined;
