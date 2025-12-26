@@ -12,27 +12,7 @@ import {
   EAS_CONTRACT_ADDRESS,
   SCHEMA_ID,
 } from "@/lib/constants/blockchainConstants";
-
-function stringToBytes32(value: string): `0x${string}` {
-  const encoder = new TextEncoder();
-  const bytes = encoder.encode(value);
-  const out = new Uint8Array(32);
-  const len = Math.min(32, bytes.length);
-  for (let i = 0; i < len; i++) out[i] = bytes[i];
-  let hex = "0x";
-  for (let i = 0; i < out.length; i++)
-    hex += out[i].toString(16).padStart(2, "0");
-  return hex as `0x${string}`;
-}
-
-function stringToBytes(value: string): `0x${string}` {
-  const encoder = new TextEncoder();
-  const bytes = encoder.encode(value);
-  let hex = "0x";
-  for (let i = 0; i < bytes.length; i++)
-    hex += bytes[i].toString(16).padStart(2, "0");
-  return hex as `0x${string}`;
-}
+import { stringToBytes32, stringToBytes } from "@/lib/utils/blockchainUtils";
 
 function encodeBadgeData(
   badgeName: `0x${string}`,
@@ -69,7 +49,7 @@ export function useCreateAttestation() {
         );
       }
       isBusyRef.current = true;
-      // Convert strings to bytes
+      // Convert strings to bytes32
       const badgeNameBytes = stringToBytes32(badgeName);
       const justificationBytes = stringToBytes(justification);
 
@@ -117,6 +97,7 @@ export function useCreateAttestation() {
 
   const wait = useWaitForTransactionReceipt({
     hash: hash as `0x${string}` | undefined,
+    confirmations: 6,
     query: { enabled: Boolean(hash) },
   });
 

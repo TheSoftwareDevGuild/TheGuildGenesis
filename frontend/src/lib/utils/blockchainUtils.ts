@@ -46,3 +46,28 @@ export function stringToBytes32(value: string): `0x${string}` {
   }
   return hex as `0x${string}`;
 }
+
+export function stringToBytes(value: string): `0x${string}` {
+  // Encode to utf8, return as hex (variable length)
+  const encoder = new TextEncoder();
+  const bytes = encoder.encode(value);
+  let hex = "0x";
+  for (let i = 0; i < bytes.length; i++) {
+    hex += bytes[i].toString(16).padStart(2, "0");
+  }
+  return hex as `0x${string}`;
+}
+
+/**
+ * Builds createBadge function arguments based on ABI version.
+ * V2 uses bytes for description, V1 uses bytes32.
+ */
+export function buildCreateBadgeArgs(
+  nameBytes: `0x${string}`,
+  description: string,
+  abiMode: "v1" | "v2"
+): [`0x${string}`, `0x${string}`] {
+  return abiMode === "v2"
+    ? [nameBytes, stringToBytes(description)]
+    : [nameBytes, stringToBytes32(description)];
+}

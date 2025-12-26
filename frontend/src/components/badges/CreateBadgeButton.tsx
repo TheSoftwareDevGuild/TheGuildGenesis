@@ -23,7 +23,6 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useGetBadges } from "@/hooks/badges/use-get-badges";
 
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required." }).max(32),
@@ -32,11 +31,14 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-export function CreateBadgeButton() {
+interface CreateBadgeButtonProps {
+  onBadgeCreated?: () => void;
+}
+
+export function CreateBadgeButton({ onBadgeCreated }: CreateBadgeButtonProps) {
   const [open, setOpen] = useState(false);
   const { createBadge, isPending, error, reset, isConfirmed, isConfirming } =
     useCreateBadge();
-  const { refetch } = useGetBadges();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -49,12 +51,12 @@ export function CreateBadgeButton() {
 
   useEffect(() => {
     if (isConfirmed) {
-      refetch();
+      onBadgeCreated?.();
       setOpen(false);
       form.reset();
       reset();
     }
-  }, [isConfirmed, refetch, form, reset]);
+  }, [isConfirmed, onBadgeCreated, form, reset]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

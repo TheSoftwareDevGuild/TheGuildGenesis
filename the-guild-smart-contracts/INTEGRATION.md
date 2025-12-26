@@ -5,6 +5,8 @@ This guide shows how to create on-chain attestations of TheGuild badges from a f
 - Schema: `bytes32 badgeName, bytes justification`
 - Hardcoded schema id for now: set `SCHEMA_ID` to a placeholder and replace later
 
+> **Note:** The schema uses `bytes` (not `bytes32`) for `justification` to allow longer text.
+
 References:
 - EAS SDK: [Creating on-chain attestations](https://docs.attest.org/docs/developer-tools/eas-sdk#creating-onchain-attestations)
 - EAS SDK + wagmi: [wagmi integration](https://docs.attest.org/docs/developer-tools/sdk-wagmi)
