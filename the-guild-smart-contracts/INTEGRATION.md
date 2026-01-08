@@ -2,8 +2,10 @@
 
 This guide shows how to create on-chain attestations of TheGuild badges from a frontend using the EAS SDK, following the schema described in `README.md`.
 
-- Schema: `bytes32 badgeName, bytes32 justification`
+- Schema: `bytes32 badgeName, bytes justification`
 - Hardcoded schema id for now: set `SCHEMA_ID` to a placeholder and replace later
+
+> **Note:** The schema uses `bytes` (not `bytes32`) for `justification` to allow longer text.
 
 References:
 - EAS SDK: [Creating on-chain attestations](https://docs.attest.org/docs/developer-tools/eas-sdk#creating-onchain-attestations)
@@ -34,7 +36,7 @@ export const SCHEMA_ID =
 import { SchemaEncoder } from '@ethereum-attestation-service/eas-sdk';
 
 export const schemaEncoder = new SchemaEncoder(
-  'bytes32 badgeName, bytes32 justification'
+  'bytes32 badgeName, bytes justification'
 );
 
 export function encodeBadgeData(
@@ -43,7 +45,7 @@ export function encodeBadgeData(
 ) {
   return schemaEncoder.encodeData([
     { name: 'badgeName', value: badgeName, type: 'bytes32' },
-    { name: 'justification', value: justification, type: 'bytes32' },
+    { name: 'justification', value: justification, type: 'bytes' },
   ]);
 }
 ```
@@ -198,8 +200,8 @@ export async function getAttestation(uid: `0x${string}`) {
 ## Tips
 
 - Replace `SCHEMA_ID` with the actual schema id you register in EAS.
-- Keep the schema definition exactly as specified: `bytes32 badgeName, bytes32 justification`.
-- If you prefer using viem’s clients directly, you can still obtain an `ethers` Signer (as shown) solely for interacting with EAS SDK per its docs.
+- Keep the schema definition exactly as specified: `bytes32 badgeName, bytes justification`.
+- If you prefer using viem's clients directly, you can still obtain an `ethers` Signer (as shown) solely for interacting with EAS SDK per its docs.
 
 Links: [EAS SDK attestations](https://docs.attest.org/docs/developer-tools/eas-sdk#creating-onchain-attestations), [EAS + wagmi](https://docs.attest.org/docs/developer-tools/sdk-wagmi)
 

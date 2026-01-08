@@ -1,0 +1,54 @@
+{
+  "mints": [
+    {
+      "recipient": "0x2b33E4D2bD2f34310956dCb462d58413d3dCcdf8",
+      "amount": 40,
+      "reason": "Github handle errors"
+    },
+    {
+      "recipient": "0x2b33E4D2bD2f34310956dCb462d58413d3dCcdf8",
+      "amount": 40,
+      "reason": "Implement SIWE for the front end"
+    },
+    {
+      "recipient": "0x63E5a246937549b3ECcBB410AF42da54F999D172",
+      "amount": 80,
+      "reason": "Feature: add a github handle to profile in Front end"
+    },
+    {
+      "recipient": "0x63E5a246937549b3ECcBB410AF42da54F999D172",
+      "amount": 40,
+      "reason": "Add doc for indexer"
+    },
+    {
+      "recipient": "0x0BAd9DaD98143b2E946e8A40E4f27537be2f55E2",
+      "amount": 160,
+      "reason": "Add a backend for the contribution points (api, db)"
+    },
+    {
+      "recipient": "0xB66442A4Bf0636B6b533D607dB6066AD987368FE",
+      "amount": 20,
+      "reason": "Improve landing page design with animated background"
+    },
+    {
+      "recipient": "0x63E5a246937549b3ECcBB410AF42da54F999D172",
+      "amount": 40,
+      "reason": "On the profile, there should be a section with the badges issued by that profile"
+    },
+    {
+      "recipient": "0x2b33E4D2bD2f34310956dCb462d58413d3dCcdf8",
+      "amount": 20,
+      "reason": "Add copy to clipboard icons next to all ethereum addresses"
+    },
+    {
+      "recipient": "0x2b33E4D2bD2f34310956dCb462d58413d3dCcdf8",
+      "amount": 40,
+      "reason": "Add description on the profile page"
+    },
+    {
+      "recipient": "0x2b33E4D2bD2f34310956dCb462d58413d3dCcdf8",
+      "amount": 320,
+      "reason": "Improve SIWE logic to use dynamic, user-specific nonce - backend"
+    }
+  ]
+}

@@ -11,8 +11,19 @@ import {
 import { AppSidebar } from "@/components/AppSidebar";
 import { ActivityTokenBalance } from "@/components/ActivityTokenBalance";
 import { Background } from "@/components/Background";
+import { LoginButton } from "@/components/LoginButton";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 60_000, // 1 minute - badges change infrequently
+      refetchOnWindowFocus: false, // Prevent refetch storms on alt-tab
+      refetchOnReconnect: false, // Prevent refetch storms on network reconnect
+      refetchOnMount: false, // Prevent refetch on component remount (cache is fresh)
+      retry: 1, // Single retry for transient errors
+    },
+  },
+});
 
 interface AppWrapperProps {
   children: React.ReactNode;
@@ -39,6 +50,7 @@ export function AppWrapper({ children }: AppWrapperProps) {
                       </div>
                       <div className="flex items-center space-x-4">
                         <ActivityTokenBalance />
+                        <LoginButton />
                         <ConnectButton />
                       </div>
                     </div>

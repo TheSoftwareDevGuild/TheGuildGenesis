@@ -7,13 +7,19 @@ Anybody can create a badge. The idea is to let the community input whatever they
 
 We will create a smart contract TheGuildBadgeRegistry that will have a list of badges with unique non-duplicate names.
 
+**Contract Versions:**
+- **V1**: `description` stored as `bytes32` (max 32 characters)
+- **V2 (current)**: `description` stored as `bytes` (unlimited length)
+
+The frontend is retrocompatible with both V1 and V2 deployed contracts.
+
 ### Badge Ranking
 Community members can vote on badge relevancy to filter spam and promote the most relevant badges. The BadgeRanking contract tracks upvotes per badge and prevents duplicate voting from the same address.
 
 ### Attestations
 Then, we let users create an attestation of a badge to another user. The attestation can contain an optional justification (link to a project, or text explanation).
 
-To do this, we can just use EAS' already deployed contracts. First we will register our schema (using their sdk or their UI): "bytes32 badgeName, bytes32 justification". Then, in the front end, we can use their sdk to create attestation from one user to another, referencing our schema id, the unique badge name, and a justification. We can also use EAS Resolver contract to prevent duplicate badges and reward attestations with Activity Token.
+To do this, we can just use EAS' already deployed contracts. First we will register our schema (using their sdk or their UI): "bytes32 badgeName, bytes justification". Then, in the front end, we can use their sdk to create attestation from one user to another, referencing our schema id, the unique badge name, and a justification. We can also use EAS Resolver contract to prevent duplicate badges and reward attestations with Activity Token.
 
 ### Integration
 For detailed frontend integration instructions, see [INTEGRATION.md](./INTEGRATION.md).
@@ -26,6 +32,9 @@ Salt: "theguild_v_0.1.2"
 
 TheGuildActivityToken
 https://amoy.polygonscan.com/address/0x4649490B118389d0Be8F48b8953eFb235d8CB545
+
+TheGuildContributionToken (proxy)
+https://amoy.polygonscan.com/address/0x14d403EaE3E0b2E2dc6379C9729Df6906fF38bE7
 
 TheGuildBadgeRegistry
 https://amoy.polygonscan.com/address/0x94f5F12BE60a338D263882a1A49E81ca8A0c30F4
@@ -169,6 +178,101 @@ forge script script/TheGuildAttestationResolver.s.sol:TheGuildActivityTokenScrip
   --broadcast
 ```
 
+### Contribution Token (TGC)
+
+`TheGuildContributionToken` (symbol `TGC`) is an **upgradeable ERC20** used to reward contributions.
+
+- **Contract**: `src/TheGuildContributionToken.sol`
+  - Upgradable via UUPS (`UUPSUpgradeable`)
+  - Standard 18 decimals
+  - `mint(address to, uint256 amount)` – owner-only mint
+  - `mintWithReason(address to, uint256 amount, bytes reason)` – owner-only mint that emits `MintedWithReason`
+  - `batchMint(address[] recipients, uint256[] amounts)` – owner-only batch mint
+  - `batchMintWithReason(address[] recipients, uint256[] amounts, bytes[] reasons)` – owner-only batch mint with reasons
+- **Tests**: `test/TheGuildContributionToken.t.sol`
+  - Covers metadata, ownership, minting, `MintedWithReason` event, and batch mint helpers.
+
+#### Deploying the upgradable TGC proxy
+
+Use `script/DeployTGC.s.sol` to deploy the implementation + ERC1967 proxy and call `initialize()` on the proxy:
+
+```shell
+export PRIVATE_KEY=your_private_key
+forge script script/DeployTGC.s.sol:DeployTGC \
+  --rpc-url <your_rpc_url> \
+  --broadcast
+```
+
+The script logs both the proxy (TGC) address and the implementation address.
+
+#### Batch minting TGC from JSON
+
+Use `script/MintTGCFromJson.s.sol` to batch-mint TGC using `mintWithReason` from a JSON file.
+
+JSON format:
+
+```json
+{
+  "mints": [
+    {
+      "recipient": "0x...",
+      "amount": "1000000000000000000",
+      "reason": "0x..." 
+    }
+  ]
+}
+```
+
+- `recipient`: recipient address
+- `amount`: amount as a uint256 (string-encoded in JSON)
+- `reason`: ABI-encoded bytes explaining the reason (e.g. `abi.encodePacked("issue-123")`)
+
+Usage:
+
+```shell
+export PRIVATE_KEY=your_private_key
+export TGC_PROXY_ADDRESS=0xYourTGCProxy
+
+# Optional: override JSON path (default: tgc-mints.json)
+export JSON_PATH=contribution-tokens-latest.json
+
+# Dry run
+export DRY_RUN=true
+forge script script/MintTGCFromJson.s.sol:MintTGCFromJson \
+  --rpc-url <your_rpc_url>
+
+# Production run
+unset DRY_RUN
+forge script script/MintTGCFromJson.s.sol:MintTGCFromJson \
+  --rpc-url <your_rpc_url> \
+  --broadcast
+```
+
+Environment variables:
+
+- `PRIVATE_KEY`: signer that owns the TGC proxy
+- `TGC_PROXY_ADDRESS`: address of the deployed TGC proxy
+- `JSON_PATH`: path to the JSON file (default: `contribution-tokens-latest.json`)
+- `DRY_RUN`: set to `true` to simulate without broadcasting (default: `false`)
+
+#### Upgrading the TGC implementation
+
+Use `script/UpgradeTGCImplementation.s.sol` to deploy a new implementation and upgrade the existing proxy.
+
+```shell
+export PRIVATE_KEY=your_private_key
+export TGC_PROXY_ADDRESS=0xYourTGCProxy
+
+forge script script/UpgradeTGCImplementation.s.sol:UpgradeTGCImplementation \
+  --rpc-url <your_rpc_url> \
+  --broadcast
+```
+
+The script:
+- Deploys a new `TheGuildContributionToken` implementation
+- Calls `upgradeToAndCall` on the proxy (with empty data)
+- Logs the proxy and new implementation addresses
+
 ### Badge Ranking
 
 `TheGuildBadgeRanking` enables voting/ranking of badges for relevancy. Features:
@@ -226,7 +330,7 @@ Prepare your badges data in JSON format:
 ```
 
 - `name`: Name of the badge (max 32 characters, will be converted to bytes32)
-- `description`: Description of the badge (max 32 characters, will be converted to bytes32)
+- `description`: Description of the badge (V2: unlimited length as bytes; V1: max 32 characters as bytes32)
 
 #### Usage
 

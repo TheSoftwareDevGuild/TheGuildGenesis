@@ -25,9 +25,6 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useGetNonce } from "@/hooks/profiles/use-get-nonce";
-import { generateSiweMessage } from "@/lib/utils/siwe";
-import { useAccount, useSignMessage } from "wagmi";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
@@ -41,11 +38,6 @@ export function CreateProfileButton() {
   const [open, setOpen] = useState(false);
   const createProfile = useCreateProfile();
   const queryClient = useQueryClient();
-  const { address } = useAccount();
-  const { signMessageAsync } = useSignMessage();
-  const { data: nonceData, isLoading: isLoadingNonce } = useGetNonce(address);
-
-  const siweMessage = nonceData ? generateSiweMessage(nonceData) : "";
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -53,20 +45,12 @@ export function CreateProfileButton() {
   });
 
   const onSubmit = async (values: FormValues) => {
-    if (!siweMessage) {
-      throw new Error("SIWE message not available");
-    }
-
-    // Sign the SIWE message
-    const signature = await signMessageAsync({ message: siweMessage });
-
     await createProfile.mutateAsync({
       input: {
         name: values.name,
         description: values.description || "",
         github_login: values.githubLogin || "",
       },
-      signature,
     });
     await queryClient.invalidateQueries({ queryKey: ["profiles"] });
     setOpen(false);
@@ -136,35 +120,14 @@ export function CreateProfileButton() {
                 </FormItem>
               )}
             />
-            {siweMessage && (
-              <div className="space-y-2">
-                <FormLabel>Message to Sign</FormLabel>
-                <div className="p-3 bg-gray-50 rounded-md text-sm font-mono break-all">
-                  {siweMessage}
-                </div>
-                <p className="text-xs text-gray-600">
-                  This message will be signed with your wallet to authenticate
-                  your profile creation.
-                </p>
-              </div>
-            )}
             <div className="flex justify-end gap-2 pt-2">
               <DialogClose asChild>
                 <Button type="button" variant="secondary">
                   Cancel
                 </Button>
               </DialogClose>
-              <Button
-                type="submit"
-                disabled={
-                  createProfile.isPending || isLoadingNonce || !siweMessage
-                }
-              >
-                {isLoadingNonce
-                  ? "Loading..."
-                  : createProfile.isPending
-                    ? "Creating..."
-                    : "Create"}
+              <Button type="submit" disabled={createProfile.isPending}>
+                {createProfile.isPending ? "Creating..." : "Create"}
               </Button>
             </div>
             {createProfile.isError ? (

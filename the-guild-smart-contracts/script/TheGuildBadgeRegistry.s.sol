@@ -15,31 +15,31 @@ contract TheGuildBadgeRegistryScript is Script {
         }();
         registry.createBadge(
             bytes32("Rust"),
-            bytes32("Know how to code in Rust")
+            bytes("Know how to code in Rust")
         );
         registry.createBadge(
             bytes32("Solidity"),
-            bytes32("Know how to code in Solidity")
+            bytes("Know how to code in Solidity")
         );
         registry.createBadge(
             bytes32("Python"),
-            bytes32("Know how to code in Python")
+            bytes("Know how to code in Python")
         );
         registry.createBadge(
             bytes32("JavaScript"),
-            bytes32("Know how to code in JavaScript")
+            bytes("Know how to code in JavaScript")
         );
         registry.createBadge(
             bytes32("TypeScript"),
-            bytes32("Know how to code in TypeScript")
+            bytes("Know how to code in TypeScript")
         );
         registry.createBadge(
             bytes32("React"),
-            bytes32("Know how to code in React")
+            bytes("Know how to code in React")
         );
         registry.createBadge(
             bytes32("Next.js"),
-            bytes32("Know how to code in Next.js")
+            bytes("Know how to code in Next.js")
         );
         vm.stopBroadcast();
     }
