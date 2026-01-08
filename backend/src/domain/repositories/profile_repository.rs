@@ -16,6 +16,10 @@ pub trait ProfileRepository: Send + Sync {
         &self,
         github_login: &str,
     ) -> Result<Option<Profile>, Box<dyn std::error::Error + Send + Sync>>;
+    async fn find_by_linkedin_account(
+        &self,
+        linkedin_account: &str,
+    ) -> Result<Option<Profile>, Box<dyn std::error::Error + Send + Sync>>;
     async fn get_login_nonce_by_wallet_address(
         &self,
         address: &WalletAddress,
