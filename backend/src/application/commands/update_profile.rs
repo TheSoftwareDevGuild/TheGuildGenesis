@@ -18,6 +18,8 @@ pub async fn update_profile(
         .ok_or("Profile not found")?;
 
     profile.update_info(request.name, request.description, request.avatar_url);
+    
+    // Handle GitHub login validation
     if let Some(ref handle) = request.github_login {
         let trimmed = handle.trim();
 
@@ -43,6 +45,35 @@ pub async fn update_profile(
             profile.github_login = Some(trimmed.to_string());
         }
     }
+
+    // Handle LinkedIn account validation
+    if let Some(ref account) = request.linkedin_account {
+        let trimmed = account.trim();
+
+        // Allow empty accounts (set to None)
+        if trimmed.is_empty() {
+            profile.linkedin_account = None;
+        } else {
+            // Validate format for non-empty LinkedIn accounts
+            // LinkedIn usernames can be 3-100 characters, alphanumeric and hyphens
+            let valid_format = regex::Regex::new(r"^[a-zA-Z0-9-]{3,100}$").unwrap();
+            if !valid_format.is_match(trimmed) {
+                return Err("Invalid LinkedIn account format".to_string());
+            }
+            if let Some(conflicting_profile) = profile_repository
+                .find_by_linkedin_account(trimmed)
+                .await
+                .map_err(|e| e.to_string())?
+            {
+                // Only conflict if it's not the current user's profile
+                if conflicting_profile.address != wallet_address {
+                    return Err("LinkedIn account already taken".to_string());
+                }
+            }
+            profile.linkedin_account = Some(trimmed.to_string());
+        }
+    }
+
     profile_repository
         .update(&profile)
         .await
@@ -54,6 +85,7 @@ pub async fn update_profile(
         description: profile.description,
         avatar_url: profile.avatar_url,
         github_login: profile.github_login,
+        linkedin_account: profile.linkedin_account,
         created_at: profile.created_at,
         updated_at: profile.updated_at,
     })
