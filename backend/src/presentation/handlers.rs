@@ -128,6 +128,7 @@ pub async fn login_handler(
     }
 }
 
+/// GET /projects - List all projects with optional filters
 pub async fn list_projects_handler(
     State(state): State<AppState>,
     Query(params): Query<ListProjectsQuery>,
@@ -153,6 +154,7 @@ pub async fn list_projects_handler(
     }
 }
 
+// GET /projects/:id - Get a single project by ID
 pub async fn get_project_handler(
     State(state): State<AppState>,
     Path(id): Path<String>,
@@ -170,6 +172,7 @@ pub async fn get_project_handler(
     }
 }
 
+/// GET /users/:address/projects - Get all projects by a creator
 pub async fn get_user_projects_handler(
     State(state): State<AppState>,
     Path(address): Path<String>,
@@ -184,6 +187,7 @@ pub async fn get_user_projects_handler(
     }
 }
 
+/// POST /projects - Create a new project (Protected)
 pub async fn create_project_handler(
     State(state): State<AppState>,
     Extension(VerifiedWallet(verified_wallet)): Extension<VerifiedWallet>,
