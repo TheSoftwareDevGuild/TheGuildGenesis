@@ -1,13 +1,15 @@
 use guild_backend::application::dtos::profile_dtos::ProfileResponse;
+use guild_backend::infrastructure::repositories::postgres_project_repository::PostgresProjectRepository;
 use guild_backend::presentation::api::{test_api, AppState};
 use serde_json::json;
+use std::sync::Arc;
 use tokio::net::TcpListener;
 
 #[tokio::test]
 async fn valid_github_handle_works() {
     std::env::set_var("TEST_MODE", "1");
     let database_url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
-        "postgres://guild_user:guild_password@localhost:5433/guild_genesis".to_string()
+        "postgres://guild_user:guild_password@localhost:5432/guild_genesis".to_string()
     });
 
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -17,8 +19,11 @@ async fn valid_github_handle_works() {
         guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone()),
     );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
+    let project_repository = Arc::from(PostgresProjectRepository::new(pool.clone()));
+
     let state = AppState {
         profile_repository,
+        project_repository,
         auth_service: std::sync::Arc::new(auth_service),
     };
     let app = test_api(state);
@@ -49,7 +54,6 @@ async fn valid_github_handle_works() {
         .await
         .unwrap();
 
-    // Accept either 200 or 201
     assert_eq!(create_resp.status(), reqwest::StatusCode::CREATED);
 
     let body = create_resp.json::<serde_json::Value>().await.unwrap();
@@ -75,7 +79,7 @@ async fn valid_github_handle_works() {
 async fn invalid_format_rejected() {
     std::env::set_var("TEST_MODE", "1");
     let database_url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
-        "postgres://guild_user:guild_password@localhost:5433/guild_genesis".to_string()
+        "postgres://guild_user:guild_password@localhost:5432/guild_genesis".to_string()
     });
 
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -85,8 +89,11 @@ async fn invalid_format_rejected() {
         guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone()),
     );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
+    let project_repository = Arc::from(PostgresProjectRepository::new(pool.clone()));
+
     let state = AppState {
         profile_repository,
+        project_repository,
         auth_service: std::sync::Arc::new(auth_service),
     };
     let app = test_api(state);
@@ -116,7 +123,6 @@ async fn invalid_format_rejected() {
         .send()
         .await
         .unwrap();
-    // Similar acceptance for create
     assert_eq!(
         create_resp.status(),
         reqwest::StatusCode::CREATED,
@@ -139,7 +145,6 @@ async fn invalid_format_rejected() {
 
     assert_eq!(update_resp.status(), reqwest::StatusCode::BAD_REQUEST);
 
-    // Optionally, try parse message if provided
     if let Ok(err_json) = update_resp.json::<serde_json::Value>().await {
         let msg = err_json["error"].as_str().unwrap_or("");
         assert!(msg.contains("Invalid GitHub handle"));
@@ -150,7 +155,7 @@ async fn invalid_format_rejected() {
 async fn conflict_case_insensitive() {
     std::env::set_var("TEST_MODE", "1");
     let database_url = std::env::var("DATABASE_URL").unwrap_or_else(|_| {
-        "postgres://guild_user:guild_password@localhost:5433/guild_genesis".to_string()
+        "postgres://guild_user:guild_password@localhost:5432/guild_genesis".to_string()
     });
 
     let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
@@ -160,8 +165,11 @@ async fn conflict_case_insensitive() {
         guild_backend::infrastructure::repositories::PostgresProfileRepository::new(pool.clone()),
     );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
+    let project_repository = Arc::from(PostgresProjectRepository::new(pool.clone()));
+
     let state = AppState {
         profile_repository,
+        project_repository,
         auth_service: std::sync::Arc::new(auth_service),
     };
     let app = test_api(state);
