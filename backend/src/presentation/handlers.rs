@@ -252,3 +252,54 @@ pub async fn delete_project_handler(
         }
     }
 }
+
+// ============================================================================
+// Admin Handlers
+// ============================================================================
+
+/// DELETE /admin/profiles/:address - Admin delete a profile (bypasses ownership check)
+/// Used for deleting deprecated profiles or spam that we don't have access to anymore.
+pub async fn admin_delete_profile_handler(
+    State(state): State<AppState>,
+    Path(address): Path<String>,
+) -> axum::response::Response {
+    let wallet_address = WalletAddress(address.clone());
+
+    // Check if profile exists first
+    let profile_exists = match state.profile_repository.find_by_address(&wallet_address).await {
+        Ok(Some(_)) => true,
+        Ok(None) => false,
+        Err(e) => {
+            tracing::error!("Error finding profile {}: {}", address, e);
+            return (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({"error": format!("Error finding profile: {}", e)})),
+            )
+                .into_response();
+        }
+    };
+
+    if !profile_exists {
+        return (
+            StatusCode::NOT_FOUND,
+            Json(serde_json::json!({"error": "Profile not found"})),
+        )
+            .into_response();
+    }
+
+    // Profile exists, delete it
+    match state.profile_repository.delete(&wallet_address).await {
+        Ok(_) => {
+            tracing::info!("Admin deleted profile: {}", address);
+            StatusCode::NO_CONTENT.into_response()
+        }
+        Err(e) => {
+            tracing::error!("Failed to delete profile {}: {}", address, e);
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                Json(serde_json::json!({"error": format!("Failed to delete profile: {}", e)})),
+            )
+                .into_response()
+        }
+    }
+}
