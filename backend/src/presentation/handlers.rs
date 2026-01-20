@@ -266,7 +266,11 @@ pub async fn admin_delete_profile_handler(
     let wallet_address = WalletAddress(address.clone());
 
     // Check if profile exists first
-    let profile_exists = match state.profile_repository.find_by_address(&wallet_address).await {
+    let profile_exists = match state
+        .profile_repository
+        .find_by_address(&wallet_address)
+        .await
+    {
         Ok(Some(_)) => true,
         Ok(None) => false,
         Err(e) => {
