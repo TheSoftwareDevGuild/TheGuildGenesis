@@ -22,6 +22,8 @@ use tower_http::{
 };
 
 use super::handlers::{
+    // Admin handlers
+    admin_delete_profile_handler,
     // Profile handlers
     create_profile_handler,
     // Project handlers
@@ -39,7 +41,7 @@ use super::handlers::{
     update_project_handler,
 };
 
-use super::middlewares::{eth_auth_layer, test_auth_layer};
+use super::middlewares::{admin_auth_layer, eth_auth_layer, test_auth_layer};
 
 pub async fn create_app(pool: sqlx::PgPool) -> Router {
     let profile_repository = Arc::from(PostgresProfileRepository::new(pool.clone()));
@@ -72,6 +74,21 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
         protected_routes.layer(from_fn_with_state(state.clone(), eth_auth_layer))
     };
 
+    // Admin routes (require admin authentication via SIWE with admin wallet)
+    let admin_routes = Router::new()
+        .route(
+            "/admin/profiles/:address",
+            delete(admin_delete_profile_handler),
+        )
+        .with_state(state.clone());
+
+    let admin_with_auth = if std::env::var("TEST_MODE").is_ok() {
+        // In test mode, still check x-eth-address header but skip signature verification
+        admin_routes.layer(from_fn(test_auth_layer))
+    } else {
+        admin_routes.layer(from_fn_with_state(state.clone(), admin_auth_layer))
+    };
+
     // Public routes (no authentication)
     let public_routes = Router::new()
         // Profile public routes
@@ -86,6 +103,7 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
 
     Router::new()
         .merge(protected_with_auth)
+        .merge(admin_with_auth)
         .merge(public_routes)
         .with_state(state.clone())
         .layer(
@@ -129,6 +147,15 @@ pub fn test_api(state: AppState) -> Router {
         .with_state(state.clone())
         .layer(from_fn(test_auth_layer));
 
+    // Admin routes (require admin authentication)
+    let admin_routes = Router::new()
+        .route(
+            "/admin/profiles/:address",
+            delete(admin_delete_profile_handler),
+        )
+        .with_state(state.clone())
+        .layer(from_fn(test_auth_layer));
+
     // Public routes (no authentication)
     let public_routes = Router::new()
         // Profile public routes
@@ -143,6 +170,7 @@ pub fn test_api(state: AppState) -> Router {
 
     Router::new()
         .merge(protected_routes)
+        .merge(admin_routes)
         .merge(public_routes)
         .with_state(state.clone())
         .layer(
