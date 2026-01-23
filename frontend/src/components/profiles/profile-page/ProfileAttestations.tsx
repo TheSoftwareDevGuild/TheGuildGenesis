@@ -1,4 +1,4 @@
-import { Award, Badge } from "lucide-react";
+import { Award, Badge, Plus } from "lucide-react";
 import { useGetAttestations } from "@/hooks/attestations/use-get-attestations";
 import { useMemo } from "react";
 import {
@@ -9,10 +9,18 @@ import {
 } from "@/components/ui/accordion";
 import { useGetProfiles } from "@/hooks/profiles/use-get-profiles";
 import CopyAddressToClipboard from "@/components/CopyAddressToClipboard";
+import { AddAttestationDialog } from "@/components/profiles/action-buttons/AddAttestationDialog";
+import { Button } from "@/components/ui/button";
+import { useAccount } from "wagmi";
 
 export function ProfileAttestations({ address }: { address: string }) {
   const attestationsQuery = useGetAttestations();
   const profilesQuery = useGetProfiles();
+  const { address: connectedAddress } = useAccount();
+  const isOwner =
+    !!connectedAddress &&
+    !!address &&
+    connectedAddress.toLowerCase() === address.toLowerCase();
 
   const attestations = useMemo(() => {
     const list = attestationsQuery.data ?? [];
@@ -74,6 +82,24 @@ export function ProfileAttestations({ address }: { address: string }) {
                   <span className="text-sm text-gray-600">
                     ({items.length})
                   </span>
+                  {!isOwner && connectedAddress && badgeName && (
+                    <AddAttestationDialog
+                      recipient={address}
+                      preselectedBadge={badgeName}
+                    >
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-6 w-6 p-0 ml-2"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                        aria-label="Add attestation for this badge"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </Button>
+                    </AddAttestationDialog>
+                  )}
                 </div>
               </AccordionTrigger>
               <AccordionContent>

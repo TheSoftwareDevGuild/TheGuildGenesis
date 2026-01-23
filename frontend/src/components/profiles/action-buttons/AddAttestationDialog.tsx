@@ -43,9 +43,11 @@ type FormValues = z.infer<typeof formSchema>;
 export function AddAttestationDialog({
   recipient,
   children,
+  preselectedBadge,
 }: {
   recipient: string;
   children: React.ReactElement;
+  preselectedBadge?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [errorDisplayText, setErrorDisplayText] = useState<string | null>(null);
@@ -63,7 +65,7 @@ export function AddAttestationDialog({
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
-    defaultValues: { badgeName: "", justification: "" },
+    defaultValues: { badgeName: preselectedBadge || "", justification: "" },
   });
 
   const onSubmit = async (values: FormValues) => {
@@ -106,6 +108,12 @@ export function AddAttestationDialog({
     form,
     reset,
   ]);
+
+  useEffect(() => {
+    if (open && preselectedBadge) {
+      form.setValue("badgeName", preselectedBadge);
+    }
+  }, [open, preselectedBadge, form]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
