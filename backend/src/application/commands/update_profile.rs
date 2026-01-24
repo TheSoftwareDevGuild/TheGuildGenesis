@@ -43,6 +43,31 @@ pub async fn update_profile(
             profile.github_login = Some(trimmed.to_string());
         }
     }
+    if let Some(ref handle) = request.twitter_handle {
+        let trimmed = handle.trim();
+
+        // Allow empty handles (set to None)
+        if trimmed.is_empty() {
+            profile.twitter_handle = None;
+        } else {
+            // Validate format for non-empty handles (Twitter/X handle: 1-15 alphanumeric + underscores)
+            let valid_format = regex::Regex::new(r"^[a-zA-Z0-9_]{1,15}$").unwrap();
+            if !valid_format.is_match(trimmed) {
+                return Err("Invalid Twitter handle format".to_string());
+            }
+            if let Some(conflicting_profile) = profile_repository
+                .find_by_twitter_handle(trimmed)
+                .await
+                .map_err(|e| e.to_string())?
+            {
+                // Only conflict if it's not the current user's profile
+                if conflicting_profile.address != wallet_address {
+                    return Err("Twitter handle already taken".to_string());
+                }
+            }
+            profile.twitter_handle = Some(trimmed.to_string());
+        }
+    }
     profile_repository
         .update(&profile)
         .await
@@ -54,6 +79,7 @@ pub async fn update_profile(
         description: profile.description,
         avatar_url: profile.avatar_url,
         github_login: profile.github_login,
+        twitter_handle: profile.twitter_handle,
         created_at: profile.created_at,
         updated_at: profile.updated_at,
     })

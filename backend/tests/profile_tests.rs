@@ -61,6 +61,22 @@ mod github_handle_tests {
                 .cloned())
         }
 
+        async fn find_by_twitter_handle(
+            &self,
+            twitter_handle: &str,
+        ) -> Result<Option<Profile>, Box<dyn std::error::Error + Send + Sync>> {
+            let lower = twitter_handle.to_lowercase();
+            let list = self.profiles.lock().unwrap();
+            Ok(list
+                .iter()
+                .find(|&p| {
+                    p.twitter_handle
+                        .as_ref()
+                        .is_some_and(|h| h.to_lowercase() == lower)
+                })
+                .cloned())
+        }
+
         async fn get_login_nonce_by_wallet_address(
             &self,
             _address: &WalletAddress,
@@ -86,6 +102,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: None,
+            twitter_handle: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -100,6 +117,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: Some("GitUser123".into()),
+            twitter_handle: None,
         };
 
         let result = update_profile(repo.clone(), profile.address.to_string(), req).await;
@@ -117,6 +135,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: None,
+            twitter_handle: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -131,6 +150,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: Some("bad@name".into()),
+            twitter_handle: None,
         };
 
         let err = update_profile(repo.clone(), profile.address.to_string(), req).await;
@@ -149,6 +169,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: Some("Alice".into()),
+            twitter_handle: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -160,6 +181,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: None,
+            twitter_handle: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -175,6 +197,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: Some("alice".into()),
+            twitter_handle: None,
         };
 
         let err = update_profile(repo.clone(), profile2.address.to_string(), req).await;
@@ -192,6 +215,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: Some("BobUser".into()),
+            twitter_handle: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -206,6 +230,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: Some("".into()),
+            twitter_handle: None,
         };
 
         let result = update_profile(repo.clone(), profile.address.to_string(), req).await;
@@ -223,6 +248,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: Some("CharlieGit".into()),
+            twitter_handle: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -237,6 +263,7 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: Some("CharlieGit".into()),
+            twitter_handle: None,
         };
 
         let result = update_profile(repo.clone(), profile.address.to_string(), req).await;
