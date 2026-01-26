@@ -271,4 +271,112 @@ mod github_handle_tests {
         let resp = result.unwrap();
         assert_eq!(resp.github_login.unwrap(), "CharlieGit");
     }
+
+    #[tokio::test]
+    async fn valid_twitter_handle_succeeds() {
+        let profile = Profile {
+            address: WalletAddress::new("0x1234567890123456789012345678901234567896".to_string())
+                .unwrap(),
+            name: Some("Dave".into()),
+            description: None,
+            avatar_url: None,
+            github_login: None,
+            twitter_handle: None,
+            login_nonce: 1,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+        };
+        let repo = Arc::new(FakeRepo {
+            profiles: std::sync::Mutex::new(vec![profile.clone()]),
+        });
+
+        let req = UpdateProfileRequest {
+            name: None,
+            description: None,
+            avatar_url: None,
+            github_login: None,
+            twitter_handle: Some("elonmusk".into()),
+        };
+
+        let result = update_profile(repo.clone(), profile.address.to_string(), req).await;
+        assert!(result.is_ok());
+        let resp = result.unwrap();
+        assert_eq!(resp.twitter_handle.unwrap(), "elonmusk");
+    }
+
+    #[tokio::test]
+    async fn invalid_twitter_handle_rejected() {
+        let profile = Profile {
+            address: WalletAddress::new("0x1234567890123456789012345678901234567897".to_string())
+                .unwrap(),
+            name: None,
+            description: None,
+            avatar_url: None,
+            github_login: None,
+            twitter_handle: None,
+            login_nonce: 1,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+        };
+        let repo = Arc::new(FakeRepo {
+            profiles: std::sync::Mutex::new(vec![profile.clone()]),
+        });
+
+        // Twitter handles can't have @ or be longer than 15 chars
+        let req = UpdateProfileRequest {
+            name: None,
+            description: None,
+            avatar_url: None,
+            github_login: None,
+            twitter_handle: Some("@invalid".into()),
+        };
+
+        let err = update_profile(repo.clone(), profile.address.to_string(), req).await;
+        assert!(err.is_err());
+        assert!(err.unwrap_err().contains("Invalid Twitter handle format"));
+    }
+
+    #[tokio::test]
+    async fn twitter_handle_conflict_rejected() {
+        let profile1 = Profile {
+            address: WalletAddress::new("0x1234567890123456789012345678901234567898".to_string())
+                .unwrap(),
+            name: None,
+            description: None,
+            avatar_url: None,
+            github_login: None,
+            twitter_handle: Some("TakenHandle".into()),
+            login_nonce: 1,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+        };
+        let profile2 = Profile {
+            address: WalletAddress::new("0x1234567890123456789012345678901234567899".to_string())
+                .unwrap(),
+            name: None,
+            description: None,
+            avatar_url: None,
+            github_login: None,
+            twitter_handle: None,
+            login_nonce: 1,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+        };
+        let repo = Arc::new(FakeRepo {
+            profiles: std::sync::Mutex::new(vec![profile1.clone(), profile2.clone()]),
+        });
+
+        // Try to claim "takenhandle" (lowercase) from profile2 → conflict
+        let req = UpdateProfileRequest {
+            name: None,
+            description: None,
+            avatar_url: None,
+            github_login: None,
+            twitter_handle: Some("takenhandle".into()),
+        };
+
+        let err = update_profile(repo.clone(), profile2.address.to_string(), req).await;
+        assert!(err.is_err());
+        assert!(err.unwrap_err().contains("Twitter handle already taken"));
+    }
 }
