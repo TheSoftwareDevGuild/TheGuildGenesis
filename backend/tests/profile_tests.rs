@@ -295,13 +295,13 @@ mod github_handle_tests {
             description: None,
             avatar_url: None,
             github_login: None,
-            twitter_handle: Some("elonmusk".into()),
+            twitter_handle: Some("tushar".into()),
         };
 
         let result = update_profile(repo.clone(), profile.address.to_string(), req).await;
         assert!(result.is_ok());
         let resp = result.unwrap();
-        assert_eq!(resp.twitter_handle.unwrap(), "elonmusk");
+        assert_eq!(resp.twitter_handle.unwrap(), "tushar");
     }
 
     #[tokio::test]
