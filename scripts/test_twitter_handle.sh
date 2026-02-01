@@ -87,6 +87,34 @@ get_resp="$(cat "${get_tmp}")"
 rm -f "${get_tmp}"
 echo "GET profile HTTP ${get_status}: ${get_resp}"
 
+# If profile doesn't exist (404), create it first
+if [[ "${get_status}" == "404" ]]; then
+  echo "Profile doesn't exist. Creating profile first..."
+  create_payload=$(cat <<EOF
+{
+  "name": "Test User"
+}
+EOF
+)
+  
+  create_tmp="$(mktemp)"
+  create_status="$(curl -sS -o "${create_tmp}" -w "%{http_code}" -X POST \
+    -H "x-eth-address: ${ADDRESS}" \
+    -H "x-eth-signature: ${signature}" \
+    -H "Content-Type: application/json" \
+    -d "${create_payload}" \
+    "${API_URL}/profiles")"
+  create_resp="$(cat "${create_tmp}")"
+  rm -f "${create_tmp}"
+  echo "POST profiles HTTP ${create_status}: ${create_resp}"
+  
+  if [[ "${create_status}" != "201" && "${create_status}" != "200" ]]; then
+    echo "❌ Failed to create profile (status ${create_status})"
+    exit 1
+  fi
+  echo "✅ Profile created successfully"
+fi
+
 update_payload=$(cat <<EOF
 {
   "twitter_handle": "${TWITTER_HANDLE}"
