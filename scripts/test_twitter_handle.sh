@@ -82,10 +82,10 @@ NODE
 
 echo "Fetching current profile..."
 get_tmp="$(mktemp)"
-get_status="$(curl -sS -o "${get_tmp}" -w "%{http_code}" "${API_URL}/profile/${ADDRESS}")"
+get_status="$(curl -sS -o "${get_tmp}" -w "%{http_code}" "${API_URL}/profiles/${ADDRESS}")"
 get_resp="$(cat "${get_tmp}")"
 rm -f "${get_tmp}"
-echo "GET profile HTTP ${get_status}: ${get_resp}"
+echo "GET profiles HTTP ${get_status}: ${get_resp}"
 
 # If profile doesn't exist (404), create it first
 if [[ "${get_status}" == "404" ]]; then
@@ -129,10 +129,10 @@ update_status="$(curl -sS -o "${update_tmp}" -w "%{http_code}" -X PUT \
   -H "x-eth-signature: ${signature}" \
   -H "Content-Type: application/json" \
   -d "${update_payload}" \
-  "${API_URL}/profile")"
+  "${API_URL}/profiles/${ADDRESS}")"
 update_resp="$(cat "${update_tmp}")"
 rm -f "${update_tmp}"
-echo "PUT profile HTTP ${update_status}: ${update_resp}"
+echo "PUT profiles HTTP ${update_status}: ${update_resp}"
 
 if [[ "${update_status}" == "200" ]]; then
   echo "✅ Twitter handle updated successfully!"
