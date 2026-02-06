@@ -1,10 +1,11 @@
 use std::sync::Arc;
 
-use crate::domain::repositories::{ProfileRepository, ProjectRepository};
+use crate::domain::repositories::{ProfileRepository, ProjectLikeRepository, ProjectRepository};
 use crate::domain::services::auth_service::AuthService;
 use crate::infrastructure::{
     repositories::{
         postgres_project_repository::PostgresProjectRepository, PostgresProfileRepository,
+        PostgresProjectLikeRepository,
     },
     services::ethereum_address_verification_service::EthereumAddressVerificationService,
 };
@@ -30,13 +31,16 @@ use super::handlers::{
     create_project_handler,
     delete_profile_handler,
     delete_project_handler,
+    get_project_likes_handler,
     get_all_profiles_handler,
     get_nonce_handler,
     get_profile_handler,
     get_project_handler,
     get_user_projects_handler,
+    like_project_handler,
     list_projects_handler,
     login_handler,
+    unlike_project_handler,
     update_profile_handler,
     update_project_handler,
 };
@@ -45,12 +49,14 @@ use super::middlewares::{admin_auth_layer, eth_auth_layer, test_auth_layer};
 
 pub async fn create_app(pool: sqlx::PgPool) -> Router {
     let profile_repository = Arc::from(PostgresProfileRepository::new(pool.clone()));
-    let project_repository = Arc::from(PostgresProjectRepository::new(pool));
+    let project_repository = Arc::from(PostgresProjectRepository::new(pool.clone()));
+    let project_like_repository = Arc::from(PostgresProjectLikeRepository::new(pool.clone()));
     let auth_service = EthereumAddressVerificationService::new(profile_repository.clone());
 
     let state: AppState = AppState {
         profile_repository,
         project_repository,
+        project_like_repository,
         auth_service: Arc::from(auth_service),
     };
 
@@ -66,6 +72,8 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
         .route("/projects", post(create_project_handler))
         .route("/projects/:id", patch(update_project_handler))
         .route("/projects/:id", delete(delete_project_handler))
+        .route("/projects/:id/likes", post(like_project_handler))
+        .route("/projects/:id/likes", delete(unlike_project_handler))
         .with_state(state.clone());
 
     let protected_with_auth = if std::env::var("TEST_MODE").is_ok() {
@@ -98,6 +106,7 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
         // Project public routes
         .route("/projects", get(list_projects_handler))
         .route("/projects/:id", get(get_project_handler))
+        .route("/projects/:id/likes", get(get_project_likes_handler))
         .route("/users/:address/projects", get(get_user_projects_handler))
         .with_state(state.clone());
 
@@ -129,6 +138,7 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
 pub struct AppState {
     pub profile_repository: Arc<dyn ProfileRepository>,
     pub project_repository: Arc<dyn ProjectRepository>,
+    pub project_like_repository: Arc<dyn ProjectLikeRepository>,
     pub auth_service: Arc<dyn AuthService>,
 }
 
@@ -144,6 +154,8 @@ pub fn test_api(state: AppState) -> Router {
         .route("/projects", post(create_project_handler))
         .route("/projects/:id", patch(update_project_handler))
         .route("/projects/:id", delete(delete_project_handler))
+        .route("/projects/:id/likes", post(like_project_handler))
+        .route("/projects/:id/likes", delete(unlike_project_handler))
         .with_state(state.clone())
         .layer(from_fn(test_auth_layer));
 
@@ -165,6 +177,7 @@ pub fn test_api(state: AppState) -> Router {
         // Project public routes
         .route("/projects", get(list_projects_handler))
         .route("/projects/:id", get(get_project_handler))
+        .route("/projects/:id/likes", get(get_project_likes_handler))
         .route("/users/:address/projects", get(get_user_projects_handler))
         .with_state(state.clone());
 
