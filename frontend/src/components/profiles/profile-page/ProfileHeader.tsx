@@ -3,18 +3,21 @@ import { useAccount } from "wagmi";
 import AddressTokenBalance from "@/components/AddressTokenBalance";
 import CopyAddressToClipboard from "@/components/CopyAddressToClipboard";
 import { GithubIcon } from "@/components/ui/GithubIcon";
+import { XIcon } from "@/components/ui/XIcon";
 
 interface ProfileHeaderProps {
   address: string;
   name?: string;
   description?: string;
   githubLogin?: string;
+  twitterHandle?: string;
 }
 
 export function ProfileHeader({
   address,
   name,
   githubLogin,
+  twitterHandle,
 }: ProfileHeaderProps) {
   const displayName = name || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Profile");
   const displayAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
@@ -57,6 +60,19 @@ export function ProfileHeader({
               className="text-sm text-gray-700 hover:text-indigo-600 hover:underline"
             >
               @{githubLogin}
+            </a>
+          </div>
+        )}
+        {twitterHandle && (
+          <div className="flex items-center gap-1.5 mt-1">
+            <XIcon className="h-4 w-4 text-gray-500" />
+            <a
+              href={`https://x.com/${twitterHandle}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-gray-700 hover:text-indigo-600 hover:underline"
+            >
+              @{twitterHandle}
             </a>
           </div>
         )}
