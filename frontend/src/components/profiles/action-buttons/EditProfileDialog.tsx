@@ -30,6 +30,7 @@ interface EditProfileDialogProps {
   name?: string;
   description?: string;
   githubLogin?: string;
+  twitterHandle?: string;
   children: React.ReactNode;
 }
 
@@ -37,6 +38,7 @@ const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   description: z.string().optional(),
   githubLogin: z.string().optional(),
+  twitterHandle: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -46,6 +48,7 @@ export function EditProfileDialog({
   name,
   description,
   githubLogin,
+  twitterHandle,
   children,
 }: EditProfileDialogProps) {
   const [open, setOpen] = useState(false);
@@ -58,6 +61,7 @@ export function EditProfileDialog({
       name: name || "",
       description: description || "",
       githubLogin: githubLogin || "",
+      twitterHandle: twitterHandle || "",
     },
   });
 
@@ -67,9 +71,10 @@ export function EditProfileDialog({
         name: name || "",
         description: description || "",
         githubLogin: githubLogin || "",
+        twitterHandle: twitterHandle || "",
       });
     }
-  }, [open, name, description, githubLogin, form]);
+  }, [open, name, description, githubLogin, twitterHandle, form]);
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -78,6 +83,7 @@ export function EditProfileDialog({
           name: values.name,
           description: values.description || "",
           github_login: values.githubLogin || "",
+          twitter_handle: values.twitterHandle || "",
         },
       });
       await queryClient.invalidateQueries({ queryKey: ["profiles"] });
@@ -135,6 +141,22 @@ export function EditProfileDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>GitHub Handle</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">@</span>
+                      <Input placeholder="username" {...field} />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="twitterHandle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Twitter/X Handle</FormLabel>
                   <FormControl>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-gray-500">@</span>
