@@ -30,6 +30,7 @@ const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   description: z.string().optional(),
   githubLogin: z.string().optional(),
+  twitterHandle: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -50,6 +51,7 @@ export function CreateProfileButton() {
         name: values.name,
         description: values.description || "",
         github_login: values.githubLogin || "",
+        twitter_handle: values.twitterHandle || "",
       },
     });
     await queryClient.invalidateQueries({ queryKey: ["profiles"] });
@@ -110,6 +112,22 @@ export function CreateProfileButton() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>GitHub Handle</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">@</span>
+                      <Input placeholder="username" {...field} />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="twitterHandle"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Twitter/X Handle</FormLabel>
                   <FormControl>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-gray-500">@</span>

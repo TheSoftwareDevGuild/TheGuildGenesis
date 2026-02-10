@@ -3,6 +3,7 @@ export type CreateProfileInput = {
   description?: string;
   avatar_url?: string;
   github_login?: string;
+  twitter_handle?: string;
 };
 
 export type UpdateProfileInput = {
@@ -10,6 +11,7 @@ export type UpdateProfileInput = {
   description?: string;
   avatar_url?: string;
   github_login?: string;
+  twitter_handle?: string;
 };
 
 export type UpdateProfileResponse = unknown;

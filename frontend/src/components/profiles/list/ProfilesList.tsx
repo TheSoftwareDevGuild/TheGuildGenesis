@@ -22,6 +22,7 @@ export function ProfilesList() {
           name: p.name || "",
           description: p.description || "",
           githubLogin: p.github_login,
+          twitterHandle: p.twitter_handle,
           attestationCount: 0,
           attestations: [],
         }))
@@ -116,6 +117,7 @@ export function ProfilesList() {
                 name={profile.name}
                 description={profile.description}
                 githubLogin={profile.githubLogin}
+                twitterHandle={profile.twitterHandle}
                 attestationCount={profile.attestationCount}
                 attestations={profile.attestations}
               />
