@@ -27,6 +27,7 @@ pub struct ProjectResponse {
     pub description: String,
     pub status: ProjectStatus,
     pub creator: String,
+    pub owner_address: String,
     pub created_at: DateTime<Utc>,
     pub updated_at: DateTime<Utc>,
 }

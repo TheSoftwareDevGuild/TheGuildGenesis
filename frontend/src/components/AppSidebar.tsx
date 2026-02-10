@@ -1,4 +1,4 @@
-import { Smile, BadgeCheck, Home, BookOpen , Table2 } from "lucide-react";
+import { Smile, BadgeCheck, Home, BookOpen , Table2, FolderKanban } from "lucide-react";
 
 import {
   Sidebar,
@@ -37,6 +37,11 @@ const items = [
     title: "Leaderboard",
     url: "/leaderboard",
     icon: Table2,
+  },
+   {
+    title: "Projects",
+    url: "/projects",
+    icon: FolderKanban,
   },
 ];
 
