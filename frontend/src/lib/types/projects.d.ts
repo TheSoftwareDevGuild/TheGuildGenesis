@@ -11,7 +11,9 @@ export type ProjectFromAPI = {
   id: string;
   name: string;
   description: string;
-  owner_address: string;
+  status: string;
+  creator: string;
+  owner_address: string; 
   created_at: string;
   updated_at: string;
 };
