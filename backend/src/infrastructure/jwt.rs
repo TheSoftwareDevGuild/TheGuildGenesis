@@ -36,7 +36,7 @@ impl JwtManager {
             &claims,
             &EncodingKey::from_secret(self.secret.as_bytes()),
         )
-        .map_err(|e| format!("Failed to generate token: {}", e))
+        .map_err(|e| format!("Failed to generate token: {e}"))
     }
 
     pub fn validate_token(&self, token: &str) -> Result<JwtClaims, String> {
@@ -46,7 +46,7 @@ impl JwtManager {
             &Validation::default(),
         )
         .map(|data| data.claims)
-        .map_err(|e| format!("Invalid token: {}", e))
+        .map_err(|e| format!("Invalid token: {e}"))
     }
 }
 

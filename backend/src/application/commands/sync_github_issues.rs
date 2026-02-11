@@ -44,7 +44,7 @@ pub fn transform_issue(
     let points = derive_points(&api_issue.labels);
 
     let created_at = chrono::DateTime::parse_from_rfc3339(&api_issue.created_at)
-        .map_err(|e| format!("Invalid created_at: {}", e))?
+        .map_err(|e| format!("Invalid created_at: {e}"))?
         .with_timezone(&chrono::Utc);
 
     let closed_at = api_issue
@@ -52,10 +52,10 @@ pub fn transform_issue(
         .as_ref()
         .map(|s| chrono::DateTime::parse_from_rfc3339(s).map(|dt| dt.with_timezone(&chrono::Utc)))
         .transpose()
-        .map_err(|e| format!("Invalid closed_at: {}", e))?;
+        .map_err(|e| format!("Invalid closed_at: {e}"))?;
 
     let updated_at = chrono::DateTime::parse_from_rfc3339(&api_issue.updated_at)
-        .map_err(|e| format!("Invalid updated_at: {}", e))?
+        .map_err(|e| format!("Invalid updated_at: {e}"))?
         .with_timezone(&chrono::Utc);
 
     Ok(GithubIssue {
@@ -90,7 +90,7 @@ pub async fn sync_github_issues(
         let (repo_id, api_issues) = github_service
             .fetch_issues(repo, since.as_deref())
             .await
-            .map_err(|e| format!("Failed to fetch issues for {}: {}", repo, e))?;
+            .map_err(|e| format!("Failed to fetch issues for {repo}: {e}"))?;
 
         for api_issue in &api_issues {
             // Ignore PRs
@@ -103,7 +103,7 @@ pub async fn sync_github_issues(
             issue_repository
                 .upsert(&issue)
                 .await
-                .map_err(|e| format!("Failed to upsert issue {}: {}", api_issue.id, e))?;
+                .map_err(|e| format!("Failed to upsert issue {}: {e}", api_issue.id))?;
 
             total_synced += 1;
         }

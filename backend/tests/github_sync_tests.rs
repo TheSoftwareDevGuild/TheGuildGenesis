@@ -65,6 +65,7 @@ mod github_sync_tests {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn make_api_issue(
         id: i64,
         number: i32,
@@ -80,7 +81,7 @@ mod github_sync_tests {
             number,
             title: title.to_string(),
             state: state.to_string(),
-            html_url: format!("https://github.com/test/repo/issues/{}", number),
+            html_url: format!("https://github.com/test/repo/issues/{number}"),
             labels: labels
                 .into_iter()
                 .map(|l| GitHubApiLabel {
