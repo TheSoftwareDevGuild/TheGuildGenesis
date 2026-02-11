@@ -27,10 +27,13 @@ use crate::application::{
     commands::{
         create_project::create_project, delete_project::delete_project,
         update_project::update_project,
+        create_project_like::create_project_like,
+        delete_project_like::delete_project_like,
     },
     dtos::project_dtos::{CreateProjectRequest, UpdateProjectRequest},
     queries::{
         get_all_projects::get_all_projects, get_project::get_project,
+        get_project_likes::get_project_likes,
         get_projects_by_creator::get_projects_by_creator,
     },
 };
@@ -42,6 +45,13 @@ use super::{api::AppState, middlewares::VerifiedWallet};
 pub struct ListProjectsQuery {
     pub status: Option<String>,
     pub creator: Option<String>,
+    pub limit: Option<i64>,
+    pub offset: Option<i64>,
+}
+
+/// Query parameters for listing project likes
+#[derive(Debug, Deserialize)]
+pub struct ListProjectLikesQuery {
     pub limit: Option<i64>,
     pub offset: Option<i64>,
 }
@@ -247,6 +257,95 @@ pub async fn delete_project_handler(
                 StatusCode::FORBIDDEN
             } else {
                 StatusCode::BAD_REQUEST
+            };
+            (status, Json(serde_json::json!({"error": e}))).into_response()
+        }
+    }
+}
+
+/// POST /projects/:id/likes - Like a project (Protected)
+pub async fn like_project_handler(
+    State(state): State<AppState>,
+    Extension(VerifiedWallet(verified_wallet)): Extension<VerifiedWallet>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match create_project_like(
+        state.project_repository.clone(),
+        state.project_like_repository.clone(),
+        verified_wallet,
+        id,
+    )
+    .await
+    {
+        Ok(resp) => (StatusCode::CREATED, Json(resp)).into_response(),
+        Err(e) => {
+            let status = if e.contains("already exists") {
+                StatusCode::CONFLICT
+            } else if e.contains("not found") {
+                StatusCode::NOT_FOUND
+            } else if e.contains("Invalid project id") {
+                StatusCode::BAD_REQUEST
+            } else {
+                StatusCode::BAD_REQUEST
+            };
+            (status, Json(serde_json::json!({"error": e}))).into_response()
+        }
+    }
+}
+
+/// DELETE /projects/:id/likes - Unlike a project (Protected)
+pub async fn unlike_project_handler(
+    State(state): State<AppState>,
+    Extension(VerifiedWallet(verified_wallet)): Extension<VerifiedWallet>,
+    Path(id): Path<String>,
+) -> impl IntoResponse {
+    match delete_project_like(
+        state.project_repository.clone(),
+        state.project_like_repository.clone(),
+        verified_wallet,
+        id,
+    )
+    .await
+    {
+        Ok(_) => StatusCode::NO_CONTENT.into_response(),
+        Err(e) => {
+            let status = if e.contains("Like not found") {
+                StatusCode::NOT_FOUND
+            } else if e.contains("Project not found") {
+                StatusCode::NOT_FOUND
+            } else if e.contains("Invalid project id") {
+                StatusCode::BAD_REQUEST
+            } else {
+                StatusCode::BAD_REQUEST
+            };
+            (status, Json(serde_json::json!({"error": e}))).into_response()
+        }
+    }
+}
+
+/// GET /projects/:id/likes - List likes for a project (Public)
+pub async fn get_project_likes_handler(
+    State(state): State<AppState>,
+    Path(id): Path<String>,
+    Query(params): Query<ListProjectLikesQuery>,
+) -> impl IntoResponse {
+    match get_project_likes(
+        state.project_repository.clone(),
+        state.project_like_repository.clone(),
+        id,
+        params.limit,
+        params.offset,
+    )
+    .await
+    {
+        Ok(resp) => (StatusCode::OK, Json(resp)).into_response(),
+        Err(e) => {
+            let status = if e.contains("Project not found") {
+                StatusCode::NOT_FOUND
+            } else if e.contains("Invalid project id") {
+                StatusCode::BAD_REQUEST
+            } else {
+                StatusCode::INTERNAL_SERVER_ERROR
             };
             (status, Json(serde_json::json!({"error": e}))).into_response()
         }
