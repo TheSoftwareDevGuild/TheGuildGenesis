@@ -42,9 +42,8 @@ impl GithubService for RestGithubService {
             .await?;
 
         // Fetch issues (no pagination per scope)
-        let mut issues_url = format!(
-            "https://api.github.com/repos/{repo}/issues?state=all&per_page=100"
-        );
+        let mut issues_url =
+            format!("https://api.github.com/repos/{repo}/issues?state=all&per_page=100");
         if let Some(since_val) = since {
             issues_url.push_str(&format!("&since={since_val}"));
         }
