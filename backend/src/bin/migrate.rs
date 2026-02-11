@@ -10,7 +10,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         "postgresql://guild_user:guild_password@localhost:5432/guild_genesis".to_string()
     });
 
-    println!("🔌 Connecting to database: {}", database_url);
+    println!("🔌 Connecting to database: {database_url}");
 
     let pool = PgPool::connect(&database_url).await?;
 

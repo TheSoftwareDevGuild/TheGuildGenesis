@@ -14,6 +14,6 @@ pub async fn get_login_nonce(
     {
         Ok(Some(nonce)) => Ok(nonce),
         Ok(None) => Ok(1), // Return default nonce for new addresses
-        Err(e) => Err(format!("Error fetching nonce: {}", e)),
+        Err(e) => Err(format!("Error fetching nonce: {e}")),
     }
 }

@@ -15,7 +15,7 @@ pub async fn create_project(
 ) -> Result<ProjectResponse, String> {
     // Validate and create WalletAddress
     let creator = WalletAddress::new(creator_address)
-        .map_err(|e| format!("Invalid wallet address: {}", e))?;
+        .map_err(|e| format!("Invalid wallet address: {e}"))?;
 
     // Verify creator has a profile
     if !repository

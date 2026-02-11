@@ -6,6 +6,12 @@ pub struct RestGithubService {
     client: reqwest::Client,
 }
 
+impl Default for RestGithubService {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl RestGithubService {
     pub fn new() -> Self {
         Self {
@@ -25,7 +31,7 @@ impl GithubService for RestGithubService {
         since: Option<&str>,
     ) -> Result<(i64, Vec<GitHubApiIssue>), Box<dyn std::error::Error>> {
         // Fetch repo metadata to get repo_id
-        let repo_url = format!("https://api.github.com/repos/{}", repo);
+        let repo_url = format!("https://api.github.com/repos/{repo}");
         let repo_resp: GitHubApiRepo = self
             .client
             .get(&repo_url)
@@ -37,11 +43,10 @@ impl GithubService for RestGithubService {
 
         // Fetch issues (no pagination per scope)
         let mut issues_url = format!(
-            "https://api.github.com/repos/{}/issues?state=all&per_page=100",
-            repo
+            "https://api.github.com/repos/{repo}/issues?state=all&per_page=100"
         );
         if let Some(since_val) = since {
-            issues_url.push_str(&format!("&since={}", since_val));
+            issues_url.push_str(&format!("&since={since_val}"));
         }
 
         let issues: Vec<GitHubApiIssue> = self

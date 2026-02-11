@@ -103,7 +103,7 @@ impl ProjectRepository for PostgresProjectRepository {
                 (true, false) | (false, true) => 2,
                 (false, false) => 1,
             };
-            query.push_str(&format!(" LIMIT ${}", param_num));
+            query.push_str(&format!(" LIMIT ${param_num}"));
         }
 
         if offset.is_some() {
@@ -114,7 +114,7 @@ impl ProjectRepository for PostgresProjectRepository {
                 (true, false, false) | (false, true, false) | (false, false, true) => 2,
                 (false, false, false) => 1,
             };
-            query.push_str(&format!(" OFFSET ${}", param_num));
+            query.push_str(&format!(" OFFSET ${param_num}"));
         }
 
         let mut query_builder = sqlx::query_as::<

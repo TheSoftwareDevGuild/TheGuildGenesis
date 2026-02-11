@@ -21,7 +21,7 @@ pub async fn update_project(
 
     // Validate requester address
     let requester = WalletAddress::new(requester_address)
-        .map_err(|e| format!("Invalid wallet address: {}", e))?;
+        .map_err(|e| format!("Invalid wallet address: {e}"))?;
 
     // Get existing project
     let mut project = repository
