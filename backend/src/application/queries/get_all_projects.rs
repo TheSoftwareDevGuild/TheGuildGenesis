@@ -21,7 +21,6 @@ pub async fn get_all_projects(
             status_str
                 .parse::<ProjectStatus>()
                 .map_err(|e| format!("Invalid status: {e}"))?,
-
         )
     } else {
         None
@@ -29,11 +28,7 @@ pub async fn get_all_projects(
 
     // Parse creator if provided
     let creator_filter = if let Some(creator_str) = creator {
-        Some(
-            WalletAddress::new(creator_str)
-                .map_err(|e| format!("Invalid creator address: {e}"))?,
-
-        )
+        Some(WalletAddress::new(creator_str).map_err(|e| format!("Invalid creator address: {e}"))?)
     } else {
         None
     };
