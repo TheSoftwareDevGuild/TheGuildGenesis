@@ -69,14 +69,26 @@ impl GithubIssueRepository for PostgresGithubIssueRepository {
         repo_id: i64,
         github_issue_id: i64,
     ) -> Result<Option<GithubIssue>, Box<dyn std::error::Error>> {
-        let row = sqlx::query_as::<_, (
-            i64, i64, String, i32, String, String,
-            serde_json::Value, i32, serde_json::Value, String,
-            chrono::DateTime<chrono::Utc>,
-            Option<chrono::DateTime<chrono::Utc>>,
-            bool, Option<String>,
-            chrono::DateTime<chrono::Utc>,
-        )>(
+        let row = sqlx::query_as::<
+            _,
+            (
+                i64,
+                i64,
+                String,
+                i32,
+                String,
+                String,
+                serde_json::Value,
+                i32,
+                serde_json::Value,
+                String,
+                chrono::DateTime<chrono::Utc>,
+                Option<chrono::DateTime<chrono::Utc>>,
+                bool,
+                Option<String>,
+                chrono::DateTime<chrono::Utc>,
+            ),
+        >(
             r#"
             SELECT repo_id, github_issue_id, repo, number, title, state,
                    labels, points, assignee_logins, html_url,
