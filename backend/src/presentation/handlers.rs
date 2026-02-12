@@ -35,6 +35,12 @@ use crate::application::{
     },
 };
 
+// GitHub sync imports
+use crate::application::{
+    commands::sync_github_issues::sync_github_issues,
+    dtos::github_dtos::{GithubSyncRequest, GithubSyncResponse},
+};
+
 use super::{api::AppState, middlewares::VerifiedWallet};
 
 /// Query parameters for listing projects
@@ -305,5 +311,46 @@ pub async fn admin_delete_profile_handler(
             )
                 .into_response()
         }
+    }
+}
+
+// ============================================================================
+// GitHub Sync Handlers
+// ============================================================================
+
+/// POST /admin/github/sync - Sync GitHub issues for specified repos (Admin only)
+pub async fn github_sync_handler(
+    State(state): State<AppState>,
+    Json(request): Json<GithubSyncRequest>,
+) -> impl IntoResponse {
+    if request.repos.is_empty() {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({"error": "repos must not be empty"})),
+        )
+            .into_response();
+    }
+
+    match sync_github_issues(
+        state.github_service.clone(),
+        state.github_issue_repository.clone(),
+        request.repos.clone(),
+        request.since,
+    )
+    .await
+    {
+        Ok(synced) => (
+            StatusCode::OK,
+            Json(GithubSyncResponse {
+                synced,
+                repos: request.repos,
+            }),
+        )
+            .into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": e})),
+        )
+            .into_response(),
     }
 }

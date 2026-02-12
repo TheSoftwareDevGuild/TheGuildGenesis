@@ -1,5 +1,7 @@
 use guild_backend::application::dtos::profile_dtos::ProfileResponse;
+use guild_backend::infrastructure::repositories::postgres_github_issue_repository::PostgresGithubIssueRepository;
 use guild_backend::infrastructure::repositories::postgres_project_repository::PostgresProjectRepository;
+use guild_backend::infrastructure::services::rest_github_service::RestGithubService;
 use guild_backend::presentation::api::{test_api, AppState};
 use serde_json::json;
 use std::sync::Arc;
@@ -20,18 +22,23 @@ async fn valid_github_handle_works() {
     );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
     let project_repository = Arc::from(PostgresProjectRepository::new(pool.clone()));
+    let github_issue_repository = Arc::from(PostgresGithubIssueRepository::new(pool.clone()));
+    let github_service: Arc<dyn guild_backend::domain::services::github_service::GithubService> =
+        Arc::from(RestGithubService::new());
 
     let state = AppState {
         profile_repository,
         project_repository,
         auth_service: std::sync::Arc::new(auth_service),
+        github_issue_repository,
+        github_service,
     };
     let app = test_api(state);
 
     let server = axum::serve(listener, app);
     tokio::spawn(async move { server.await.unwrap() });
 
-    let base = format!("http://{}", addr);
+    let base = format!("http://{addr}");
     let client = reqwest::Client::new();
 
     let address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44e";
@@ -43,7 +50,7 @@ async fn valid_github_handle_works() {
 
     // Create profile
     let create_resp = client
-        .post(format!("{}/profiles", base))
+        .post(format!("{base}/profiles"))
         .header("x-eth-address", address)
         .json(&json!({
             "name": "Alice",
@@ -61,7 +68,7 @@ async fn valid_github_handle_works() {
 
     // Update with valid GitHub handle
     let update_resp = client
-        .put(format!("{}/profiles/{}", base, address))
+        .put(format!("{base}/profiles/{address}"))
         .header("x-eth-address", address)
         .json(&json!({
             "github_login": "ValidUser123test"
@@ -90,18 +97,23 @@ async fn invalid_format_rejected() {
     );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
     let project_repository = Arc::from(PostgresProjectRepository::new(pool.clone()));
+    let github_issue_repository = Arc::from(PostgresGithubIssueRepository::new(pool.clone()));
+    let github_service: Arc<dyn guild_backend::domain::services::github_service::GithubService> =
+        Arc::from(RestGithubService::new());
 
     let state = AppState {
         profile_repository,
         project_repository,
         auth_service: std::sync::Arc::new(auth_service),
+        github_issue_repository,
+        github_service,
     };
     let app = test_api(state);
 
     let server = axum::serve(listener, app);
     tokio::spawn(async move { server.await.unwrap() });
 
-    let base = format!("http://{}", addr);
+    let base = format!("http://{addr}");
     let client = reqwest::Client::new();
 
     let address = "0x742d35Cc6634C0532925a3b844Bc454e4438f44f";
@@ -113,7 +125,7 @@ async fn invalid_format_rejected() {
 
     // Create profile
     let create_resp = client
-        .post(format!("{}/profiles", base))
+        .post(format!("{base}/profiles"))
         .header("x-eth-address", address)
         .json(&json!({
             "name": "Bob",
@@ -134,7 +146,7 @@ async fn invalid_format_rejected() {
 
     // Update with invalid handle
     let update_resp = client
-        .put(format!("{}/profiles/{}", base, address))
+        .put(format!("{base}/profiles/{address}"))
         .header("x-eth-address", address)
         .json(&json!({
             "github_login": "bad@name"
@@ -166,18 +178,23 @@ async fn conflict_case_insensitive() {
     );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
     let project_repository = Arc::from(PostgresProjectRepository::new(pool.clone()));
+    let github_issue_repository = Arc::from(PostgresGithubIssueRepository::new(pool.clone()));
+    let github_service: Arc<dyn guild_backend::domain::services::github_service::GithubService> =
+        Arc::from(RestGithubService::new());
 
     let state = AppState {
         profile_repository,
         project_repository,
         auth_service: std::sync::Arc::new(auth_service),
+        github_issue_repository,
+        github_service,
     };
     let app = test_api(state);
 
     let server = axum::serve(listener, app);
     tokio::spawn(async move { server.await.unwrap() });
 
-    let base = format!("http://{}", addr);
+    let base = format!("http://{addr}");
     let client = reqwest::Client::new();
 
     let addr1 = "0x742d35Cc6634C0532925a3b844Bc454e4438f44g";
@@ -191,7 +208,7 @@ async fn conflict_case_insensitive() {
 
     // Create first profile
     let create1 = client
-        .post(format!("{}/profiles", base))
+        .post(format!("{base}/profiles"))
         .header("x-eth-address", addr1)
         .json(&json!({
             "name": "Carol",
@@ -212,7 +229,7 @@ async fn conflict_case_insensitive() {
 
     // Create second profile
     let create2 = client
-        .post(format!("{}/profiles", base))
+        .post(format!("{base}/profiles"))
         .header("x-eth-address", addr2)
         .json(&json!({
             "name": "Dave",
@@ -233,7 +250,7 @@ async fn conflict_case_insensitive() {
 
     // Update first with "Alice"
     let _ = client
-        .put(format!("{}/profiles/{}", base, addr1))
+        .put(format!("{base}/profiles/{addr1}"))
         .header("x-eth-address", addr1)
         .json(&json!({ "github_login": "Alice" }))
         .send()
@@ -242,7 +259,7 @@ async fn conflict_case_insensitive() {
 
     // Update second with "alice" (lowercase) should conflict
     let conflict_resp = client
-        .put(format!("{}/profiles/{}", base, addr2))
+        .put(format!("{base}/profiles/{addr2}"))
         .header("x-eth-address", addr2)
         .json(&json!({ "github_login": "alice" }))
         .send()
