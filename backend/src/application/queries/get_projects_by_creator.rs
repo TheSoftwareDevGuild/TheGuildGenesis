@@ -10,8 +10,8 @@ pub async fn get_projects_by_creator(
     creator_address: String,
 ) -> Result<Vec<ProjectResponse>, String> {
     // Validate creator address
-    let creator =
-        WalletAddress::new(creator_address).map_err(|e| format!("Invalid wallet address: {e}"))?;
+    let creator = WalletAddress::new(creator_address)
+        .map_err(|e| format!("Invalid wallet address: {}", e))?;
 
     // Get projects
     let projects = repository

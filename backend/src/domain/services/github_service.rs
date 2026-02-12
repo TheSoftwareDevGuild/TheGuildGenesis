@@ -35,7 +35,7 @@ pub struct GitHubApiRepo {
 #[async_trait]
 pub trait GithubService: Send + Sync {
     /// Fetch issues from a GitHub repository via REST API.
-    /// `repo` is in the format "org/repo".
+    /// `repo` is the repository name (e.g. "TheGuildGenesis"); owner comes from GITHUB_OWNER env var.
     /// `since` is an optional ISO 8601 timestamp to filter issues updated since that time.
     async fn fetch_issues(
         &self,

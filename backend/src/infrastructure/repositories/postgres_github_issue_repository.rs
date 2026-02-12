@@ -23,20 +23,20 @@ impl GithubIssueRepository for PostgresGithubIssueRepository {
         sqlx::query(
             r#"
             INSERT INTO github_issues (
-                repo_id, github_issue_id, repo, number, title, state,
-                labels, points, assignee_logins, html_url,
-                created_at, closed_at, rewarded, distribution_id, updated_at
+                repo_id, github_issue_id, repo, issue_number, title, state,
+                labels, points, assignee_logins, url,
+                created_at, closed_at, rewarded_sepolia, distribution_id, updated_at
             )
             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
             ON CONFLICT (repo_id, github_issue_id) DO UPDATE SET
                 repo = EXCLUDED.repo,
-                number = EXCLUDED.number,
+                issue_number = EXCLUDED.issue_number,
                 title = EXCLUDED.title,
                 state = EXCLUDED.state,
                 labels = EXCLUDED.labels,
                 points = EXCLUDED.points,
                 assignee_logins = EXCLUDED.assignee_logins,
-                html_url = EXCLUDED.html_url,
+                url = EXCLUDED.url,
                 created_at = EXCLUDED.created_at,
                 closed_at = EXCLUDED.closed_at,
                 updated_at = EXCLUDED.updated_at
@@ -45,16 +45,16 @@ impl GithubIssueRepository for PostgresGithubIssueRepository {
         .bind(issue.repo_id)
         .bind(issue.github_issue_id)
         .bind(&issue.repo)
-        .bind(issue.number)
+        .bind(issue.issue_number)
         .bind(&issue.title)
         .bind(&issue.state)
         .bind(&issue.labels)
         .bind(issue.points)
         .bind(&issue.assignee_logins)
-        .bind(&issue.html_url)
+        .bind(&issue.url)
         .bind(issue.created_at)
         .bind(issue.closed_at)
-        .bind(issue.rewarded)
+        .bind(issue.rewarded_sepolia)
         .bind(&issue.distribution_id)
         .bind(issue.updated_at)
         .execute(&self.pool)
@@ -90,9 +90,9 @@ impl GithubIssueRepository for PostgresGithubIssueRepository {
             ),
         >(
             r#"
-            SELECT repo_id, github_issue_id, repo, number, title, state,
-                   labels, points, assignee_logins, html_url,
-                   created_at, closed_at, rewarded, distribution_id, updated_at
+            SELECT repo_id, github_issue_id, repo, issue_number, title, state,
+                   labels, points, assignee_logins, url,
+                   created_at, closed_at, rewarded_sepolia, distribution_id, updated_at
             FROM github_issues
             WHERE repo_id = $1 AND github_issue_id = $2
             "#,
@@ -107,16 +107,16 @@ impl GithubIssueRepository for PostgresGithubIssueRepository {
             repo_id: r.0,
             github_issue_id: r.1,
             repo: r.2,
-            number: r.3,
+            issue_number: r.3,
             title: r.4,
             state: r.5,
             labels: r.6,
             points: r.7,
             assignee_logins: r.8,
-            html_url: r.9,
+            url: r.9,
             created_at: r.10,
             closed_at: r.11,
-            rewarded: r.12,
+            rewarded_sepolia: r.12,
             distribution_id: r.13,
             updated_at: r.14,
         }))
