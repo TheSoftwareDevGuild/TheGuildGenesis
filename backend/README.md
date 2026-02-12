@@ -411,3 +411,58 @@ docker run -e DATABASE_URL=postgresql://... guild-backend
 - `src/application`: commands, queries, and DTOs
 - `migrations/`: SQLx migration files
 - `.sqlx/`: SQLx offline query metadata (committed to repo)
+
+## 12) GitHub Issue Ingestion
+
+The backend can sync GitHub issues into the database via an admin-protected endpoint.
+
+### Required Environment Variables
+
+Add these to `backend/.env`:
+
+```
+GITHUB_TOKEN=ghp_your_personal_access_token
+GITHUB_OWNER=TheSoftwareDevGuild
+GITHUB_API_URL=https://api.github.com
+```
+
+| Variable | Required | Description |
+|---|---|---|
+| `GITHUB_TOKEN` | Yes | GitHub personal access token (PAT) with `repo` scope |
+| `GITHUB_OWNER` | Yes | GitHub organization or user that owns the repos |
+| `GITHUB_API_URL` | No | API base URL (defaults to `https://api.github.com`) |
+
+### Trigger Sync (Admin)
+
+The sync endpoint is protected by admin authentication. You need a wallet address listed in the `ADMIN_ADDRESSES` environment variable.
+
+```bash
+# Sync issues for one or more repositories
+curl -X POST http://localhost:3001/admin/github/sync \
+  -H "Content-Type: application/json" \
+  -H "x-eth-address: <YOUR_ADMIN_ADDRESS>" \
+  -d '{
+    "repos": ["TheGuildGenesis"],
+    "since": "2025-01-01T00:00:00Z"
+  }'
+```
+
+**Request body**:
+- `repos` (required): List of repository names under `GITHUB_OWNER` to sync
+- `since` (optional): ISO 8601 timestamp — only sync issues updated after this date
+
+**Response**:
+```json
+{
+  "synced": 42,
+  "repos": ["TheGuildGenesis"]
+}
+```
+
+### How It Works
+- Fetches issues via `{GITHUB_API_URL}/repos/{GITHUB_OWNER}/{repo}/issues`
+- Ignores pull requests (GitHub returns PRs in the issues endpoint)
+- Derives `points` from labels matching the pattern `points:N` (case-insensitive)
+- Normalizes all labels to lowercase
+- Upserts using composite key `(repo_id, github_issue_id)` for idempotency
+- Preserves `rewarded_sepolia` and `distribution_id` across re-syncs

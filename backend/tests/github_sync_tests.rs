@@ -296,8 +296,8 @@ mod github_sync_tests {
         assert_eq!(issue.state, "closed");
         assert!(issue.closed_at.is_some());
         assert_eq!(issue.points, 5);
-        // rewarded should not be set during sync
-        assert!(!issue.rewarded);
+        // rewarded_sepolia should not be set during sync
+        assert!(!issue.rewarded_sepolia);
     }
 
     // ========================================================================

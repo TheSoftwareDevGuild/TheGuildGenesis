@@ -68,7 +68,7 @@ impl std::str::FromStr for ProjectStatus {
             "proposal" => Ok(ProjectStatus::Proposal),
             "ongoing" => Ok(ProjectStatus::Ongoing),
             "rejected" => Ok(ProjectStatus::Rejected),
-            _ => Err(format!("Invalid project status: {s}")),
+            _ => Err(format!("Invalid project status: {}", s)),
         }
     }
 }
