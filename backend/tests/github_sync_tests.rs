@@ -47,6 +47,19 @@ mod github_sync_tests {
                 .find(|i| i.repo_id == repo_id && i.github_issue_id == github_issue_id)
                 .cloned())
         }
+
+        async fn list_by_repo(
+            &self,
+            repo: &str,
+            state: Option<&str>,
+        ) -> Result<Vec<GithubIssue>, Box<dyn std::error::Error>> {
+            let list = self.issues.lock().unwrap();
+            Ok(list
+                .iter()
+                .filter(|i| i.repo == repo && state.map_or(true, |s| i.state == s))
+                .cloned()
+                .collect())
+        }
     }
 
     struct FakeGithubService {

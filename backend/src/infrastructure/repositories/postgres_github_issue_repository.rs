@@ -121,4 +121,78 @@ impl GithubIssueRepository for PostgresGithubIssueRepository {
             updated_at: r.14,
         }))
     }
+
+    async fn list_by_repo(
+        &self,
+        repo: &str,
+        state: Option<&str>,
+    ) -> Result<Vec<GithubIssue>, Box<dyn std::error::Error>> {
+        let rows: Vec<(
+            i64,
+            i64,
+            String,
+            i32,
+            String,
+            String,
+            serde_json::Value,
+            i32,
+            serde_json::Value,
+            String,
+            chrono::DateTime<chrono::Utc>,
+            Option<chrono::DateTime<chrono::Utc>>,
+            bool,
+            Option<String>,
+            chrono::DateTime<chrono::Utc>,
+        )> = if let Some(st) = state {
+            sqlx::query_as(
+                r#"
+                SELECT repo_id, github_issue_id, repo, issue_number, title, state,
+                       labels, points, assignee_logins, url,
+                       created_at, closed_at, rewarded_sepolia, distribution_id, updated_at
+                FROM github_issues
+                WHERE repo = $1 AND state = $2
+                ORDER BY created_at DESC
+                "#,
+            )
+            .bind(repo)
+            .bind(st)
+            .fetch_all(&self.pool)
+            .await?
+        } else {
+            sqlx::query_as(
+                r#"
+                SELECT repo_id, github_issue_id, repo, issue_number, title, state,
+                       labels, points, assignee_logins, url,
+                       created_at, closed_at, rewarded_sepolia, distribution_id, updated_at
+                FROM github_issues
+                WHERE repo = $1
+                ORDER BY created_at DESC
+                "#,
+            )
+            .bind(repo)
+            .fetch_all(&self.pool)
+            .await?
+        };
+
+        Ok(rows
+            .into_iter()
+            .map(|r| GithubIssue {
+                repo_id: r.0,
+                github_issue_id: r.1,
+                repo: r.2,
+                issue_number: r.3,
+                title: r.4,
+                state: r.5,
+                labels: r.6,
+                points: r.7,
+                assignee_logins: r.8,
+                url: r.9,
+                created_at: r.10,
+                closed_at: r.11,
+                rewarded_sepolia: r.12,
+                distribution_id: r.13,
+                updated_at: r.14,
+            })
+            .collect())
+    }
 }

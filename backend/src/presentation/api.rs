@@ -40,6 +40,7 @@ use super::handlers::{
     get_user_projects_handler,
     // GitHub sync handler
     github_sync_handler,
+    list_github_issues_handler,
     list_projects_handler,
     login_handler,
     update_profile_handler,
@@ -109,6 +110,8 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
         .route("/projects", get(list_projects_handler))
         .route("/projects/:id", get(get_project_handler))
         .route("/users/:address/projects", get(get_user_projects_handler))
+        // GitHub issues public route
+        .route("/github/issues", get(list_github_issues_handler))
         .with_state(state.clone());
 
     Router::new()
@@ -179,6 +182,8 @@ pub fn test_api(state: AppState) -> Router {
         .route("/projects", get(list_projects_handler))
         .route("/projects/:id", get(get_project_handler))
         .route("/users/:address/projects", get(get_user_projects_handler))
+        // GitHub issues public route
+        .route("/github/issues", get(list_github_issues_handler))
         .with_state(state.clone());
 
     Router::new()
