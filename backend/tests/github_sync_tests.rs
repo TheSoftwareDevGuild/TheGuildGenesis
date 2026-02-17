@@ -56,7 +56,7 @@ mod github_sync_tests {
             let list = self.issues.lock().unwrap();
             Ok(list
                 .iter()
-                .filter(|i| i.repo == repo && state.map_or(true, |s| i.state == s))
+                .filter(|i| i.repo == repo && state.is_none_or(|s| i.state == s))
                 .cloned()
                 .collect())
         }
