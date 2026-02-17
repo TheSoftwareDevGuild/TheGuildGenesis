@@ -466,3 +466,38 @@ curl -X POST http://localhost:3001/admin/github/sync \
 - Normalizes all labels to lowercase
 - Upserts using composite key `(repo_id, github_issue_id)` for idempotency
 - Preserves `rewarded_sepolia` and `distribution_id` across re-syncs
+
+### Fetch Synced Issues (Public)
+
+After syncing, query the stored issues to verify:
+
+```bash
+# List all synced issues for a repo
+curl http://localhost:3001/github/issues?repo=TheGuildGenesis
+
+# Filter by state
+curl "http://localhost:3001/github/issues?repo=TheGuildGenesis&state=closed"
+```
+
+**Response** (array of `GithubIssue`):
+```json
+[
+  {
+    "repo_id": 123456,
+    "github_issue_id": 789,
+    "repo": "TheGuildGenesis",
+    "issue_number": 42,
+    "title": "Implement feature X",
+    "state": "open",
+    "labels": ["bug", "points:3"],
+    "points": 3,
+    "assignee_logins": ["alice"],
+    "url": "https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/42",
+    "created_at": "2025-01-15T10:00:00Z",
+    "closed_at": null,
+    "rewarded_sepolia": false,
+    "distribution_id": null,
+    "updated_at": "2025-01-20T12:00:00Z"
+  }
+]
+```

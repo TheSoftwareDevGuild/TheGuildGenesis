@@ -13,3 +13,10 @@ pub struct GithubSyncResponse {
     pub synced: usize,
     pub repos: Vec<String>,
 }
+
+/// Query parameters for GET /github/issues
+#[derive(Debug, Deserialize)]
+pub struct GithubIssuesQuery {
+    pub repo: String,
+    pub state: Option<String>,
+}

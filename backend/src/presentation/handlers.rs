@@ -38,7 +38,7 @@ use crate::application::{
 // GitHub sync imports
 use crate::application::{
     commands::sync_github_issues::sync_github_issues,
-    dtos::github_dtos::{GithubSyncRequest, GithubSyncResponse},
+    dtos::github_dtos::{GithubIssuesQuery, GithubSyncRequest, GithubSyncResponse},
 };
 
 use super::{api::AppState, middlewares::VerifiedWallet};
@@ -350,6 +350,25 @@ pub async fn github_sync_handler(
         Err(e) => (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(serde_json::json!({"error": e})),
+        )
+            .into_response(),
+    }
+}
+
+/// GET /github/issues?repo=<name>&state=<open|closed> - List synced GitHub issues (Public)
+pub async fn list_github_issues_handler(
+    State(state): State<AppState>,
+    Query(params): Query<GithubIssuesQuery>,
+) -> impl IntoResponse {
+    match state
+        .github_issue_repository
+        .list_by_repo(&params.repo, params.state.as_deref())
+        .await
+    {
+        Ok(issues) => (StatusCode::OK, Json(issues)).into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": format!("Failed to fetch issues: {e}")})),
         )
             .into_response(),
     }

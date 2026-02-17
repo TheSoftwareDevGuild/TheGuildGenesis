@@ -13,4 +13,11 @@ pub trait GithubIssueRepository: Send + Sync {
         repo_id: i64,
         github_issue_id: i64,
     ) -> Result<Option<GithubIssue>, Box<dyn std::error::Error>>;
+
+    /// List issues filtered by repo name and optional state
+    async fn list_by_repo(
+        &self,
+        repo: &str,
+        state: Option<&str>,
+    ) -> Result<Vec<GithubIssue>, Box<dyn std::error::Error>>;
 }
