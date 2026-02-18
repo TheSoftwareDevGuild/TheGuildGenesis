@@ -462,7 +462,7 @@ curl -X POST http://localhost:3001/admin/github/sync \
 ### How It Works
 - Fetches issues via `{GITHUB_API_URL}/repos/{GITHUB_OWNER}/{repo}/issues`
 - Ignores pull requests (GitHub returns PRs in the issues endpoint)
-- Derives `points` from labels matching the pattern `points:N` (case-insensitive)
+- Derives `points` from labels matching the pattern `Npts` (e.g. `3pts`, `10pts`, case-insensitive)
 - Normalizes all labels to lowercase
 - Upserts using composite key `(repo_id, github_issue_id)` for idempotency
 - Preserves `rewarded_sepolia` and `distribution_id` across re-syncs
@@ -489,7 +489,7 @@ curl "http://localhost:3001/github/issues?repo=TheGuildGenesis&state=closed"
     "issue_number": 42,
     "title": "Implement feature X",
     "state": "open",
-    "labels": ["bug", "points:3"],
+    "labels": ["bug", "3pts"],
     "points": 3,
     "assignee_logins": ["alice"],
     "url": "https://github.com/TheSoftwareDevGuild/TheGuildGenesis/issues/42",

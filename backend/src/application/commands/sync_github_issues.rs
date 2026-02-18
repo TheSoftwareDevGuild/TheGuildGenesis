@@ -8,10 +8,10 @@ use crate::domain::{
     services::github_service::{GitHubApiIssue, GithubService},
 };
 
-/// Derive points from labels matching the pattern `points:N`.
+/// Derive points from labels matching the pattern `Npts` (e.g. `3pts`, `10pts`).
 /// Label names are normalized to lower-case.
 pub fn derive_points(labels: &[crate::domain::services::github_service::GitHubApiLabel]) -> i32 {
-    let re = Regex::new(r"^points:(\d+)$").expect("Invalid regex");
+    let re = Regex::new(r"^(\d+)pts$").expect("Invalid regex");
     for label in labels {
         let name = label.name.to_lowercase();
         if let Some(caps) = re.captures(&name) {
