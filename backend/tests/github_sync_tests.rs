@@ -129,7 +129,7 @@ mod github_sync_tests {
                 name: "bug".to_string(),
             },
             GitHubApiLabel {
-                name: "points:3".to_string(),
+                name: "3pts".to_string(),
             },
         ];
         assert_eq!(derive_points(&labels), 3);
@@ -138,7 +138,7 @@ mod github_sync_tests {
     #[test]
     fn test_derive_points_case_insensitive() {
         let labels = vec![GitHubApiLabel {
-            name: "Points:5".to_string(),
+            name: "5Pts".to_string(),
         }];
         assert_eq!(derive_points(&labels), 5);
     }
@@ -173,7 +173,7 @@ mod github_sync_tests {
             1,
             "Test Issue",
             "open",
-            vec!["Bug", "Points:3"],
+            vec!["Bug", "3Pts"],
             vec!["alice"],
             false,
             None,
@@ -183,7 +183,7 @@ mod github_sync_tests {
 
         let labels = result.labels.as_array().unwrap();
         assert_eq!(labels[0].as_str().unwrap(), "bug");
-        assert_eq!(labels[1].as_str().unwrap(), "points:3");
+        assert_eq!(labels[1].as_str().unwrap(), "3pts");
         assert_eq!(result.points, 3);
     }
 
@@ -232,7 +232,7 @@ mod github_sync_tests {
             1,
             "Issue 1",
             "open",
-            vec!["points:2"],
+            vec!["2pts"],
             vec!["bob"],
             false,
             None,
@@ -282,7 +282,7 @@ mod github_sync_tests {
             10,
             "Closed Issue",
             "closed",
-            vec!["points:5"],
+            vec!["5pts"],
             vec!["charlie"],
             false,
             Some("2025-06-01T12:00:00Z"),
