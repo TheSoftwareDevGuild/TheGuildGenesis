@@ -1,3 +1,4 @@
+pub mod github_issue;
 pub mod profile;
 pub mod projects;
 

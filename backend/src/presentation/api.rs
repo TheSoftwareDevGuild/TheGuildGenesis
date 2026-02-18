@@ -1,12 +1,15 @@
 use std::sync::Arc;
 
-use crate::domain::repositories::{ProfileRepository, ProjectRepository};
+use crate::domain::repositories::{GithubIssueRepository, ProfileRepository, ProjectRepository};
 use crate::domain::services::auth_service::AuthService;
+use crate::domain::services::github_service::GithubService;
 use crate::infrastructure::{
     repositories::{
+        postgres_github_issue_repository::PostgresGithubIssueRepository,
         postgres_project_repository::PostgresProjectRepository, PostgresProfileRepository,
     },
     services::ethereum_address_verification_service::EthereumAddressVerificationService,
+    services::rest_github_service::RestGithubService,
 };
 use axum::middleware::{from_fn, from_fn_with_state};
 use axum::{
@@ -35,6 +38,9 @@ use super::handlers::{
     get_profile_handler,
     get_project_handler,
     get_user_projects_handler,
+    // GitHub sync handler
+    github_sync_handler,
+    list_github_issues_handler,
     list_projects_handler,
     login_handler,
     update_profile_handler,
@@ -45,13 +51,17 @@ use super::middlewares::{admin_auth_layer, eth_auth_layer, test_auth_layer};
 
 pub async fn create_app(pool: sqlx::PgPool) -> Router {
     let profile_repository = Arc::from(PostgresProfileRepository::new(pool.clone()));
-    let project_repository = Arc::from(PostgresProjectRepository::new(pool));
+    let project_repository = Arc::from(PostgresProjectRepository::new(pool.clone()));
+    let github_issue_repository = Arc::from(PostgresGithubIssueRepository::new(pool));
     let auth_service = EthereumAddressVerificationService::new(profile_repository.clone());
+    let github_service: Arc<dyn GithubService> = Arc::from(RestGithubService::new());
 
     let state: AppState = AppState {
         profile_repository,
         project_repository,
         auth_service: Arc::from(auth_service),
+        github_issue_repository,
+        github_service,
     };
 
     // Protected routes (require authentication)
@@ -80,6 +90,7 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
             "/admin/profiles/:address",
             delete(admin_delete_profile_handler),
         )
+        .route("/admin/github/sync", post(github_sync_handler))
         .with_state(state.clone());
 
     let admin_with_auth = if std::env::var("TEST_MODE").is_ok() {
@@ -99,6 +110,8 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
         .route("/projects", get(list_projects_handler))
         .route("/projects/:id", get(get_project_handler))
         .route("/users/:address/projects", get(get_user_projects_handler))
+        // GitHub issues public route
+        .route("/github/issues", get(list_github_issues_handler))
         .with_state(state.clone());
 
     Router::new()
@@ -130,6 +143,8 @@ pub struct AppState {
     pub profile_repository: Arc<dyn ProfileRepository>,
     pub project_repository: Arc<dyn ProjectRepository>,
     pub auth_service: Arc<dyn AuthService>,
+    pub github_issue_repository: Arc<dyn GithubIssueRepository>,
+    pub github_service: Arc<dyn GithubService>,
 }
 
 pub fn test_api(state: AppState) -> Router {
@@ -153,6 +168,7 @@ pub fn test_api(state: AppState) -> Router {
             "/admin/profiles/:address",
             delete(admin_delete_profile_handler),
         )
+        .route("/admin/github/sync", post(github_sync_handler))
         .with_state(state.clone())
         .layer(from_fn(test_auth_layer));
 
@@ -166,6 +182,8 @@ pub fn test_api(state: AppState) -> Router {
         .route("/projects", get(list_projects_handler))
         .route("/projects/:id", get(get_project_handler))
         .route("/users/:address/projects", get(get_user_projects_handler))
+        // GitHub issues public route
+        .route("/github/issues", get(list_github_issues_handler))
         .with_state(state.clone());
 
     Router::new()
