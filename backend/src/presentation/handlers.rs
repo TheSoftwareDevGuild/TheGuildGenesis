@@ -331,6 +331,8 @@ pub async fn github_sync_handler(
             .into_response();
     }
 
+    tracing::info!(repos = ?request.repos, since = ?request.since, "Starting GitHub issue sync");
+
     match sync_github_issues(
         state.github_service.clone(),
         state.github_issue_repository.clone(),
