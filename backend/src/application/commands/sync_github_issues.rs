@@ -1,6 +1,7 @@
 use std::sync::Arc;
 
 use regex::Regex;
+use tracing::{debug, info};
 
 use crate::domain::{
     entities::github_issue::GithubIssue,
@@ -87,14 +88,19 @@ pub async fn sync_github_issues(
     let mut total_synced: usize = 0;
 
     for repo in &repos {
+        info!(repo = %repo, "Fetching issues from GitHub");
         let (repo_id, api_issues) = github_service
             .fetch_issues(repo, since.as_deref())
             .await
             .map_err(|e| format!("Failed to fetch issues for {repo}: {e}"))?;
 
+        info!(repo = %repo, count = api_issues.len(), "Fetched issues from GitHub API");
+
+        let mut repo_synced: usize = 0;
         for api_issue in &api_issues {
             // Ignore PRs
             if api_issue.pull_request.is_some() {
+                debug!(repo = %repo, issue = api_issue.number, "Skipping pull request");
                 continue;
             }
 
@@ -105,8 +111,20 @@ pub async fn sync_github_issues(
                 .await
                 .map_err(|e| format!("Failed to upsert issue {}: {e}", api_issue.id))?;
 
-            total_synced += 1;
+            info!(
+                repo = %repo,
+                issue_number = issue.issue_number,
+                title = %issue.title,
+                state = %issue.state,
+                points = issue.points,
+                "Synced issue"
+            );
+
+            repo_synced += 1;
         }
+
+        info!(repo = %repo, synced = repo_synced, "Finished syncing repo");
+        total_synced += repo_synced;
     }
 
     Ok(total_synced)
