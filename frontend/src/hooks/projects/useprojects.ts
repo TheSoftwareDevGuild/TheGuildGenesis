@@ -16,6 +16,7 @@ const transformProjectFromAPI = (apiProject: ProjectFromAPI): Project => {
     id: apiProject.id,
     name: apiProject.name,
     description: apiProject.description,
+    status: apiProject.status,
     ownerAddress: apiProject.owner_address ?? apiProject.creator ?? '',
     createdAt: apiProject.created_at,
     updatedAt: apiProject.updated_at,

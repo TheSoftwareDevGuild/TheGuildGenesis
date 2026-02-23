@@ -54,7 +54,7 @@ export default function CreateProjectModal({ isOpen, onClose }: CreateProjectMod
       return;
     }
 
-    createProjectMutation.mutate({ input: { name: name.trim(), description: description.trim() } });
+    createProjectMutation.mutate({ input: { name: name.trim(), description: description.trim(),  status: "proposal" } });
   };
 
   if (!isOpen) return null;
