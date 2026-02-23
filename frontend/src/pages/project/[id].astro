@@ -1,0 +1,10 @@
+---
+import Layout from "@/layouts/Layout.astro";
+import ProjectPage from "@/components/pages/ProjectPage";
+
+const { id } = Astro.params;
+---
+
+<Layout title={`Project - The Guild Genesis`}>
+  <ProjectPage id={id} client:only="react" />
+</Layout>
