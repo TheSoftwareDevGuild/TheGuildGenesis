@@ -16,6 +16,7 @@ pub struct UpdateProfileRequest {
     pub avatar_url: Option<String>,
     pub github_login: Option<String>,
     pub twitter_handle: Option<String>,
+    pub linkedin_account: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -26,6 +27,7 @@ pub struct ProfileResponse {
     pub avatar_url: Option<String>,
     pub github_login: Option<String>,
     pub twitter_handle: Option<String>,
+    pub linkedin_account: Option<String>,
     pub created_at: chrono::DateTime<chrono::Utc>,
     pub updated_at: chrono::DateTime<chrono::Utc>,
 }

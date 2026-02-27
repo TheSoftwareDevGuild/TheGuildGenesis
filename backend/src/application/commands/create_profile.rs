@@ -36,6 +36,7 @@ pub async fn create_profile(
         avatar_url: profile.avatar_url,
         github_login: profile.github_login,
         twitter_handle: profile.twitter_handle,
+        linkedin_account: profile.linkedin_account,
         created_at: profile.created_at,
         updated_at: profile.updated_at,
     })
