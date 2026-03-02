@@ -35,6 +35,12 @@ use crate::application::{
     },
 };
 
+// Distribution imports
+use crate::application::{
+    commands::register_distribution::register_distribution,
+    dtos::distribution_dtos::RegisterDistributionRequest,
+};
+
 // GitHub sync imports
 use crate::application::{
     commands::sync_github_issues::sync_github_issues,
@@ -373,5 +379,16 @@ pub async fn list_github_issues_handler(
             Json(serde_json::json!({"error": format!("Failed to fetch issues: {e}")})),
         )
             .into_response(),
+    }
+}
+
+/// POST /distributions - Register distributions in batch (Protected)
+pub async fn register_distribution_handler(
+    State(state): State<AppState>,
+    Json(request): Json<RegisterDistributionRequest>,
+) -> impl IntoResponse {
+    match register_distribution(state.distribution_repository.clone(), request).await {
+        Ok(_) => StatusCode::CREATED.into_response(),
+        Err(e) => (StatusCode::BAD_REQUEST, Json(serde_json::json!({"error": e}))).into_response(),
     }
 }

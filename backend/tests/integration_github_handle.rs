@@ -1,4 +1,5 @@
 use guild_backend::application::dtos::profile_dtos::ProfileResponse;
+use guild_backend::infrastructure::repositories::postgres_distribution_repository::PostgresDistributionRepository;
 use guild_backend::infrastructure::repositories::postgres_github_issue_repository::PostgresGithubIssueRepository;
 use guild_backend::infrastructure::repositories::postgres_project_repository::PostgresProjectRepository;
 use guild_backend::infrastructure::services::rest_github_service::RestGithubService;
@@ -22,6 +23,7 @@ async fn valid_github_handle_works() {
     );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
     let project_repository = Arc::from(PostgresProjectRepository::new(pool.clone()));
+    let distribution_repository = Arc::from(PostgresDistributionRepository::new(pool.clone()));
 
     let github_issue_repository = Arc::from(PostgresGithubIssueRepository::new(pool.clone()));
     let github_service: Arc<dyn guild_backend::domain::services::github_service::GithubService> =
@@ -30,6 +32,7 @@ async fn valid_github_handle_works() {
     let state = AppState {
         profile_repository,
         project_repository,
+        distribution_repository,
         auth_service: std::sync::Arc::new(auth_service),
         github_issue_repository,
         github_service,
@@ -98,6 +101,7 @@ async fn invalid_format_rejected() {
     );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
     let project_repository = Arc::from(PostgresProjectRepository::new(pool.clone()));
+    let distribution_repository = Arc::from(PostgresDistributionRepository::new(pool.clone()));
     let github_issue_repository = Arc::from(PostgresGithubIssueRepository::new(pool.clone()));
     let github_service: Arc<dyn guild_backend::domain::services::github_service::GithubService> =
         Arc::from(RestGithubService::new());
@@ -105,6 +109,7 @@ async fn invalid_format_rejected() {
     let state = AppState {
         profile_repository,
         project_repository,
+        distribution_repository,
         auth_service: std::sync::Arc::new(auth_service),
         github_issue_repository,
         github_service,
@@ -179,6 +184,7 @@ async fn conflict_case_insensitive() {
     );
     let auth_service = guild_backend::infrastructure::services::ethereum_address_verification_service::EthereumAddressVerificationService::new(profile_repository.clone());
     let project_repository = Arc::from(PostgresProjectRepository::new(pool.clone()));
+    let distribution_repository = Arc::from(PostgresDistributionRepository::new(pool.clone()));
     let github_issue_repository = Arc::from(PostgresGithubIssueRepository::new(pool.clone()));
     let github_service: Arc<dyn guild_backend::domain::services::github_service::GithubService> =
         Arc::from(RestGithubService::new());
@@ -186,6 +192,7 @@ async fn conflict_case_insensitive() {
     let state = AppState {
         profile_repository,
         project_repository,
+        distribution_repository,
         auth_service: std::sync::Arc::new(auth_service),
         github_issue_repository,
         github_service,
