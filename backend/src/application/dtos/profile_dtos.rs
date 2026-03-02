@@ -7,6 +7,7 @@ pub struct CreateProfileRequest {
     pub name: String,
     pub description: Option<String>,
     pub avatar_url: Option<String>,
+    pub linkedin_account: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
