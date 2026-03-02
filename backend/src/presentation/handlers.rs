@@ -389,6 +389,10 @@ pub async fn register_distribution_handler(
 ) -> impl IntoResponse {
     match register_distribution(state.distribution_repository.clone(), request).await {
         Ok(_) => StatusCode::CREATED.into_response(),
-        Err(e) => (StatusCode::BAD_REQUEST, Json(serde_json::json!({"error": e}))).into_response(),
+        Err(e) => (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({"error": e})),
+        )
+            .into_response(),
     }
 }
