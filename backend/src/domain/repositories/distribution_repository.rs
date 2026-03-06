@@ -13,4 +13,9 @@ pub trait DistributionRepository: Send + Sync {
         &self,
         records: &[DistributionRecord],
     ) -> Result<(), Box<dyn std::error::Error>>;
+
+    async fn list(
+        &self,
+        distribution_id: Option<&str>,
+    ) -> Result<Vec<DistributionRecord>, Box<dyn std::error::Error>>;
 }
