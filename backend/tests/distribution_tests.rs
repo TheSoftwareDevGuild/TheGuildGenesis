@@ -64,7 +64,7 @@ async fn register_distribution_list_succeeds() {
         .unwrap();
 
     let response = client
-        .post(format!("{}/distributions", base))
+        .post(format!("{}/admin/distributions", base))
         .header(
             "x-eth-address",
             "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
@@ -89,13 +89,20 @@ async fn register_distribution_list_succeeds() {
 
     assert_eq!(response.status(), reqwest::StatusCode::CREATED);
 
-    let inserted = sqlx::query_scalar::<_, i64>(
-        "SELECT COUNT(*) FROM distributions WHERE distribution_id = $1",
-    )
-    .bind("dist-test-001")
-    .fetch_one(&pool)
-    .await
-    .unwrap();
+    let list_resp = client
+        .get(format!(
+            "{}/admin/distributions?distributionId=dist-test-001",
+            base
+        ))
+        .header(
+            "x-eth-address",
+            "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
+        )
+        .send()
+        .await
+        .unwrap();
 
-    assert_eq!(inserted, 2);
+    assert_eq!(list_resp.status(), reqwest::StatusCode::OK);
+    let listed: serde_json::Value = list_resp.json().await.unwrap();
+    assert_eq!(listed.as_array().unwrap().len(), 2);
 }

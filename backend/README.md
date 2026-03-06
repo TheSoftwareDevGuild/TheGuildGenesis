@@ -314,6 +314,44 @@ curl -X DELETE \
 
 **Note:** Only the project creator can delete projects.
 
+### Distribution Endpoints (Admin)
+
+`/admin/distributions` endpoints are admin-only and require admin authentication.
+Set `ADMIN_ADDRESSES` in `backend/.env` as a comma-separated list of admin wallet addresses.
+
+#### Register Distributions (Admin)
+```bash
+curl -X POST \
+  -H 'Content-Type: application/json' \
+  -H 'x-eth-address: <ADMIN_ADDRESS>' \
+  -H 'x-eth-signature: <SIGNATURE>' \
+  -d '{
+    "distributions": [
+      {
+        "address": "0x1234567890123456789012345678901234567890",
+        "badgeName": "Contributor",
+        "distributionId": "dist-001"
+      }
+    ]
+  }' \
+  http://0.0.0.0:3001/admin/distributions
+```
+
+#### List Distributions (Admin)
+```bash
+# List all distributions
+curl \
+  -H 'x-eth-address: <ADMIN_ADDRESS>' \
+  -H 'x-eth-signature: <SIGNATURE>' \
+  'http://0.0.0.0:3001/admin/distributions'
+
+# Filter by distributionId
+curl \
+  -H 'x-eth-address: <ADMIN_ADDRESS>' \
+  -H 'x-eth-signature: <SIGNATURE>' \
+  'http://0.0.0.0:3001/admin/distributions?distributionId=dist-001'
+```
+
 ### API Response Codes
 - **200 OK** - Successful GET/PUT/PATCH
 - **201 Created** - Resource created
@@ -335,6 +373,9 @@ Test scripts are available in the `scripts/` directory:
 
 # Test project endpoints (requires keys.json)
 ./scripts/test_projects_api.sh
+
+# Test admin distribution flow (nonce -> signature -> post -> list)
+./scripts/test_admin_distributions.sh
 ```
 
 **Note:** Test scripts require `keys.json` in the project root:

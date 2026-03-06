@@ -43,6 +43,7 @@ use super::handlers::{
     get_user_projects_handler,
     // GitHub sync handler
     github_sync_handler,
+    list_distributions_handler,
     list_github_issues_handler,
     list_projects_handler,
     login_handler,
@@ -82,7 +83,6 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
         .route("/projects", post(create_project_handler))
         .route("/projects/:id", patch(update_project_handler))
         .route("/projects/:id", delete(delete_project_handler))
-        .route("/distributions", post(register_distribution_handler))
         .with_state(state.clone());
 
     let protected_with_auth = if std::env::var("TEST_MODE").is_ok() {
@@ -98,6 +98,8 @@ pub async fn create_app(pool: sqlx::PgPool) -> Router {
             delete(admin_delete_profile_handler),
         )
         .route("/admin/github/sync", post(github_sync_handler))
+        .route("/admin/distributions", post(register_distribution_handler))
+        .route("/admin/distributions", get(list_distributions_handler))
         .with_state(state.clone());
 
     let admin_with_auth = if std::env::var("TEST_MODE").is_ok() {
@@ -167,7 +169,6 @@ pub fn test_api(state: AppState) -> Router {
         .route("/projects", post(create_project_handler))
         .route("/projects/:id", patch(update_project_handler))
         .route("/projects/:id", delete(delete_project_handler))
-        .route("/distributions", post(register_distribution_handler))
         .with_state(state.clone())
         .layer(from_fn(test_auth_layer));
 
@@ -178,6 +179,8 @@ pub fn test_api(state: AppState) -> Router {
             delete(admin_delete_profile_handler),
         )
         .route("/admin/github/sync", post(github_sync_handler))
+        .route("/admin/distributions", post(register_distribution_handler))
+        .route("/admin/distributions", get(list_distributions_handler))
         .with_state(state.clone())
         .layer(from_fn(test_auth_layer));
 
