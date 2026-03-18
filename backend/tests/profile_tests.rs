@@ -1,7 +1,10 @@
 #[cfg(test)]
 mod github_handle_tests {
+    use guild_backend::application::commands::create_profile::create_profile;
     use guild_backend::application::commands::update_profile::update_profile;
-    use guild_backend::application::dtos::profile_dtos::UpdateProfileRequest;
+    use guild_backend::application::dtos::profile_dtos::{
+        CreateProfileRequest, UpdateProfileRequest,
+    };
     use guild_backend::domain::entities::profile::Profile;
     use guild_backend::domain::repositories::profile_repository::ProfileRepository;
     use guild_backend::domain::value_objects::WalletAddress;
@@ -27,8 +30,10 @@ mod github_handle_tests {
             Ok(list.clone())
         }
 
-        async fn create(&self, _profile: &Profile) -> Result<(), Box<dyn std::error::Error>> {
-            unimplemented!()
+        async fn create(&self, profile: &Profile) -> Result<(), Box<dyn std::error::Error>> {
+            let mut list = self.profiles.lock().unwrap();
+            list.push(profile.clone());
+            Ok(())
         }
 
         async fn update(&self, profile: &Profile) -> Result<(), Box<dyn std::error::Error>> {
@@ -77,6 +82,22 @@ mod github_handle_tests {
                 .cloned())
         }
 
+        async fn find_by_linkedin_account(
+            &self,
+            linkedin_account: &str,
+        ) -> Result<Option<Profile>, Box<dyn std::error::Error + Send + Sync>> {
+            let lower = linkedin_account.to_lowercase();
+            let list = self.profiles.lock().unwrap();
+            Ok(list
+                .iter()
+                .find(|&p| {
+                    p.linkedin_account
+                        .as_ref()
+                        .is_some_and(|h| h.to_lowercase() == lower)
+                })
+                .cloned())
+        }
+
         async fn get_login_nonce_by_wallet_address(
             &self,
             _address: &WalletAddress,
@@ -93,6 +114,31 @@ mod github_handle_tests {
     }
 
     #[tokio::test]
+    async fn create_profile_with_linkedin_account_succeeds() {
+        let repo = Arc::new(FakeRepo {
+            profiles: std::sync::Mutex::new(vec![]),
+        });
+
+        let req = CreateProfileRequest {
+            name: "Alice".into(),
+            description: Some("Profile with LinkedIn".into()),
+            avatar_url: None,
+            linkedin_account: Some("LinkedInUser123".into()),
+        };
+
+        let result = create_profile(
+            repo.clone(),
+            "0x5234567890123456789012345678901234567890".to_string(),
+            req,
+        )
+        .await;
+
+        assert!(result.is_ok());
+        let resp = result.unwrap();
+        assert_eq!(resp.linkedin_account, Some("LinkedInUser123".to_string()));
+    }
+
+    #[tokio::test]
     async fn valid_github_handle_succeeds() {
         // Setup repo with a user
         let profile = Profile {
@@ -103,6 +149,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: None,
             twitter_handle: None,
+            linkedin_account: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -118,6 +165,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: Some("GitUser123".into()),
             twitter_handle: None,
+            linkedin_account: None,
         };
 
         let result = update_profile(repo.clone(), profile.address.to_string(), req).await;
@@ -136,6 +184,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: None,
             twitter_handle: None,
+            linkedin_account: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -151,6 +200,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: Some("bad@name".into()),
             twitter_handle: None,
+            linkedin_account: None,
         };
 
         let err = update_profile(repo.clone(), profile.address.to_string(), req).await;
@@ -170,6 +220,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: Some("Alice".into()),
             twitter_handle: None,
+            linkedin_account: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -182,6 +233,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: None,
             twitter_handle: None,
+            linkedin_account: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -198,6 +250,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: Some("alice".into()),
             twitter_handle: None,
+            linkedin_account: None,
         };
 
         let err = update_profile(repo.clone(), profile2.address.to_string(), req).await;
@@ -216,6 +269,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: Some("BobUser".into()),
             twitter_handle: None,
+            linkedin_account: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -231,6 +285,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: Some("".into()),
             twitter_handle: None,
+            linkedin_account: None,
         };
 
         let result = update_profile(repo.clone(), profile.address.to_string(), req).await;
@@ -249,6 +304,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: Some("CharlieGit".into()),
             twitter_handle: None,
+            linkedin_account: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -264,6 +320,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: Some("CharlieGit".into()),
             twitter_handle: None,
+            linkedin_account: None,
         };
 
         let result = update_profile(repo.clone(), profile.address.to_string(), req).await;
@@ -282,6 +339,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: None,
             twitter_handle: None,
+            linkedin_account: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -296,6 +354,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: None,
             twitter_handle: Some("tushar".into()),
+            linkedin_account: None,
         };
 
         let result = update_profile(repo.clone(), profile.address.to_string(), req).await;
@@ -314,6 +373,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: None,
             twitter_handle: None,
+            linkedin_account: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -329,6 +389,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: None,
             twitter_handle: Some("@invalid".into()),
+            linkedin_account: None,
         };
 
         let err = update_profile(repo.clone(), profile.address.to_string(), req).await;
@@ -346,6 +407,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: None,
             twitter_handle: Some("TakenHandle".into()),
+            linkedin_account: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -358,6 +420,7 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: None,
             twitter_handle: None,
+            linkedin_account: None,
             login_nonce: 1,
             created_at: chrono::Utc::now(),
             updated_at: chrono::Utc::now(),
@@ -373,10 +436,124 @@ mod github_handle_tests {
             avatar_url: None,
             github_login: None,
             twitter_handle: Some("takenhandle".into()),
+            linkedin_account: None,
         };
 
         let err = update_profile(repo.clone(), profile2.address.to_string(), req).await;
         assert!(err.is_err());
         assert!(err.unwrap_err().contains("Twitter handle already taken"));
+    }
+
+    #[tokio::test]
+    async fn invalid_linkedin_account_rejected() {
+        let profile = Profile {
+            address: WalletAddress::new("0x2234567890123456789012345678901234567897".to_string())
+                .unwrap(),
+            name: None,
+            description: None,
+            avatar_url: None,
+            github_login: None,
+            twitter_handle: None,
+            linkedin_account: None,
+            login_nonce: 1,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+        };
+        let repo = Arc::new(FakeRepo {
+            profiles: std::sync::Mutex::new(vec![profile.clone()]),
+        });
+
+        let req = UpdateProfileRequest {
+            name: None,
+            description: None,
+            avatar_url: None,
+            github_login: None,
+            twitter_handle: None,
+            linkedin_account: Some("bad@account".into()),
+        };
+
+        let err = update_profile(repo.clone(), profile.address.to_string(), req).await;
+        assert!(err.is_err());
+        assert!(err.unwrap_err().contains("Invalid LinkedIn account format"));
+    }
+
+    #[tokio::test]
+    async fn linkedin_account_conflict_rejected_case_insensitive() {
+        let profile1 = Profile {
+            address: WalletAddress::new("0x3234567890123456789012345678901234567898".to_string())
+                .unwrap(),
+            name: None,
+            description: None,
+            avatar_url: None,
+            github_login: None,
+            twitter_handle: None,
+            linkedin_account: Some("LinkedInUser".into()),
+            login_nonce: 1,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+        };
+        let profile2 = Profile {
+            address: WalletAddress::new("0x4234567890123456789012345678901234567899".to_string())
+                .unwrap(),
+            name: None,
+            description: None,
+            avatar_url: None,
+            github_login: None,
+            twitter_handle: None,
+            linkedin_account: None,
+            login_nonce: 1,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+        };
+        let repo = Arc::new(FakeRepo {
+            profiles: std::sync::Mutex::new(vec![profile1.clone(), profile2.clone()]),
+        });
+
+        let req = UpdateProfileRequest {
+            name: None,
+            description: None,
+            avatar_url: None,
+            github_login: None,
+            twitter_handle: None,
+            linkedin_account: Some("linkedinuser".into()),
+        };
+
+        let err = update_profile(repo.clone(), profile2.address.to_string(), req).await;
+        assert!(err.is_err());
+        assert!(err.unwrap_err().contains("LinkedIn account already taken"));
+    }
+
+    #[tokio::test]
+    async fn valid_linkedin_account_update_succeeds() {
+        let profile = Profile {
+            address: WalletAddress::new("0x6234567890123456789012345678901234567890".to_string())
+                .unwrap(),
+            name: Some("Eve".into()),
+            description: None,
+            avatar_url: None,
+            github_login: None,
+            twitter_handle: None,
+            linkedin_account: None,
+            login_nonce: 1,
+            created_at: chrono::Utc::now(),
+            updated_at: chrono::Utc::now(),
+        };
+        let repo = Arc::new(FakeRepo {
+            profiles: std::sync::Mutex::new(vec![profile.clone()]),
+        });
+
+        let req = UpdateProfileRequest {
+            name: None,
+            description: None,
+            avatar_url: None,
+            github_login: None,
+            twitter_handle: None,
+            linkedin_account: Some("Eve-LinkedIn".into()),
+        };
+
+        let result = update_profile(repo.clone(), profile.address.to_string(), req).await;
+        assert!(result.is_ok());
+        let resp = result.unwrap();
+        assert_eq!(resp.linkedin_account, Some("Eve-LinkedIn".to_string()));
     }
 }

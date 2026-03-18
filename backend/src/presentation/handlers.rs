@@ -35,6 +35,19 @@ use crate::application::{
     },
 };
 
+// Distribution imports
+use crate::application::{
+    commands::register_distribution::register_distribution,
+    dtos::distribution_dtos::RegisterDistributionRequest,
+    queries::list_distributions::list_distributions,
+};
+
+// GitHub sync imports
+use crate::application::{
+    commands::sync_github_issues::sync_github_issues,
+    dtos::github_dtos::{GithubIssuesQuery, GithubSyncRequest, GithubSyncResponse},
+};
+
 use super::{api::AppState, middlewares::VerifiedWallet};
 
 /// Query parameters for listing projects
@@ -44,6 +57,12 @@ pub struct ListProjectsQuery {
     pub creator: Option<String>,
     pub limit: Option<i64>,
     pub offset: Option<i64>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct ListDistributionsQuery {
+    #[serde(rename = "distributionId")]
+    pub distribution_id: Option<String>,
 }
 
 pub async fn create_profile_handler(
@@ -305,5 +324,102 @@ pub async fn admin_delete_profile_handler(
             )
                 .into_response()
         }
+    }
+}
+
+// ============================================================================
+// GitHub Sync Handlers
+// ============================================================================
+
+/// POST /admin/github/sync - Sync GitHub issues for specified repos (Admin only)
+pub async fn github_sync_handler(
+    State(state): State<AppState>,
+    Json(request): Json<GithubSyncRequest>,
+) -> impl IntoResponse {
+    if request.repos.is_empty() {
+        return (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({"error": "repos must not be empty"})),
+        )
+            .into_response();
+    }
+
+    tracing::info!(repos = ?request.repos, since = ?request.since, "Starting GitHub issue sync");
+
+    match sync_github_issues(
+        state.github_service.clone(),
+        state.github_issue_repository.clone(),
+        request.repos.clone(),
+        request.since,
+    )
+    .await
+    {
+        Ok(synced) => (
+            StatusCode::OK,
+            Json(GithubSyncResponse {
+                synced,
+                repos: request.repos,
+            }),
+        )
+            .into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": e})),
+        )
+            .into_response(),
+    }
+}
+
+/// GET /github/issues?repo=<name>&state=<open|closed> - List synced GitHub issues (Public)
+pub async fn list_github_issues_handler(
+    State(state): State<AppState>,
+    Query(params): Query<GithubIssuesQuery>,
+) -> impl IntoResponse {
+    match state
+        .github_issue_repository
+        .list_by_repo(&params.repo, params.state.as_deref())
+        .await
+    {
+        Ok(issues) => (StatusCode::OK, Json(issues)).into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": format!("Failed to fetch issues: {e}")})),
+        )
+            .into_response(),
+    }
+}
+
+/// POST /admin/distributions - Register distributions in batch (Admin only)
+pub async fn register_distribution_handler(
+    State(state): State<AppState>,
+    Json(request): Json<RegisterDistributionRequest>,
+) -> impl IntoResponse {
+    match register_distribution(state.distribution_repository.clone(), request).await {
+        Ok(_) => StatusCode::CREATED.into_response(),
+        Err(e) => (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({"error": e})),
+        )
+            .into_response(),
+    }
+}
+
+/// GET /admin/distributions?distributionId=<id> - List distributions (Admin only)
+pub async fn list_distributions_handler(
+    State(state): State<AppState>,
+    Query(params): Query<ListDistributionsQuery>,
+) -> impl IntoResponse {
+    match list_distributions(
+        state.distribution_repository.clone(),
+        params.distribution_id,
+    )
+    .await
+    {
+        Ok(distributions) => (StatusCode::OK, Json(distributions)).into_response(),
+        Err(e) => (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            Json(serde_json::json!({"error": e})),
+        )
+            .into_response(),
     }
 }
