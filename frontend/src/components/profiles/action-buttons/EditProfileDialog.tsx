@@ -31,6 +31,7 @@ interface EditProfileDialogProps {
   description?: string;
   githubLogin?: string;
   twitterHandle?: string;
+  linkedinAccount?: string;
   children: React.ReactNode;
 }
 
@@ -39,6 +40,7 @@ const formSchema = z.object({
   description: z.string().optional(),
   githubLogin: z.string().optional(),
   twitterHandle: z.string().optional(),
+  linkedinAccount: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -49,6 +51,7 @@ export function EditProfileDialog({
   description,
   githubLogin,
   twitterHandle,
+  linkedinAccount,
   children,
 }: EditProfileDialogProps) {
   const [open, setOpen] = useState(false);
@@ -62,6 +65,7 @@ export function EditProfileDialog({
       description: description || "",
       githubLogin: githubLogin || "",
       twitterHandle: twitterHandle || "",
+      linkedinAccount: linkedinAccount || "",
     },
   });
 
@@ -72,9 +76,10 @@ export function EditProfileDialog({
         description: description || "",
         githubLogin: githubLogin || "",
         twitterHandle: twitterHandle || "",
+        linkedinAccount: linkedinAccount || "",
       });
     }
-  }, [open, name, description, githubLogin, twitterHandle, form]);
+  }, [open, name, description, githubLogin, twitterHandle, linkedinAccount, form]);
 
   const onSubmit = async (values: FormValues) => {
     try {
@@ -84,6 +89,7 @@ export function EditProfileDialog({
           description: values.description || "",
           github_login: values.githubLogin || "",
           twitter_handle: values.twitterHandle || "",
+          linkedin_account: values.linkedinAccount || "",
         },
       });
       await queryClient.invalidateQueries({ queryKey: ["profiles"] });
@@ -157,6 +163,22 @@ export function EditProfileDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Twitter/X Handle</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-gray-500">@</span>
+                      <Input placeholder="username" {...field} />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="linkedinAccount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>LinkedIn Handle</FormLabel>
                   <FormControl>
                     <div className="flex items-center gap-2">
                       <span className="text-sm text-gray-500">@</span>
