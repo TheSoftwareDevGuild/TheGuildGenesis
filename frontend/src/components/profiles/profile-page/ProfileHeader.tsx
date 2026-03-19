@@ -11,6 +11,7 @@ interface ProfileHeaderProps {
   description?: string;
   githubLogin?: string;
   twitterHandle?: string;
+  linkedinAccount?: string;
 }
 
 export function ProfileHeader({
@@ -18,6 +19,7 @@ export function ProfileHeader({
   name,
   githubLogin,
   twitterHandle,
+  linkedinAccount,
 }: ProfileHeaderProps) {
   const displayName = name || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Profile");
   const displayAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
@@ -73,6 +75,18 @@ export function ProfileHeader({
               className="text-sm text-gray-700 hover:text-indigo-600 hover:underline"
             >
               @{twitterHandle}
+            </a>
+          </div>
+        )}
+        {linkedinAccount && (
+          <div className="flex items-center gap-1.5 mt-1">
+            <a
+              href={`https://www.linkedin.com/in/${linkedinAccount}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-gray-700 hover:text-indigo-600 hover:underline"
+            >
+              @{linkedinAccount}
             </a>
           </div>
         )}

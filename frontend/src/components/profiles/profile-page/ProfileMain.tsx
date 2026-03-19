@@ -25,6 +25,7 @@ export function ProfileMain({ address }: { address: string }) {
         description={profile?.description}
         githubLogin={profile?.github_login}
         twitterHandle={profile?.twitter_handle}
+        linkedinAccount={profile?.linkedin_account}
       />
       <div className="mt-6">
         <ProfileActions
@@ -33,6 +34,7 @@ export function ProfileMain({ address }: { address: string }) {
           description={profile?.description}
           githubLogin={profile?.github_login}
           twitterHandle={profile?.twitter_handle}
+          linkedinAccount={profile?.linkedin_account}
         />
       </div>
       <ProfileDescription description={profile?.description} />
