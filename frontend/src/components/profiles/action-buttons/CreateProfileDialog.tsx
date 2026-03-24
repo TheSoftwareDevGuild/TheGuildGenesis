@@ -26,11 +26,20 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+const linkedinUrlRegex = /^(?:https?:\/\/(?:www\.)?linkedin\.com\/in\/)?[a-zA-Z0-9-]{3,100}\/?$/;
+
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   description: z.string().optional(),
   githubLogin: z.string().optional(),
   twitterHandle: z.string().optional(),
+  linkedinAccount: z
+    .string()
+    .optional()
+    .refine(
+      (value) => !value || linkedinUrlRegex.test(value),
+      "LinkedIn URL must be in format: https://www.linkedin.com/in/your-handle or just the handle (3-100 characters)"
+    ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -52,6 +61,7 @@ export function CreateProfileButton() {
         description: values.description || "",
         github_login: values.githubLogin || "",
         twitter_handle: values.twitterHandle || "",
+        linkedin_account: values.linkedinAccount || "",
       },
     });
     await queryClient.invalidateQueries({ queryKey: ["profiles"] });
@@ -134,6 +144,25 @@ export function CreateProfileButton() {
                       <Input placeholder="username" {...field} />
                     </div>
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="linkedinAccount"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>LinkedIn Profile URL</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="https://www.linkedin.com/in/your-handle/"
+                      {...field}
+                    />
+                  </FormControl>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Paste your full LinkedIn URL or just the handle
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
