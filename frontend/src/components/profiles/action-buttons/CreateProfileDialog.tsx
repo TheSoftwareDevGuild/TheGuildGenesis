@@ -26,12 +26,20 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+const linkedinUrlRegex = /^(?:https?:\/\/(?:www\.)?linkedin\.com\/in\/)?[a-zA-Z0-9-]{3,100}\/?$/;
+
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   description: z.string().optional(),
   githubLogin: z.string().optional(),
   twitterHandle: z.string().optional(),
-  linkedinAccount: z.string().optional(),
+  linkedinAccount: z
+    .string()
+    .optional()
+    .refine(
+      (value) => !value || linkedinUrlRegex.test(value),
+      "LinkedIn URL must be in format: https://www.linkedin.com/in/your-handle or just the handle (3-100 characters)"
+    ),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -145,13 +153,16 @@ export function CreateProfileButton() {
               name="linkedinAccount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>LinkedIn Handle</FormLabel>
+                  <FormLabel>LinkedIn Profile URL</FormLabel>
                   <FormControl>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm text-gray-500">@</span>
-                      <Input placeholder="username" {...field} />
-                    </div>
+                    <Input
+                      placeholder="https://www.linkedin.com/in/your-handle/"
+                      {...field}
+                    />
                   </FormControl>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Paste your full LinkedIn URL or just the handle
+                  </p>
                   <FormMessage />
                 </FormItem>
               )}
