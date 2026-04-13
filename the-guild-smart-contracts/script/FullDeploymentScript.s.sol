@@ -7,6 +7,7 @@ import {AttestationRequestData, AttestationRequest} from "eas-contracts/IEAS.sol
 import {SchemaRegistry} from "eas-contracts/SchemaRegistry.sol";
 import {TheGuildActivityToken} from "../src/TheGuildActivityToken.sol";
 import {TheGuildAttestationResolver} from "../src/TheGuildAttestationResolver.sol";
+import {TheGuildInternalResolver} from "../src/TheGuildInternalResolver.sol";
 import {TheGuildBadgeRegistry} from "../src/TheGuildBadgeRegistry.sol";
 import {TheGuildBadgeRanking} from "../src/TheGuildBadgeRanking.sol";
 import {EASUtils} from "./utils/EASUtils.s.sol";
@@ -50,23 +51,23 @@ contract FullDeploymentScript is Script {
             EASUtils.getSchemaRegistryAddress(vm)
         );
         bytes32 schemaId = schemaRegistry.register(schema, resolver, true);
-        console.logString("Schema ID:");
+        console.logString("Badge Attestation Schema ID:");
         console.logBytes32(schemaId);
 
-        // Create some badges
-        badgeRegistry.createBadge(
-            bytes32("Rust"),
-            bytes("Know how to code in Rust")
-        );
-        badgeRegistry.createBadge(
-            bytes32("Solidity"),
-            bytes("Know how to code in Solidity")
-        );
-        badgeRegistry.createBadge(
-            bytes32("TypeScript"),
-            bytes("Know how to code in TypeScript")
-        );
+        // Deploy Internal Resolver via CREATE2
+        TheGuildInternalResolver internalResolver = new TheGuildInternalResolver{
+            salt: salt
+        }(eas, deployer);
 
+        // Register Skill Badge Schema
+        string memory skillSchema = "string skillDescription, bytes32[] linkedBadges";
+        bytes32 skillSchemaId = schemaRegistry.register(
+            skillSchema,
+            internalResolver,
+            true
+        );
+        console.logString("Skill Badge Schema ID:");
+        console.logBytes32(skillSchemaId);
         // Deploy or attach to existing badge ranking via CREATE2
         new TheGuildBadgeRanking{salt: salt}(badgeRegistry);
 
