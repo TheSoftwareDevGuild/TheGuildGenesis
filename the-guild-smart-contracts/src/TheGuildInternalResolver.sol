@@ -5,8 +5,8 @@ import {SchemaResolver} from "eas-contracts/resolver/SchemaResolver.sol";
 import {IEAS, Attestation} from "eas-contracts/IEAS.sol";
 import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 
-/// @title 
-/// @notice 
+/// @title TheGuildInternalResolver
+/// @notice EAS schema resolver that restricts attestations to authorized Guild accounts only.
 contract TheGuildInternalResolver is SchemaResolver, Ownable {
     mapping(address => bool) private _authorizedAttesters;
 
@@ -17,18 +17,18 @@ contract TheGuildInternalResolver is SchemaResolver, Ownable {
         emit AttesterAuthorized(initialOwner, true);
     }
 
-    /// @notice 
+    /// @notice Authorize or deauthorize an account to create attestations.
     function setAuthorizedAttester(address attester, bool authorized) external onlyOwner {
         _authorizedAttesters[attester] = authorized;
         emit AttesterAuthorized(attester, authorized);
     }
 
-    /// @notice 
+    /// @notice Check if an account is an authorized attester.
     function isAuthorizedAttester(address attester) public view returns (bool) {
         return _authorizedAttesters[attester];
     }
 
-    /// @inheritdoc 
+    /// @inheritdoc SchemaResolver
     function onAttest(
         Attestation calldata attestation,
         uint256
