@@ -1,39 +1,46 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import {Script} from "forge-std/Script.sol";
-import {IEAS} from "eas-contracts/IEAS.sol";
-import {SchemaRegistry} from "eas-contracts/SchemaRegistry.sol";
-import {TheGuildInternalResolver} from "../src/TheGuildInternalResolver.sol";
-import {EASUtils} from "./utils/EASUtils.s.sol";
-import {console} from "forge-std/console.sol";
+import {SchemaResolver} from "eas-contracts/resolver/SchemaResolver.sol";
+import {IEAS, Attestation} from "eas-contracts/IEAS.sol";
+import {Ownable} from "openzeppelin-contracts/contracts/access/Ownable.sol";
 
-contract TheGuildInternalResolverScript is Script {
-    function run() public {
-        address eas;
-        eas = EASUtils.getEASAddress(vm);
+/// @title TheGuildInternalResolver
+/// @notice EAS schema resolver that restricts attestations to authorized Guild accounts only.
+contract TheGuildInternalResolver is SchemaResolver, Ownable {
+    mapping(address => bool) private _authorizedAttesters;
 
-        uint256 pk = vm.envUint("PRIVATE_KEY");
-        address deployer = vm.addr(pk);
-        vm.startBroadcast(pk);
+    event AttesterAuthorized(address indexed attester, bool authorized);
 
-        TheGuildInternalResolver resolver = new TheGuildInternalResolver(
-            IEAS(eas),
-            deployer
-        );
+    constructor(IEAS eas, address initialOwner) SchemaResolver(eas) Ownable(initialOwner) {
+        _authorizedAttesters[initialOwner] = true;
+        emit AttesterAuthorized(initialOwner, true);
+    }
 
-        // Register Skill Badge Schema
-        SchemaRegistry schemaRegistry = SchemaRegistry(
-            EASUtils.getSchemaRegistryAddress(vm)
-        );
-        string memory schema = "string skillDescription, bytes32[] linkedBadges";
-        bytes32 schemaId = schemaRegistry.register(schema, resolver, true);
+    /// @notice Authorize or deauthorize an account to create attestations.
+    function setAuthorizedAttester(address attester, bool authorized) external onlyOwner {
+        _authorizedAttesters[attester] = authorized;
+        emit AttesterAuthorized(attester, authorized);
+    }
 
-        console.logString("Internal Resolver deployed at:");
-        console.logAddress(address(resolver));
-        console.logString("Skill Badge Schema ID:");
-        console.logBytes32(schemaId);
+    /// @notice Check if an account is an authorized attester.
+    function isAuthorizedAttester(address attester) public view returns (bool) {
+        return _authorizedAttesters[attester];
+    }
 
-        vm.stopBroadcast();
+    /// @inheritdoc SchemaResolver
+    function onAttest(
+        Attestation calldata attestation,
+        uint256
+    ) internal view override returns (bool) {
+        return _authorizedAttesters[attestation.attester];
+    }
+
+    /// @inheritdoc SchemaResolver
+    function onRevoke(
+        Attestation calldata attestation,
+        uint256
+    ) internal view override returns (bool) {
+        return _authorizedAttesters[attestation.attester];
     }
 }
