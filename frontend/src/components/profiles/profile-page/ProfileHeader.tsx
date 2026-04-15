@@ -5,12 +5,41 @@ import CopyAddressToClipboard from "@/components/CopyAddressToClipboard";
 import { GithubIcon } from "@/components/ui/GithubIcon";
 import { XIcon } from "@/components/ui/XIcon";
 
+// Helper function to extract handle or full URL from LinkedIn input
+const parseLinkedinAccount = (
+  account: string
+): { displayHandle: string; profileUrl: string } => {
+  if (!account) return { displayHandle: "", profileUrl: "" };
+
+  // If it's already a full URL, extract the handle and use it as-is
+  if (account.startsWith("http")) {
+    // Already a full URL, just ensure it's properly formatted
+    const url =
+      account.endsWith("/") || account.endsWith("recruit")
+        ? account
+        : account + "/";
+    const handle =
+      account.match(/\/in\/([^/?]+)/)?.[1] || account.split("/").pop() || "";
+    return {
+      displayHandle: handle || "LinkedIn",
+      profileUrl: url,
+    };
+  }
+
+  // It's just a handle, construct the full URL
+  return {
+    displayHandle: account,
+    profileUrl: `https://www.linkedin.com/in/${account}/`,
+  };
+};
+
 interface ProfileHeaderProps {
   address: string;
   name?: string;
   description?: string;
   githubLogin?: string;
   twitterHandle?: string;
+  linkedinAccount?: string;
 }
 
 export function ProfileHeader({
@@ -18,6 +47,7 @@ export function ProfileHeader({
   name,
   githubLogin,
   twitterHandle,
+  linkedinAccount,
 }: ProfileHeaderProps) {
   const displayName = name || (address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "Profile");
   const displayAddress = address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "";
@@ -27,6 +57,9 @@ export function ProfileHeader({
     !!connectedAddress &&
     !!address &&
     connectedAddress.toLowerCase() === address.toLowerCase();
+
+  const linkedinData =
+    linkedinAccount && parseLinkedinAccount(linkedinAccount);
 
   return (
     <header className="flex items-start gap-4">
@@ -73,6 +106,18 @@ export function ProfileHeader({
               className="text-sm text-gray-700 hover:text-indigo-600 hover:underline"
             >
               @{twitterHandle}
+            </a>
+          </div>
+        )}
+        {linkedinData && (
+          <div className="flex items-center gap-1.5 mt-1">
+            <a
+              href={linkedinData.profileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-sm text-gray-700 hover:text-indigo-600 hover:underline"
+            >
+              🔗 {linkedinData.displayHandle}
             </a>
           </div>
         )}

@@ -21,6 +21,7 @@ interface ProfileCardProps {
   avatar?: string;
   githubLogin?: string;
   twitterHandle?: string;
+  linkedinAccount?: string;
   attestationCount: number;
   attestations: Array<{
     id: string;
@@ -37,6 +38,7 @@ export function ProfileCard({
   avatar,
   githubLogin,
   twitterHandle,
+  linkedinAccount,
   attestationCount,
   attestations,
 }: ProfileCardProps) {
@@ -99,6 +101,7 @@ export function ProfileCard({
             description={description}
             githubLogin={githubLogin}
             twitterHandle={twitterHandle}
+            linkedinAccount={linkedinAccount}
           >
             <Button
               variant="ghost"

@@ -11,12 +11,14 @@ export function ProfileActions({
   description,
   githubLogin,
   twitterHandle,
+  linkedinAccount,
 }: {
   address?: string;
   name?: string;
   description?: string;
   githubLogin?: string;
   twitterHandle?: string;
+  linkedinAccount?: string;
 }) {
   const { address: connectedAddress } = useAccount();
   const isOwner =
@@ -33,6 +35,7 @@ export function ProfileActions({
           description={description}
           githubLogin={githubLogin}
           twitterHandle={twitterHandle}
+          linkedinAccount={linkedinAccount}
         >
           <Button variant="outline" className="flex items-center gap-2">
             <Edit className="h-4 w-4" /> Edit Profile

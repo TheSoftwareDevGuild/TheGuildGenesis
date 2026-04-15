@@ -11,6 +11,7 @@ export type Profile = {
   description: string;
   githubLogin?: string;
   twitterHandle?: string;
+  linkedinAccount?: string;
   attestationCount: number;
   attestations: ProfileAttestation[];
 };
@@ -22,6 +23,7 @@ export type ProfileFromAPI = {
   avatar_url?: string;
   github_login?: string;
   twitter_handle?: string;
+  linkedin_account?: string;
   created_at?: string;
   updated_at?: string;
 };
