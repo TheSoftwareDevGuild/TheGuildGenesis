@@ -15,65 +15,61 @@ import {console} from "forge-std/console.sol";
 
 contract FullDeploymentScript is Script {
     function run() public {
-        EAS eas;
         bytes32 salt = bytes32("theguild_v_0.1.3");
-        // EAS addresses per https://github.com/ethereum-attestation-service/eas-contracts deployments
-        // Base mainnet (8453) and Base Goerli/Sepolia (84531/84532) use the canonical predeploy 0x...21
-        // Optimism mainnet (10) and OP Sepolia (11155420) also use canonical 0x...21
+        EAS eas = EAS(EASUtils.getEASAddress(vm));
 
-        eas = EAS(EASUtils.getEASAddress(vm));
-
-        // Derive deployer EOA from PRIVATE_KEY to keep ownership consistent under CREATE2 factory
+        
         uint256 pk = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(pk);
+        
         vm.startBroadcast(pk);
 
-        // Deploy activity token via CREATE2 with initial owner set to EOA (tx.origin)
+       
         TheGuildActivityToken activityToken = new TheGuildActivityToken{
             salt: salt
         }(deployer);
 
-        // Deploy or attach to existing badge registry via CREATE2 (needs to exist before resolver)
         TheGuildBadgeRegistry badgeRegistry = new TheGuildBadgeRegistry{
             salt: salt
         }();
 
-        // Deploy resolver via CREATE2
+        
         TheGuildAttestationResolver resolver = new TheGuildAttestationResolver{
             salt: salt
         }(eas, activityToken, badgeRegistry);
-        // Transfer ownership from EOA to resolver so it can mint on attest
+
+      
         activityToken.transferOwnership(address(resolver));
 
-        // Register TheGuild Schema
-        string memory schema = "bytes32 badgeName, bytes justification";
+       
         SchemaRegistry schemaRegistry = SchemaRegistry(
             EASUtils.getSchemaRegistryAddress(vm)
         );
+        string memory schema = "bytes32 badgeName, bytes justification";
         bytes32 schemaId = schemaRegistry.register(schema, resolver, true);
-        console.logString("Badge Attestation Schema ID:");
-        console.logBytes32(schemaId);
+        
+        console.log("Badge Attestation Schema ID:", vm.toString(schemaId));
 
-        // Deploy Internal Resolver via CREATE2
+        // This deployment sets 'deployer' as the initial owner and authorized attester
         TheGuildInternalResolver internalResolver = new TheGuildInternalResolver{
             salt: salt
         }(eas, deployer);
 
-        // Register Skill Badge Schema
+        
         string memory skillSchema = "string skillDescription, bytes32[] linkedBadges";
         bytes32 skillSchemaId = schemaRegistry.register(
             skillSchema,
             internalResolver,
             true
         );
-        console.logString("Skill Badge Schema ID:");
-        console.logBytes32(skillSchemaId);
-        // Deploy or attach to existing badge ranking via CREATE2
+        
+        console.log("Skill Badge Schema ID:", vm.toString(skillSchemaId));
+
+        
         new TheGuildBadgeRanking{salt: salt}(badgeRegistry);
 
-        // Create some attestations
+        
         AttestationRequestData memory data = AttestationRequestData({
-            // TheGuild test account
             recipient: address(0x6cfD0753EC4da15Dcb418E11e921C0665c1d1cBf),
             expirationTime: 0,
             revocable: true,
@@ -82,11 +78,11 @@ contract FullDeploymentScript is Script {
             value: 0
         });
 
-        AttestationRequest memory request = AttestationRequest({
+        eas.attest(AttestationRequest({
             schema: schemaId,
             data: data
-        });
-        eas.attest(request);
+        }));
+
         vm.stopBroadcast();
     }
 }
