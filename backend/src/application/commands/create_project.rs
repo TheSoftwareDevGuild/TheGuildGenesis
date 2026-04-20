@@ -38,13 +38,15 @@ pub async fn create_project(
         .await
         .map_err(|e| e.to_string())?;
 
-    // Return response
+    let creator_str = project.creator.to_string();
+
     Ok(ProjectResponse {
         id: project.id.value().to_string(),
         name: project.name,
         description: project.description,
         status: project.status,
-        creator: project.creator.to_string(),
+        owner_address: creator_str.clone(),
+        creator: creator_str,
         created_at: project.created_at,
         updated_at: project.updated_at,
     })

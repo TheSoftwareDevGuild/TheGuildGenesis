@@ -4,16 +4,16 @@ CREATE TABLE IF NOT EXISTS projects (
     description TEXT NOT NULL,
     status VARCHAR(50) NOT NULL CHECK (status IN ('proposal', 'ongoing', 'rejected')),
     creator VARCHAR(42) NOT NULL,
+    owner_address VARCHAR(42) GENERATED ALWAYS AS (creator) STORED,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT fk_creator FOREIGN KEY (creator) REFERENCES profiles(address) ON DELETE CASCADE
 );
 
-
 CREATE INDEX IF NOT EXISTS idx_projects_creator ON projects(creator);
+CREATE INDEX IF NOT EXISTS idx_projects_owner_address ON projects(owner_address);
 CREATE INDEX IF NOT EXISTS idx_projects_status ON projects(status);
 CREATE INDEX IF NOT EXISTS idx_projects_created_at ON projects(created_at DESC);
-
 
 CREATE OR REPLACE FUNCTION update_projects_updated_at()
 RETURNS TRIGGER AS $$
@@ -22,7 +22,6 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
-
 
 CREATE TRIGGER trigger_update_projects_updated_at
     BEFORE UPDATE ON projects
